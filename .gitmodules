@@ -1,0 +1,3 @@
+[submodule "Aleph"]
+	path = Aleph
+	url = https://github.com/Submanifold/Aleph.git
