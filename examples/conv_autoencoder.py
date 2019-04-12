@@ -26,12 +26,16 @@ num_epochs = 100
 batch_size = 128
 learning_rate = 1e-3
 
-img_transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+#img_transform = transforms.Compose([
+#    transforms.ToTensor(),
+#    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+#])
+#new (due to shape error)
+img_transform = transforms.Compose([transforms.ToTensor(),
+transforms.Normalize((0.5,), (0.5,))
 ])
 
-dataset = MNIST('./data', transform=img_transform)
+dataset = MNIST('./data', transform=img_transform, download=True)
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 
@@ -61,7 +65,7 @@ class autoencoder(nn.Module):
         return x
 
 
-model = autoencoder().cuda()
+model = autoencoder() #.cuda()
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
                              weight_decay=1e-5)
@@ -69,7 +73,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
 for epoch in range(num_epochs):
     for data in dataloader:
         img, _ = data
-        img = Variable(img).cuda()
+        img = Variable(img)  #.cuda()
         # ===================forward=====================
         output = model(img)
         loss = criterion(output, img)
@@ -79,7 +83,7 @@ for epoch in range(num_epochs):
         optimizer.step()
     # ===================log========================
     print('epoch [{}/{}], loss:{:.4f}'
-          .format(epoch+1, num_epochs, loss.data[0]))
+          .format(epoch+1, num_epochs, loss.data.item() )) #loss.data[0] 
     if epoch % 10 == 0:
         pic = to_img(output.cpu().data)
         save_image(pic, './dc_img/image_{}.png'.format(epoch))
