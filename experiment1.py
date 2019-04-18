@@ -61,7 +61,7 @@ class Autoencoder(nn.Module):
         )
 
     def forward(self, x):
-        bs, n_row, n_col = x.size()
+        bs, n_channels, n_row, n_col = x.size()
         latent = self.encoder(x)
         x_reconst = self.decoder(latent)
         return latent.view(bs, -1), x_reconst
@@ -69,42 +69,50 @@ class Autoencoder(nn.Module):
 
 class TopologicalRegularization(nn.Module):
     def __init__(self, d_latent, batch_size, arch, eps=1e9, dim=1):
+        super().__init__()
         self.persistence_estimator = PersistenceEstimator(
             d_latent, batch_size, arch)
         self.eps = eps
         self.dim = dim
 
     def _pers_dist(self, p1, p2):
-        return (p1 - p2)**2
+        return ((p1 - p2)**2).sum(dim=-1) ** 0.5
 
     def forward(self, x, z):
+        bs = x.size()[0]
+        x_detached = x.view(bs, -1).detach().numpy().astype(np.float64)
+        z_detached = z.view(bs, -1).detach().numpy().astype(np.float64)
+
         pers_x = aleph.calculatePersistenceDiagrams(
-            x.numpy(), self.eps, self.dim)[0]
+            x_detached, self.eps, self.dim)[0]
         pers_x = np.array(pers_x)[:, 1]
         pers_x[~np.isfinite(pers_x)] = 100
+        pers_x = torch.tensor(pers_x, dtype=torch.float)
 
         pers_z = aleph.calculatePersistenceDiagrams(
-            z.numpy(), self.eps, self.dim)[0]
+            z_detached, self.eps, self.dim)[0]
         pers_z = np.array(pers_z)[:, 1]
         pers_z[~np.isfinite(pers_z)] = 100
+        pers_z = torch.tensor(pers_z, dtype=torch.float)
 
         approx_pers_z = self.persistence_estimator(z)
 
         return (
-            self._pers_dist(pers_x, approx_pers_z),
-            self._pers_dist(pers_z, approx_pers_z)
+            self._pers_dist(pers_x, approx_pers_z).mean(),
+            self._pers_dist(pers_z, approx_pers_z).mean()
         )
 
 
 def main():
     num_epochs = 100
-    batch_size = 128
+    batch_size = 32
     learning_rate = 1e-3
     lam1 = 1.
     lam2 = 1.
 
-    img_transform = transforms.Compose([transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,))
+    img_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5,), (0.5,))
     ])
 
     dataset = MNIST('./data', transform=img_transform, download=True)
@@ -117,7 +125,7 @@ def main():
                                  weight_decay=1e-5)
 
     for epoch in range(num_epochs):
-        for data in dataloader:
+        for i, data in enumerate(dataloader):
             img, _ = data
             img = Variable(img)  #.cuda()
 
@@ -129,11 +137,16 @@ def main():
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            if i % 10:
+                print(
+                    f'MSE: {reconst_error}, '
+                    f'topo_reg: {topo_reg}, topo_approx: {topo_approx}'
+                )
         # ===================log========================
         print('epoch [{}/{}], loss:{:.4f}'
               .format(epoch+1, num_epochs, loss.data.item() )) #loss.data[0] 
         if epoch % 1 == 0:
-            pic = to_img(output.cpu().data)
+            pic = to_img(reconstructed.cpu().data)
             save_image(pic, './dc_img/image_{}.png'.format(epoch))
 
     torch.save(model.state_dict(), './conv_autoencoder.pth')
