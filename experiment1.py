@@ -80,21 +80,25 @@ class TopologicalRegularization(nn.Module):
     def _pers_dist(self, p1, p2):
         return ((p1 - p2)**2).sum(dim=-1) ** 0.5
 
-    def forward(self, x, z):
+    def forward(self, x, z, should_print=False):
         bs = x.size()[0]
         x_detached = x.view(bs, -1).detach().numpy().astype(np.float64)
         z_detached = z.view(bs, -1).detach().numpy().astype(np.float64)
 
         pers_x = aleph.calculatePersistenceDiagrams(
             x_detached, self.eps, self.dim)[0]
-        pers_x = np.array(pers_x)[:, 1]
-        pers_x[~np.isfinite(pers_x)] = 100
+        pers_x = np.array(pers_x)[:, 1] / 39.5
+        pers_x[~np.isfinite(pers_x)] = 0
+        if should_print:
+            print(pers_x)
         pers_x = torch.tensor(pers_x, dtype=torch.float)
 
         pers_z = aleph.calculatePersistenceDiagrams(
             z_detached, self.eps, self.dim)[0]
         pers_z = np.array(pers_z)[:, 1]
-        pers_z[~np.isfinite(pers_z)] = 100
+        pers_z[~np.isfinite(pers_z)] = 0
+        if should_print:
+            print(pers_z)
         pers_z = torch.tensor(pers_z, dtype=torch.float)
 
         approx_pers_z = self.persistence_estimator(z)
@@ -110,7 +114,7 @@ def main():
     batch_size = 32
     learning_rate = 1e-3
     lam1 = 1.
-    lam2 = 3.
+    lam2 = 1.
 
     img_transform = transforms.Compose([
         transforms.ToTensor(),
@@ -135,13 +139,13 @@ def main():
 
             latent, reconstructed = model(img)
             reconst_error = criterion(reconstructed, img)
-            topo_reg, topo_approx = reg(img, latent)
+            topo_reg, topo_approx = reg(img, latent, should_print=i % 10 == 0)
             loss = reconst_error + lam1*topo_reg + lam2*topo_approx
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if i % 10:
+            if i % 10 == 0:
                 print(
                     f'MSE: {reconst_error}, '
                     f'topo_reg: {topo_reg}, topo_approx: {topo_approx}'
