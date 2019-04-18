@@ -13,4 +13,4 @@ torchvision = "*"
 python_version = "3.6"
 
 [scripts]
-install_aleph = "cd Aleph/build/bindings/python && pip install aleph"
+install_aleph = "cd Aleph/build/bindings/python/aleph && pip install ."
