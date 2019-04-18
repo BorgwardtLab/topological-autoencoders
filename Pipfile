@@ -8,6 +8,9 @@ verify_ssl = true
 [packages]
 torch = "*"
 torchvision = "*"
+ipykernel = "*"
+matplotlib = "*"
+sklearn = "*"
 
 [requires]
 python_version = "3.6"
