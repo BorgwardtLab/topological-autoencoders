@@ -22,8 +22,8 @@ def to_img(x):
     return x
 
 
-num_epochs = 100
-batch_size = 128
+num_epochs = 10
+batch_size = 32
 learning_rate = 1e-3
 
 #img_transform = transforms.Compose([
