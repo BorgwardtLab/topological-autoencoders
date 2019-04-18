@@ -1,3 +1,5 @@
+from itertools import chain
+
 import aleph
 import numpy as np
 import torch
@@ -35,9 +37,9 @@ class PersistenceEstimator(nn.Module):
         bs, _ = x.size()
         # Flatten input
         out = x.view(-1)
-        for layer in self.layers[:-1]:
+        for layer in self.layers:
             out = F.relu(layer(out))
-        return self.layers[-1](out).view(bs, 1)
+        return out.view(bs)
 
 
 class Autoencoder(nn.Module):
@@ -108,7 +110,7 @@ def main():
     batch_size = 32
     learning_rate = 1e-3
     lam1 = 1.
-    lam2 = 1.
+    lam2 = 3.
 
     img_transform = transforms.Compose([
         transforms.ToTensor(),
@@ -119,10 +121,12 @@ def main():
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     model = Autoencoder() #.cuda()
-    reg = TopologicalRegularization(8*2*2, batch_size, [256, 256])
+    reg = TopologicalRegularization(8*2*2, batch_size, [256, 256, 256, 256])
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
-                                 weight_decay=1e-5)
+    optimizer = torch.optim.Adam(
+        chain(model.parameters(), reg.parameters()),
+        lr=learning_rate, weight_decay=1e-5
+    )
 
     for epoch in range(num_epochs):
         for i, data in enumerate(dataloader):
