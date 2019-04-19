@@ -110,7 +110,7 @@ class TopologicalRegularization(nn.Module):
 
 
 def main():
-    num_epochs = 100
+    num_epochs = 10
     batch_size = 32
     learning_rate = 1e-3
     lam1 = 1.
