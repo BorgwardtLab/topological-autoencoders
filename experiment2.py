@@ -26,8 +26,11 @@ def to_img(x):
     return x
 
 
-class Autoencoder(nn.Module):
+class ConvolutionalAutoencoder(nn.Module):
+    """Convolutional Autoencoder."""
+
     def __init__(self):
+        """Convolutional Autoencoder."""
         super().__init__()
         self.encoder = nn.Sequential(
             nn.Conv2d(1, 16, 3, stride=3, padding=1),  # b, 16, 10, 10
@@ -46,21 +49,44 @@ class Autoencoder(nn.Module):
             nn.Tanh()
         )
 
+    # pylint: disable=W0221
     def forward(self, x):
-        bs, n_channels, n_row, n_col = x.size()
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            flattened_latent_representation, reconstructed images
+
+        """
+        batch_size = x.size()[0]
         latent = self.encoder(x)
         x_reconst = self.decoder(latent)
-        return latent.view(bs, -1), x_reconst
+        return latent.view(batch_size, -1), x_reconst
 
 
 class TopologicalSignature(nn.Module):
+    """Topological signature."""
+
     def __init__(self, p=2):
+        """Topological signature computation.
+
+        Args:
+            p: Order of norm used for distance computation
+        """
         super().__init__()
         self.p = p
         self.signature_calculator = PersistentHomologyCalculation()
 
+    # pylint: disable=W0221
     def forward(self, x, norm=False):
-        """Take a batch of instances and return the topological signature."""
+        """Take a batch of instances and return the topological signature.
+
+        Args:
+            x: batch of instances
+            norm: Normalize computed distances by maximum value
+        """
         distances = torch.norm(x[:, None] - x, dim=2, p=self.p)
         if norm:
             distances = distances / distances.max()
@@ -69,37 +95,38 @@ class TopologicalSignature(nn.Module):
         return selected_distances
 
 
-class SignatureDistance(nn.Module):
-    def __init__(self, p=2):
-        super().__init__()
-        self.p = p
-
-    def _pers_dist(self, p1, p2):
-        return ((p1 - p2)**2).sum(dim=-1) ** 0.5
-
-    def forward(self, x1, x2):
-        """Compute distance between two topological signatures.
-
-        Args:
-            x1:
-            x2:
-
-        Returns:
-            Scalar
-        """
-        return self._pers_dist(x1, x2)
+def signature_distance(signature1, signature2):
+    """Compute distance between two topological signatures."""
+    return ((signature1 - signature2)**2).sum(dim=-1) ** 0.5
 
 
 class TopoRegAutoencoder(nn.Module):
+    """Topologically regularized autoencoder."""
+
     def __init__(self, lam=1.):
+        """Topologically Regularized Autoencoder.
+
+        Args:
+            lam: Regularization strength
+        """
         super().__init__()
         self.lam = lam
-        self.autoencoder = Autoencoder()
+        self.autoencoder = ConvolutionalAutoencoder()
         self.topo_sig = TopologicalSignature()
-        self.sig_error = SignatureDistance()
+        self.sig_error = signature_distance
         self.reconst_error = nn.MSELoss()
 
+    # pylint: disable=W0221
     def forward(self, x):
+        """Compute the loss of the Topologically regularized autoencoder.
+
+        Args:
+            x: Input data
+
+        Returns:
+            Tuple of final_loss, (...loss components...)
+
+        """
         batch_size = x.size()[0]
         latent, reconst = self.autoencoder(x)
         sig_data = self.topo_sig(x.view(batch_size, -1), norm=True)
