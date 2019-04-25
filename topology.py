@@ -88,13 +88,3 @@ class PersistentHomologyCalculation:
             persistence_pairs.append((u, v))
 
         return np.array(persistence_pairs)
-
-
-if __name__ == '__main__':
-    D = np.array([[ 0, 10, 10, 0.3],
-                  [10,  0, 10, 0.7],
-                  [10, 10,  0, 0.5],
-                  [0.3, 0.7, 0.5, 0]]) 
-
-    phc = PersistentHomologyCalculation()
-    pairs = phc(D) 
