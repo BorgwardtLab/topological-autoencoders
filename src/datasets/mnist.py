@@ -5,7 +5,8 @@ from torchvision import datasets
 from torchvision import transforms
 
 
-BASEPATH = os.path.abspath(os.path.join(__file__, '..', '..'))
+BASEPATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), '..', '..', 'data'))
 
 
 class MNIST(datasets.MNIST):
