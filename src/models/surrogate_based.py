@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from .base import AutoencoderModel
 from .submodules import ConvolutionalAutoencoder
 
 # Hush the linter: Warning W0221 corresponds to a mismatch between parent class
@@ -12,7 +13,7 @@ from .submodules import ConvolutionalAutoencoder
 # pylint: disable=W0221
 
 
-class TopologicalSurrogateAutoencoder(nn.Module):
+class TopologicalSurrogateAutoencoder(AutoencoderModel):
     """Topologically constrained autoencoder using learned surrogate."""
 
     def __init__(self, d_latent, batch_size, arch, lam1=1., lam2=1., eps=1e9,
@@ -53,7 +54,8 @@ class TopologicalSurrogateAutoencoder(nn.Module):
             Tuple of final_loss, (...loss components...)
 
         """
-        latent, reconstructed = self.autoencoder(x)
+        latent = self.autoencoder.encode(x)
+        reconstructed = self.autoencoder.decode(latent)
 
         pers_x = self.sig_comp(x)
         pers_z = self.sig_comp(latent)
@@ -69,7 +71,20 @@ class TopologicalSurrogateAutoencoder(nn.Module):
             + self.lam1 * topo_error \
             + self.lam1 * surrogate_error
 
-        return (loss, (topo_error, surrogate_error))
+        return (
+            loss,
+            {
+                'reconstruction_error': reconst_error,
+                'topological_error': topo_error,
+                'surrogate_error': surrogate_error
+            }
+        )
+
+    def encode(self, x):
+        return self.autoencoder.encode(x)
+
+    def decode(self, z):
+        return self.autoencoder.decode(z)
 
 
 class SignatureComputation(nn.Module):
@@ -126,7 +141,7 @@ class SignatureEstimator(nn.Module):
 
     def forward(self, x):
         """Estimate topological signature of batch."""
-        batch_size, _ = x.size()
+        batch_size = x.size(0)
         # Flatten input
         out = x.view(-1)
         for layer in self.layers:

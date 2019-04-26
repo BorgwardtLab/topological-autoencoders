@@ -3,10 +3,11 @@ import torch
 import torch.nn as nn
 
 from ..topology import PersistentHomologyCalculation
+from .base import AutoencoderModel
 from .submodules import ConvolutionalAutoencoder
 
 
-class TopologicallyRegularizedAutoencoder(nn.Module):
+class TopologicallyRegularizedAutoencoder(AutoencoderModel):
     """Topologically regularized autoencoder."""
 
     def __init__(self, lam=1.):
@@ -17,9 +18,8 @@ class TopologicallyRegularizedAutoencoder(nn.Module):
         """
         super().__init__()
         self.lam = lam
-        self.autoencoder = ConvolutionalAutoencoder()
         self.topo_sig = TopologicalSignature()
-        self.reconst_error = nn.MSELoss()
+        self.autoencoder = ConvolutionalAutoencoder()
 
     @staticmethod
     def sig_error(signature1, signature2):
@@ -37,16 +37,36 @@ class TopologicallyRegularizedAutoencoder(nn.Module):
 
         """
         batch_size = x.size()[0]
-        latent, reconst = self.autoencoder(x)
-        sig_data = self.topo_sig(x.view(batch_size, -1), norm=True)
-        sig_latent = self.topo_sig(latent)
+        latent = self.autoencoder.encode(x)
+        reconst = self.autoencoder.decode(latent)
 
-        reconst_error = self.reconst_error(x, reconst)
+        # We currently use convolutional autoencoders, thus it might be
+        # necessary to flatten the input prior to the computation of
+        # topological signatures.
+        x_flat = x.view(batch_size, -1)
+        latent_flat = latent.view(batch_size, -1)
+
+        sig_data = self.topo_sig(x_flat, norm=True)
+        sig_latent = self.topo_sig(latent_flat)
+
+        # Use reconstruction loss of autoencoder
+        reconst_error = self.autoencoder.reconst_error(x, reconst)
         topo_error = self.sig_error(sig_data, sig_latent)
+
+        loss = reconst_error + self.lam * topo_error
         return (
-            reconst_error + self.lam * topo_error,
-            (reconst_error, topo_error)
+            loss,
+            {
+                'reconstruction_error': reconst_error,
+                'topological_error': topo_error
+            }
         )
+
+    def encode(self, x):
+        return self.autoencoder.encode(x)
+
+    def decode(self, z):
+        return self.autoencoder.decode(z)
 
 
 class TopologicalSignature(nn.Module):
