@@ -1,26 +1,32 @@
 """Experiment 2, can we implement persistence reg. without surrogate."""
 import os
 
-from src.callbacks import Progressbar
+import torch
+
+from src.callbacks import SaveReconstructedImages, Progressbar
 from src.datasets import FashionMNIST
 from src.models import TopologicallyRegularizedAutoencoder
 from src.training import TrainingLoop
 
-if not os.path.exists('./dc_img'):
-    os.mkdir('./dc_img')
-
 
 def main():
+    if not os.path.exists('./dc_img'):
+        os.mkdir('./dc_img')
+
     num_epochs = 10
     batch_size = 32
     learning_rate = 1e-3
 
-
     model = TopologicallyRegularizedAutoencoder()
     dataset = FashionMNIST()
+    callbacks = [
+        Progressbar(print_loss_components=True),
+        SaveReconstructedImages('./dc_img')
+    ]
+
     training_loop = TrainingLoop(
         model, dataset, num_epochs, batch_size, learning_rate,
-        [Progressbar()]
+        callbacks
     )
     training_loop()
 

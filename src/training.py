@@ -28,7 +28,7 @@ class TrainingLoop():
 
     def _execute_callbacks(self, hook, local_variables):
         for callback in self.callbacks:
-            getattr(callback, hook)(local_variables)
+            getattr(callback, hook)(**local_variables)
 
     def on_epoch_begin(self, local_variables):
         """Call callbacks before an epoch begins."""
@@ -47,28 +47,34 @@ class TrainingLoop():
         self._execute_callbacks('on_batch_end', local_variables)
 
     # pylint: disable=W0641
-    def __call__(self):
+    def __call__(loop):
         """Execute the training loop."""
-        dataloader = DataLoader(
-            self.dataset, batch_size=self.batch_size, shuffle=True)
-        n_batches = len(self.dataset)
-        optimizer = torch.optim.Adam(
-            self.model.parameters(), lr=self.learning_rate, weight_decay=1e-5)
+        model = loop.model
+        dataset = loop.dataset
+        batch_size = loop.batch_size
+        learning_rate = loop.learning_rate
+        n_epochs = loop.n_epochs
 
-        for epoch in range(1, self.n_epochs+1):
+        dataloader = DataLoader(
+            dataset, batch_size=batch_size, shuffle=True)
+        n_instances = len(dataset)
+        optimizer = torch.optim.Adam(
+            model.parameters(), lr=learning_rate, weight_decay=1e-5)
+
+        for epoch in range(1, n_epochs+1):
             for batch, data in enumerate(dataloader):
                 img, _ = data
                 img = Variable(img)  #.cuda()
 
                 # Compute loss
-                loss, loss_components = self.model(img)
+                loss, loss_components = loop.model(img)
 
                 # Call callbacks here so we can measure the loss before any
                 # optimization has taken place
                 local_variables = locals()
                 if batch == 0:
-                    self.on_epoch_begin(local_variables)
-                self.on_batch_begin(local_variables)
+                    loop.on_epoch_begin(local_variables)
+                loop.on_batch_begin(local_variables)
                 del local_variables
 
                 # Optimize
@@ -77,7 +83,7 @@ class TrainingLoop():
                 optimizer.step()
 
                 # Call callbacks
-                self.on_batch_end(locals())
+                loop.on_batch_end(locals())
 
-            self.on_epoch_end(locals())
+            loop.on_epoch_end(locals())
 
