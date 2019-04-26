@@ -47,13 +47,13 @@ class TrainingLoop():
         self._execute_callbacks('on_batch_end', local_variables)
 
     # pylint: disable=W0641
-    def __call__(loop):
+    def __call__(self):
         """Execute the training loop."""
-        model = loop.model
-        dataset = loop.dataset
-        batch_size = loop.batch_size
-        learning_rate = loop.learning_rate
-        n_epochs = loop.n_epochs
+        model = self.model
+        dataset = self.dataset
+        n_epochs = self.n_epochs
+        batch_size = self.batch_size
+        learning_rate = self.learning_rate
 
         dataloader = DataLoader(
             dataset, batch_size=batch_size, shuffle=True)
@@ -67,14 +67,14 @@ class TrainingLoop():
                 img = Variable(img)  #.cuda()
 
                 # Compute loss
-                loss, loss_components = loop.model(img)
+                loss, loss_components = self.model(img)
 
                 # Call callbacks here so we can measure the loss before any
                 # optimization has taken place
-                local_variables = locals()
+                local_variables = remove_self(locals())
                 if batch == 0:
-                    loop.on_epoch_begin(local_variables)
-                loop.on_batch_begin(local_variables)
+                    self.on_epoch_begin(local_variables)
+                self.on_batch_begin(local_variables)
                 del local_variables
 
                 # Optimize
@@ -83,7 +83,22 @@ class TrainingLoop():
                 optimizer.step()
 
                 # Call callbacks
-                loop.on_batch_end(locals())
+                self.on_batch_end(remove_self(locals()))
 
-            loop.on_epoch_end(locals())
+            self.on_epoch_end(remove_self(locals()))
 
+
+def remove_self(dictionary):
+    """Remove entry with name 'self' from dictionary.
+
+    This is useful when passing a dictionary created with locals() as kwargs.
+
+    Args:
+        dictionary: Dictionary containing 'self' key
+
+    Returns:
+        dictionary without 'self' key
+
+    """
+    del dictionary['self']
+    return dictionary

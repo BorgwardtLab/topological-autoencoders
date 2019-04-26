@@ -32,8 +32,7 @@ class Progressbar(Callback):
         self.epoch_progress = tqdm(
             position=1, total=n_instances, unit='instances')
 
-    def on_batch_end(self, loop, loss, loss_components, **kwargs):
-        batch_size = loop.batch_size
+    def on_batch_end(self, batch_size, loss, loss_components, **kwargs):
         self.epoch_progress.update(batch_size)
         description = f'Loss: {loss:3.3f}'
         if self.print_loss_components:
@@ -56,9 +55,7 @@ class SaveReconstructedImages(Callback):
     def __init__(self, path):
         self.path = path
 
-    def on_epoch_end(self, loop, img, epoch, **kwargs):
-        model = loop.model
-        dataset = loop.dataset
+    def on_epoch_end(self, model, dataset, img, epoch, **kwargs):
         latent = model.encode(img)
         reconst = model.decode(latent)
         reconstructed_image = dataset.inverse_normalization(reconst)
