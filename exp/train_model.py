@@ -1,5 +1,7 @@
 """Module to train a model with a dataset configuration."""
 from sacred import Experiment
+import torch
+
 from src.callbacks import SaveReconstructedImages, Progressbar
 from src.training import TrainingLoop
 
@@ -18,16 +20,18 @@ def cfg():
     n_epochs = 10
     batch_size = 64
     learning_rate = 1e-3
-    print_progress = True
 
 
-# pylint: disable=E1120
 @EXP.automain
-def train(n_epochs, batch_size, learning_rate, _run, _log):
+def train(n_epochs, batch_size, learning_rate, _run, _log, _seed):
     """Sacred wrapped function to run training of model."""
-    # Get data
-    dataset = dataset_config.get_instance()
-    # Get model
+    torch.manual_seed(_seed)
+    # Get data, sacred does some magic here so we need to hush the linter
+    # pylint: disable=E1120,E1123
+    dataset = dataset_config.get_instance(train=True)
+
+    # Get model, sacred does some magic here so we need to hush the linter
+    # pylint: disable=E1120
     model = model_config.get_instance()
 
     callbacks = [
@@ -48,4 +52,8 @@ def train(n_epochs, batch_size, learning_rate, _run, _log):
     )
     # Run training
     training_loop()
+
+    logged_values = dict(callbacks[0].logged_averages.items())
+    return logged_values
+
 

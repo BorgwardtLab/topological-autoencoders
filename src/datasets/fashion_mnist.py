@@ -17,9 +17,10 @@ class FashionMNIST(datasets.FashionMNIST):
         transforms.Normalize((0.5,), (0.5,))
     ])
 
-    def __init__(self):
+    def __init__(self, train=True):
         """FashionMNIST dataset normalized."""
-        super().__init__(BASEPATH, transform=self.transforms, download=True)
+        super().__init__(
+            BASEPATH, transform=self.transforms, train=train, download=True)
 
     @staticmethod
     def inverse_normalization(normalized):

@@ -33,13 +33,15 @@ def FashionMNIST():
 
 
 @ingredient.capture
-def get_instance(name, parameters, _log):
+def get_instance(name, parameters, _log, **kwargs):
     """Get an instance of a model according to parameters in the configuration.
 
     Also, check if the provided parameters fit to the signature of the model
     class and log default values if not defined via the configuration.
 
     """
+    # Capture arguments passed to get_instance and pass to constructor
+    parameters.update(kwargs)
     # Get the mode class
     model_cls = getattr(datasets, name)
 
