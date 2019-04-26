@@ -3,6 +3,7 @@ from sacred import Experiment
 from src.callbacks import SaveReconstructedImages, Progressbar
 from src.training import TrainingLoop
 
+from .callbacks import LogTrainingLoss
 from .ingredients import model as model_config
 from .ingredients import dataset as dataset_config
 
@@ -30,7 +31,8 @@ def train(n_epochs, batch_size, learning_rate, _run, _log):
     model = model_config.get_instance()
 
     callbacks = [
-        Progressbar(print_loss_components=True),
+        LogTrainingLoss(_run),
+        Progressbar(print_loss_components=True)
     ]
 
     # If we are logging this run save reconstruction images

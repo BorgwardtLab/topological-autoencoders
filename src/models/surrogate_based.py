@@ -74,9 +74,9 @@ class TopologicalSurrogateAutoencoder(AutoencoderModel):
         return (
             loss,
             {
-                'reconstruction_error': reconst_error,
-                'topological_error': topo_error,
-                'surrogate_error': surrogate_error
+                'reconst_error': reconst_error,
+                'topo_error': topo_error,
+                'surr_error': surrogate_error
             }
         )
 
@@ -112,12 +112,12 @@ class SignatureComputation(nn.Module):
         x_detached = x.view(batch_size, -1).detach().numpy().astype(np.float64)
         pers_x = aleph.calculatePersistenceDiagrams(
             x_detached, self.eps, self.dim)[0]
-        pers_x = np.array(pers_x)[:, 1]
+        pers_x = np.array(pers_x)[:, 1].astype(np.float32)
         if norm:
             # Divide by maximal distance on MNIST
             pers_x /= 39.5
         pers_x[~np.isfinite(pers_x)] = 0
-        pers_x = torch.tensor(pers_x, dtype=torch.float)
+        pers_x = torch.from_numpy(pers_x)
         return pers_x
 
 

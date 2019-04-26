@@ -13,15 +13,13 @@ def main():
     num_epochs = 10
     batch_size = 32
     learning_rate = 1e-3
-    lam1 = 1.
-    lam2 = 1.
 
     model = TopologicalSurrogateAutoencoder(
         8*2*2, batch_size, [256, 256, 256, 256])
     dataset = MNIST()
     training_loop = TrainingLoop(
         model, dataset, num_epochs, batch_size, learning_rate,
-        [Progressbar()]
+        [Progressbar(print_loss_components=True)]
     )
     training_loop()
 
