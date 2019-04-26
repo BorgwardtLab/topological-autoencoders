@@ -2,7 +2,7 @@
 import os
 
 from src.callbacks import Progressbar
-from src.datasets import MNIST
+from src.datasets import FashionMNIST
 from src.models import TopologicallyRegularizedAutoencoder
 from src.training import TrainingLoop
 
@@ -17,7 +17,7 @@ def main():
 
 
     model = TopologicallyRegularizedAutoencoder()
-    dataset = MNIST()
+    dataset = FashionMNIST()
     training_loop = TrainingLoop(
         model, dataset, num_epochs, batch_size, learning_rate,
         [Progressbar()]
