@@ -41,21 +41,8 @@ class UnionFind:
         if u != v:
             self._parent[self.find(u)] = self.find(v)
 
-    def roots(self):
-        '''
-        Generator expression for returning roots, i.e. components that
-        are their own parents.
-        '''
-
-        for vertex, parent in enumerate(self._parent):
-            if vertex == parent:
-                yield vertex
-
 
 class PersistentHomologyCalculation:
-    def __init__(self):
-        pass
-
     def __call__(self, matrix):
 
         n_vertices = matrix.shape[0]
