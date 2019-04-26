@@ -1,8 +1,8 @@
 """Submodules used by models."""
-import torch
-from torch import nn
-
-from ..topology import PersistentHomologyCalculation
+import torch.nn as nn
+# Hush the linter: Warning W0221 corresponds to a mismatch between parent class
+# method signature and the child class
+# pylint: disable=W0221
 
 
 class ConvolutionalAutoencoder(nn.Module):
@@ -28,7 +28,6 @@ class ConvolutionalAutoencoder(nn.Module):
             nn.Tanh()
         )
 
-    # pylint: disable=W0221
     def forward(self, x):
         """Apply autoencoder to batch of input images.
 
@@ -43,32 +42,3 @@ class ConvolutionalAutoencoder(nn.Module):
         latent = self.encoder(x)
         x_reconst = self.decoder(latent)
         return latent.view(batch_size, -1), x_reconst
-
-
-class TopologicalSignature(nn.Module):
-    """Topological signature."""
-
-    def __init__(self, p=2):
-        """Topological signature computation.
-
-        Args:
-            p: Order of norm used for distance computation
-        """
-        super().__init__()
-        self.p = p
-        self.signature_calculator = PersistentHomologyCalculation()
-
-    # pylint: disable=W0221
-    def forward(self, x, norm=False):
-        """Take a batch of instances and return the topological signature.
-
-        Args:
-            x: batch of instances
-            norm: Normalize computed distances by maximum value
-        """
-        distances = torch.norm(x[:, None] - x, dim=2, p=self.p)
-        if norm:
-            distances = distances / distances.max()
-        pairs = self.signature_calculator(distances.detach().numpy())
-        selected_distances = distances[(pairs[:, 0], pairs[:, 1])]
-        return selected_distances
