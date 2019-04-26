@@ -1,8 +1,9 @@
 """Experiment 2, can we implement persistence reg. without surrogate."""
 import os
 
-from src.models import TopologicallyRegularizedAutoencoder
+from src.callbacks import Progressbar
 from src.datasets import MNIST
+from src.models import TopologicallyRegularizedAutoencoder
 from src.training import TrainingLoop
 
 if not os.path.exists('./dc_img'):
@@ -18,9 +19,10 @@ def main():
     model = TopologicallyRegularizedAutoencoder()
     dataset = MNIST()
     training_loop = TrainingLoop(
-        model, dataset, num_epochs, batch_size, learning_rate)
+        model, dataset, num_epochs, batch_size, learning_rate,
+        [Progressbar()]
+    )
     training_loop()
-
 
     torch.save(model.state_dict(), './conv_autoencoder.pth')
 

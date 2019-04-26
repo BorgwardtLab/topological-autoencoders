@@ -12,6 +12,7 @@ ipykernel = "*"
 matplotlib = "*"
 sklearn = "*"
 sacred = {git = "https://github.com/IDSIA/sacred.git"}
+tqdm = "*"
 
 [requires]
 python_version = "3.6"
