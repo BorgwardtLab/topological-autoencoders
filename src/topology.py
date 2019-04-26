@@ -55,6 +55,7 @@ class PersistentHomologyCalculation:
         # 1st dimension: 'source' vertex index of edge
         # 2nd dimension: 'target' vertex index of edge
         persistence_pairs = []
+        cycle_pairs = []
 
         for edge_index, edge_weight in \
                 zip(edge_indices, edge_weights[edge_indices]):
@@ -66,6 +67,10 @@ class PersistentHomologyCalculation:
             older_component = uf.find(v)
 
             if younger_component == older_component:
+                # The edge gives rise to a new cycle; in terms of
+                # persistent homology, it is a destroyer, and not
+                # a creator.
+                cycle_pairs.append((u, v))
                 continue
 
             elif younger_component > older_component:
@@ -74,4 +79,4 @@ class PersistentHomologyCalculation:
             uf.merge(u, v)
             persistence_pairs.append((u, v))
 
-        return np.array(persistence_pairs)
+        return np.array(persistence_pairs), np.array(cycle_pairs)
