@@ -72,14 +72,17 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
 class TopologicalSignature(nn.Module):
     """Topological signature."""
 
-    def __init__(self, p=2):
+    def __init__(self, p=2, use_cycles=False):
         """Topological signature computation.
 
         Args:
             p: Order of norm used for distance computation
+            use_cycles: Flag to indicate whether cycles should be used
+                or not.
         """
         super().__init__()
         self.p = p
+        self.use_cycles = use_cycles
         self.signature_calculator = PersistentHomologyCalculation()
 
     # pylint: disable=W0221
@@ -93,7 +96,15 @@ class TopologicalSignature(nn.Module):
         distances = torch.norm(x[:, None] - x, dim=2, p=self.p)
         if norm:
             distances = distances / distances.max()
-        pairs = self.signature_calculator(distances.detach().numpy())
-        selected_distances = distances[(pairs[:, 0], pairs[:, 1])]
+        pairs_0, pairs_1 = self.signature_calculator(distances.detach().numpy())
+        selected_distances = distances[(pairs_0[:, 0], pairs_0[:, 1])]
+
+        if self.use_cycles:
+            selected_cycle_distances = \
+                distances[(pairs_1[:, 0], pairs_1[:, 1])]
+
+            selected_distances = torch.cat(
+                (selected_distances, selected_cycle_distances))
+
         return selected_distances
 
