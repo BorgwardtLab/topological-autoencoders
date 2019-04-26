@@ -1,4 +1,4 @@
-"""Toplologically regularized autoencoder using approximation."""
+"""Topolologically regularized autoencoder using approximation."""
 import torch
 import torch.nn as nn
 
@@ -57,8 +57,8 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         return (
             loss,
             {
-                'reconstruction_error': reconst_error,
-                'topological_error': topo_error
+                'reconst_error': reconst_error,
+                'topo_error': topo_error
             }
         )
 
