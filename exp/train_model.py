@@ -1,5 +1,6 @@
 """Module to train a model with a dataset configuration."""
 from sacred import Experiment
+from sacred.utils import apply_backspaces_and_linefeeds
 import torch
 
 from src.callbacks import SaveReconstructedImages, Progressbar
@@ -13,6 +14,7 @@ EXP = Experiment(
     'training',
     ingredients=[model_config.ingredient, dataset_config.ingredient]
 )
+EXP.captured_out_filter = apply_backspaces_and_linefeeds
 
 
 @EXP.config
