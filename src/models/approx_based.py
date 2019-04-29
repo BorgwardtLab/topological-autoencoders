@@ -76,7 +76,7 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
 class TopologicalSignature(nn.Module):
     """Topological signature."""
 
-    def __init__(self, p=2, sort_selected=True, use_cycles=False):
+    def __init__(self, p=2, sort_selected=False, use_cycles=False):
         """Topological signature computation.
 
         Args:
