@@ -10,16 +10,20 @@ from .submodules import ConvolutionalAutoencoder
 class TopologicallyRegularizedAutoencoder(AutoencoderModel):
     """Topologically regularized autoencoder."""
 
-    def __init__(self, lam=1.):
+    def __init__(self, lam=1., ae_kwargs=None, toposig_kwargs=None):
         """Topologically Regularized Autoencoder.
 
         Args:
             lam: Regularization strength
+            ae_kwargs: Kewords to pass to `ConvolutionalAutoencoder` class
+            toposig_kwargs: Keywords to pass to `TopologicalSignature` class
         """
         super().__init__()
         self.lam = lam
-        self.topo_sig = TopologicalSignature()
-        self.autoencoder = ConvolutionalAutoencoder()
+        ae_kwargs = ae_kwargs if ae_kwargs else {}
+        toposig_kwargs = toposig_kwargs if toposig_kwargs else {}
+        self.topo_sig = TopologicalSignature(**toposig_kwargs)
+        self.autoencoder = ConvolutionalAutoencoder(**ae_kwargs)
 
     @staticmethod
     def sig_error(signature1, signature2):
@@ -72,7 +76,7 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
 class TopologicalSignature(nn.Module):
     """Topological signature."""
 
-    def __init__(self, p=2, use_cycles=False):
+    def __init__(self, p=2, sort_selected=True, use_cycles=False):
         """Topological signature computation.
 
         Args:
@@ -82,6 +86,7 @@ class TopologicalSignature(nn.Module):
         """
         super().__init__()
         self.p = p
+        self.sort_selected = sort_selected
         self.use_cycles = use_cycles
         self.signature_calculator = PersistentHomologyCalculation()
 
@@ -97,6 +102,12 @@ class TopologicalSignature(nn.Module):
         if norm:
             distances = distances / distances.max()
         pairs_0, pairs_1 = self.signature_calculator(distances.detach().numpy())
+
+        if self.sort_selected:
+            # Sort arrays in-place
+            pairs_0.sort()
+            pairs_1.sort()
+
         selected_distances = distances[(pairs_0[:, 0], pairs_0[:, 1])]
 
         if self.use_cycles:
