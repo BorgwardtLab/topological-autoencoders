@@ -30,7 +30,7 @@ def main():
     )
     training_loop()
 
-    torch.save(model.state_dict(), './conv_autoencoder.pth')
+    torch.save(model.state_dict(), './experiment2.pth')
 
 
 if __name__ == '__main__':
