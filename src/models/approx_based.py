@@ -4,13 +4,13 @@ import torch.nn as nn
 
 from ..topology import PersistentHomologyCalculation
 from .base import AutoencoderModel
-from .submodules import ConvolutionalAutoencoder
+from .submodules import ConvolutionalAutoencoder, ConvolutionalAutoencoder_2D
 
 
 class TopologicallyRegularizedAutoencoder(AutoencoderModel):
     """Topologically regularized autoencoder."""
 
-    def __init__(self, lam=1., ae_kwargs=None, toposig_kwargs=None):
+    def __init__(self, lam=1., ae_kwargs=None, toposig_kwargs=None, two_dim=False):
         """Topologically Regularized Autoencoder.
 
         Args:
@@ -23,7 +23,11 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         ae_kwargs = ae_kwargs if ae_kwargs else {}
         toposig_kwargs = toposig_kwargs if toposig_kwargs else {}
         self.topo_sig = TopologicalSignature(**toposig_kwargs)
-        self.autoencoder = ConvolutionalAutoencoder(**ae_kwargs)
+        self.two_dim = two_dim
+        if self.two_dim:
+            self.autoencoder = ConvolutionalAutoencoder_2D(**ae_kwargs)
+        else:
+            self.autoencoder = ConvolutionalAutoencoder(**ae_kwargs) 
 
     @staticmethod
     def sig_error(signature1, signature2):
