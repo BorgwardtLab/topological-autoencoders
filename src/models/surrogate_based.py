@@ -1,5 +1,4 @@
 """Topologically constrained autoencoder using learned surrogate."""
-import aleph
 import numpy as np
 import torch
 import torch.nn as nn
@@ -108,6 +107,7 @@ class SignatureComputation(nn.Module):
             x: Data
             norm: Normalize data output using maximal distance of MNIST
         """
+        import aleph
         batch_size = x.size(0)
         x_detached = x.view(batch_size, -1).detach().numpy().astype(np.float64)
         pers_x = aleph.calculatePersistenceDiagrams(
