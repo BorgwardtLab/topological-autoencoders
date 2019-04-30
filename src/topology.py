@@ -41,9 +41,19 @@ class UnionFind:
         if u != v:
             self._parent[self.find(u)] = self.find(v)
 
+    def roots(self):
+        '''
+        Generator expression for returning roots, i.e. components that
+        are their own parents.
+        '''
+
+        for vertex, parent in enumerate(self._parent):
+            if vertex == parent:
+                yield vertex
+
 
 class PersistentHomologyCalculation:
-    def __call__(self, matrix):
+    def __call__(self, matrix, pair_roots=False):
 
         n_vertices = matrix.shape[0]
         uf = UnionFind(n_vertices)
@@ -78,5 +88,12 @@ class PersistentHomologyCalculation:
 
             uf.merge(u, v)
             persistence_pairs.append((u, v))
+
+        # For each unpaired component (ideally, there is only one), pair
+        # it with itself. This is technically not correct but it permits
+        # sorting the pairs afterwards correctly.
+        if pair_roots:
+            for root in uf.roots():
+                persistence_pairs.append((root, root))
 
         return np.array(persistence_pairs), np.array(cycle_pairs)
