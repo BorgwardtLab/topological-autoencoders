@@ -4,7 +4,8 @@ from tqdm import tqdm
 from torchvision.utils import save_image
 
 # Hush the linter, child callbacks will always have different parameters than
-# the overwritten method of the parent class.
+# the overwritten method of the parent class. Further kwargs will mostly be an
+# unused parameter due to the way arguments are passed.
 # pylint: disable=W0221,W0613
 
 
