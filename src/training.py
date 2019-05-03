@@ -8,7 +8,7 @@ class TrainingLoop():
     """Training a model using a dataset."""
 
     def __init__(self, model, dataset, n_epochs, batch_size, learning_rate,
-                 callbacks=None):
+                 weight_decay=1e-5, callbacks=None):
         """Training of a model using a dataset and the defined callbacks.
 
         Args:
@@ -24,6 +24,7 @@ class TrainingLoop():
         self.n_epochs = n_epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.weight_decay = weight_decay
         self.callbacks = callbacks if callbacks else []
 
     def _execute_callbacks(self, hook, local_variables):
@@ -59,7 +60,8 @@ class TrainingLoop():
             dataset, batch_size=batch_size, shuffle=True)
         n_instances = len(dataset)
         optimizer = torch.optim.Adam(
-            model.parameters(), lr=learning_rate, weight_decay=1e-5)
+            model.parameters(), lr=learning_rate,
+            weight_decay=self.weight_decay)
 
         for epoch in range(1, n_epochs+1):
             for batch, data in enumerate(dataloader):

@@ -20,6 +20,7 @@ def normalize_features(data_train, data_test):
     transformed_test = (data_test - mean) / std
     return transformed_train, transformed_test
 
+
 class ManifoldDataset(Dataset):
     def __init__(self, data, position, train, test_fraction, random_seed):
         train_data, test_data, train_pos, test_pos = train_test_split(
@@ -38,7 +39,7 @@ class ManifoldDataset(Dataset):
 
 
 class SwissRoll(ManifoldDataset):
-    def __init__(self, train=True, n_samples=6000, noise=0.0,
+    def __init__(self, train=True, n_samples=6000, noise=0.05,
                  test_fraction=0.1, seed=42):
         _rnd = np.random.RandomState(seed)
         data, pos = make_swiss_roll(n_samples, noise, seed)
@@ -48,7 +49,7 @@ class SwissRoll(ManifoldDataset):
 
 
 class SCurve(ManifoldDataset):
-    def __init__(self, train=True, n_samples=6000, noise=0.0,
+    def __init__(self, train=True, n_samples=6000, noise=0.05,
                  test_fraction=0.1, seed=42):
         _rnd = np.random.RandomState(seed)
         data, pos = make_s_curve(n_samples, noise, _rnd)
