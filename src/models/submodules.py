@@ -104,11 +104,11 @@ class ConvolutionalAutoencoder_2D(AutoencoderModel):
 
 
 class MLPAutoencoder(AutoencoderModel):
-    def __init__(self, arch=[3, 64, 64, 64, 2]):
+    def __init__(self, arch=[3, 10, 10, 2]):
         super().__init__()
         # Encoder should not have a bias, but 
         self.encoder = nn.Sequential(
-            *self._build_layers(arch, False, True))
+            *self._build_layers(arch, True, True))
         self.decoder = nn.Sequential(
             *self._build_layers(arch[::-1], True, False))
         self.reconst_error = nn.MSELoss()
