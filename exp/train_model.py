@@ -51,6 +51,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, _run, _log,
     try:
         rundir = _run.observers[0].dir
         if hasattr(dataset, 'inverse_normalization'):
+            # We have image data so we can visualize reconstructed images
             callbacks.append(SaveReconstructedImages(rundir))
     except IndexError:
         pass
@@ -62,6 +63,9 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, _run, _log,
     # Run training
     training_loop()
 
+    if rundir:
+        torch.save(
+            model.state_dict(), os.path.join(rundir, 'model.pth'))
 
     logged_averages = callbacks[0].logged_averages
     logged_stds = callbacks[0].logged_stds
