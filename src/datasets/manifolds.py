@@ -12,6 +12,7 @@ class SwissRoll(Dataset):
         self._rnd = np.random.RandomState(seed)
         self.n_samples = n_samples
         all_data = make_swiss_roll(n_samples, noise, seed)[0]
+        all_data = all_data.astype(np.float32)
         self.train_data, self.test_data = train_test_split(
             all_data, test_size=test_fraction, random_state=self._rnd)
         self.data = self.train_data if train else self.test_data
@@ -30,6 +31,7 @@ class SCurve(Dataset):
         self._rnd = np.random.RandomState(seed)
         self.n_samples = n_samples
         all_data = make_s_curve(n_samples, noise, self._rnd)[0]
+        all_data = all_data.astype(np.float32)
         self.train_data, self.test_data = train_test_split(
             all_data, test_size=test_fraction, random_state=self._rnd)
         self.data = self.train_data if train else self.test_data
