@@ -20,6 +20,7 @@ class LogTrainingLoss(Callback):
         self.run = run
         self.epoch_losses = None
         self.logged_averages = defaultdict(list)
+        self.logged_stds = defaultdict(list)
         self.iterations = 0
 
     def on_epoch_begin(self, **kwargs):
@@ -43,4 +44,5 @@ class LogTrainingLoss(Callback):
             self.run.log_scalar(key + '.mean', mean, self.iterations)
             self.logged_averages[key].append(mean)
             self.run.log_scalar(key + '.std', std, self.iterations)
+            self.logged_stds[key].append(std)
         self.epoch_losses = defaultdict(list)
