@@ -32,6 +32,21 @@ def FashionMNIST():
     }
 
 
+@ingredient.named_config
+def SwissRoll():
+    """FashionMNIST dataset."""
+    name = 'SwissRoll'
+    parameters = {
+    }
+
+
+@ingredient.named_config
+def SCurve():
+    """FashionMNIST dataset."""
+    name = 'SCurve'
+    parameters = {
+    }
+
 @ingredient.capture
 def get_instance(name, parameters, _log, **kwargs):
     """Get an instance of a model according to parameters in the configuration.
