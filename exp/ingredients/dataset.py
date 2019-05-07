@@ -47,6 +47,13 @@ def SCurve():
     parameters = {
     }
 
+@ingredient.named_config
+def STL10():
+    """STL10 dataset."""
+    name = 'SCurve'
+    parameters = {
+    }
+
 @ingredient.capture
 def get_instance(name, parameters, _log, **kwargs):
     """Get an instance of a model according to parameters in the configuration.
