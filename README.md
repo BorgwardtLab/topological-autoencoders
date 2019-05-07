@@ -13,3 +13,14 @@ to install the module:
     $ make aleph
     $ cd ../../
     $ pipenv run install_aleph
+
+
+
+
+
+## Implementation TODOs:
+
+* datasets
+* topo sorting
+* evaluation scenario
+* hyperparameter search
