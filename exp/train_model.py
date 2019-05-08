@@ -26,10 +26,11 @@ def cfg():
     batch_size = 64
     learning_rate = 1e-3
     weight_decay = 1e-5
+    val_size = 0.2
 
 
 @EXP.automain
-def train(n_epochs, batch_size, learning_rate, weight_decay, _run, _log,
+def train(n_epochs, batch_size, learning_rate, weight_decay, val_size, _run, _log,
           _seed):
     """Sacred wrapped function to run training of model."""
     torch.manual_seed(_seed)
@@ -58,7 +59,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, _run, _log,
 
     training_loop = TrainingLoop(
         model, dataset, n_epochs, batch_size, learning_rate, weight_decay,
-        callbacks
+        val_size, callbacks
     )
     # Run training
     training_loop()
