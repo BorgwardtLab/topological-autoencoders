@@ -5,7 +5,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .base import AutoencoderModel
-from .submodules import ConvolutionalAutoencoder
+#from .submodules import ConvolutionalAutoencoder
+from src.models import submodules
+import sys
 
 # Hush the linter: Warning W0221 corresponds to a mismatch between parent class
 # method signature and the child class
@@ -15,8 +17,8 @@ from .submodules import ConvolutionalAutoencoder
 class TopologicalSurrogateAutoencoder(AutoencoderModel):
     """Topologically constrained autoencoder using learned surrogate."""
 
-    def __init__(self, d_latent, batch_size, arch, lam1=1., lam2=1., eps=1e9,
-                 dim=1):
+    def __init__(self, batch_size, arch, d_latent=8*2*2, lam1=1., lam2=1., eps=1e9,
+                 dim=1, autoencoder_model='ConvolutionalAutoencoder', ae_kwargs=None):
         """Topologically constrained autoencoder using learned surrogate.
 
         Args:
@@ -28,9 +30,14 @@ class TopologicalSurrogateAutoencoder(AutoencoderModel):
             lam2: Regularize exactness of signature approximation
             eps: Maximally expected distance
             dim: Dimensionality of topological signatures to compute
+            autoencoder_model: which Autoencoder architecture to use
+            ae_kwargs: parameters for the Autoencoder
         """
         super().__init__()
-        self.autoencoder = ConvolutionalAutoencoder()
+        ae_kwargs = ae_kwargs if ae_kwargs else {}
+        self.autoencoder = getattr(submodules, autoencoder_model)(**ae_kwargs)
+        
+        #self.autoencoder = ConvolutionalAutoencoder()
         self.sig_comp = SignatureComputation(eps, dim)
         self.sig_estim = SignatureEstimator(
             d_latent, batch_size, arch)
@@ -108,6 +115,7 @@ class SignatureComputation(nn.Module):
             norm: Normalize data output using maximal distance of MNIST
         """
         import aleph
+        
         batch_size = x.size(0)
         x_detached = x.view(batch_size, -1).detach().numpy().astype(np.float64)
         pers_x = aleph.calculatePersistenceDiagrams(
