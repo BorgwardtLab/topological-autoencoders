@@ -65,9 +65,10 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size, val_frequ
     training_loop()
 
     if rundir:
+        # Save model state (and entire model)
         torch.save(
-            model.state_dict(), os.path.join(rundir, 'model.pth'))
-
+            model.state_dict(), os.path.join(rundir, 'model_state.pth'))
+        torch.save(model, os.path.join(rundir, 'model.pth'))
     logged_averages = callbacks[0].logged_averages
     logged_stds = callbacks[0].logged_stds
     if rundir:
