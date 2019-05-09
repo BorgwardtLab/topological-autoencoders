@@ -20,7 +20,7 @@ class STL10(datasets.STL10):
     def __init__(self, train=True):
         """STL10 dataset normalized."""
         if train:
-            split='train'
+            split='train+unlabeled' #'train'
         else:
             raise ValueError('Currently only train split implemented')
 
