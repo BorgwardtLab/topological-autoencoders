@@ -27,19 +27,19 @@ class STL10(datasets.STL10):
         super().__init__(
             BASEPATH, transform=self.transforms, split=split, download=True)
 
-#    @staticmethod
-#    def inverse_normalization(normalized):
-#        """Inverse the normalization applied to the original data.
-#
-#        Args:
-#            x: Batch of data
-#
-#        Returns:
-#            Tensor with normalization inversed.
-#
-#        """
-#        normalized = 0.5 * (normalized + 1)
-#        normalized = normalized.clamp(0, 1)
-#        normalized = normalized.view(normalized.size(0), 1, 28, 28)
-#        return normalized
+    @staticmethod
+    def inverse_normalization(normalized):
+        """Inverse the normalization applied to the original data.
+
+        Args:
+            x: Batch of data
+
+        Returns:
+            Tensor with normalization inversed.
+
+        """
+        normalized = 0.5 * (normalized + 1)
+        normalized = normalized.clamp(0, 1)
+        normalized = normalized.view(normalized.size(0), 3, 96, 96)
+        return normalized
 
