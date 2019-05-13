@@ -47,9 +47,7 @@ class Progressbar(Callback):
         self.epoch_progress = tqdm(
             position=1, total=n_instances, unit='instances')
 
-    def on_batch_end(self, batch_size, loss, loss_components, **kwargs):
-        """Increment progressbar and update description."""
-        self.epoch_progress.update(batch_size)
+    def _description(self, loss, loss_components):
         description = f'Loss: {loss:3.3f}'
         if self.print_loss_components:
             description += ', '
@@ -57,6 +55,12 @@ class Progressbar(Callback):
                 f'{name}: {value:3.3f}'
                 for name, value in loss_components.items()
             ])
+        return description
+
+    def on_batch_end(self, batch_size, loss, loss_components, **kwargs):
+        """Increment progressbar and update description."""
+        self.epoch_progress.update(batch_size)
+        description = self._description(loss, loss_components)
         self.epoch_progress.set_description(description)
 
     def on_epoch_end(self, epoch, n_epochs, **kwargs):
