@@ -52,7 +52,8 @@ class LogTrainingLoss(Callback):
 class LogDatasetLoss(Callback):
     """Logging of loss during training into sacred run."""
 
-    def __init__(self, dataset_name, dataset, run, batch_size=128):
+    def __init__(self, dataset_name, dataset, run, print_progress=True,
+                 batch_size=128):
         """Create logger callback.
 
         Log the training loss using the sacred metrics API.
@@ -65,6 +66,7 @@ class LogDatasetLoss(Callback):
         self.data_loader = DataLoader(self.dataset, batch_size=batch_size,
                                       drop_last=False)
         self.run = run
+        self.print_progress = print_progress
         self.iterations = 0
 
     def _compute_average_losses(self, model):
@@ -86,6 +88,13 @@ class LogDatasetLoss(Callback):
             for name, values in losses.items()
         }
 
+    def _progress_string(self, epoch, losses):
+        progress_str = " ".join([
+            f'{self.prefix}.{key}: {value:.3f}'
+            for key, value in losses.items()
+        ])
+        return f'Epoch {epoch}: ' + progress_str
+
     def on_batch_end(self, **kwargs):
         self.iterations += 1
 
@@ -93,6 +102,9 @@ class LogDatasetLoss(Callback):
         """Store the loss on the dataset prior to training."""
         if epoch == 1:  # This should be prior to the first training step
             losses = self._compute_average_losses(model)
+            if self.print_progress:
+                print(self._progress_string(epoch - 1, losses))
+
             for key, value in losses.items():
                 self.run.log_scalar(
                     f'{self.prefix}.{key}',
@@ -100,9 +112,10 @@ class LogDatasetLoss(Callback):
                     self.iterations
                 )
 
-    def on_epoch_end(self, model, optimizer, **kwargs):
+    def on_epoch_end(self, model, epoch, **kwargs):
         """Score evaluation metrics at end of epoch."""
         losses = self._compute_average_losses(model)
+        print(self._progress_string(epoch, losses))
         for key, value in losses.items():
             self.run.log_scalar(
                 f'{self.prefix}.{key}',
