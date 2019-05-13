@@ -1,7 +1,28 @@
 """Image Dataset Splitting (train val)."""
+from math import floor
 import numpy as np
-from torch.utils.data import Dataset, SubsetRandomSampler
+from torch.utils.data import Dataset, Subset, SubsetRandomSampler
+from torch._utils import _accumulate
 import torch
+
+
+def split_validation(dataset, val_fraction, _rnd):
+    """Randomly split a dataset into two non-overlapping new datasets.
+
+    Arguments:
+        dataset (Dataset): Dataset to be split
+        val_fraction: Fraction of dataset that should be in the validation
+            split
+        _rnd: Random state to determine split
+    """
+    assert val_fraction < 1.
+    indices = _rnd.permutation(len(dataset))
+    last_train_index = int(floor((1 - val_fraction) * len(dataset)))
+    return (
+        Subset(dataset, indices[:last_train_index]),  # train split
+        Subset(dataset, indices[last_train_index:])   # validation split
+    )
+
 
 '''
 Torch dataloader splitting function:
@@ -10,6 +31,15 @@ inputs: dataset object, validation_size (determines ratio of val and test split)
 '''
 
 def split_dataset(dataset, val_size=0.2, batch_size=64):
+    """Torch dataloader splitting function.
+
+    Args:
+        dataset: Dataset to split
+        val_size: Fraction of data
+        batch_size:
+
+    Returns:
+    """
     # Creating data indices for training, validation and test splits:
     dataset_size = len(dataset)
     indices = list(range(dataset_size))
