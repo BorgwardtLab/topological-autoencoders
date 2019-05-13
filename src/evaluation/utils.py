@@ -3,6 +3,7 @@ Utility Functions for evaluation scenario
 '''
 import numpy as np
 import torch
+from sklearn.preprocessing import StandardScaler
 
 '''
 get_latent_space: 
@@ -64,3 +65,14 @@ def get_space(model, dataloader, mode='latent', seed=42):
         raise ValueError(f'Requested mode: {mode} not available. Instead use one of: \'latent\', \'data\' ')       
     
     return [full_space, all_labels]
+
+
+
+'''
+Function to scale a dataset (e.g. data space, latent space) before applying embeddings for visualization
+'''
+def rescaling(data):
+    return StandardScaler().fit_transform(data)
+
+
+
