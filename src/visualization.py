@@ -18,5 +18,5 @@ def plot_losses(losses, losses_std=defaultdict(lambda: None), save_file=None):
     plt.ylabel('loss')
     plt.legend()
     if save_file:
-        plt.savefig(save_file)
+        plt.savefig(save_file, dpi=200)
 

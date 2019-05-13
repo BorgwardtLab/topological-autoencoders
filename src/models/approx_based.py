@@ -11,7 +11,7 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
     """Topologically regularized autoencoder."""
 
     def __init__(self, lam=1., autoencoder_model='ConvolutionalAutoencoder',
-                 ae_kwargs=None, toposig_kwargs=None):
+                 match_distances=True, ae_kwargs=None, toposig_kwargs=None):
         """Topologically Regularized Autoencoder.
 
         Args:
@@ -21,6 +21,7 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         """
         super().__init__()
         self.lam = lam
+        self.match_distances = match_distances
         ae_kwargs = ae_kwargs if ae_kwargs else {}
         toposig_kwargs = toposig_kwargs if toposig_kwargs else {}
         self.topo_sig = TopologicalSignature(**toposig_kwargs)
@@ -51,11 +52,26 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         x_flat = x.view(batch_size, -1)
         latent_flat = latent.view(batch_size, -1)
 
-        sig_data = self.topo_sig(x_flat, norm=True)
-        sig_latent = self.topo_sig(latent_flat)
+        sig_data, data_pairs_0, _ = self.topo_sig(x_flat, norm=True)
+        sig_latent, latent_pairs_0, _ = self.topo_sig(latent_flat)
 
         # Use reconstruction loss of autoencoder
         reconst_error = self.autoencoder.reconst_error(x, reconst)
+
+        if self.match_distances:
+            # Ensure that gradients are computed using the matching edge in the
+            # data space. For this we create a sparse tensor and convert it
+            # back to a dense one, s.th. all unselected edges are zero.
+            data_pairs_0 = torch.LongTensor(data_pairs_0)
+            data_sel_distances = torch.sparse.FloatTensor(
+                data_pairs_0.t(), sig_data,
+                torch.Size([batch_size, batch_size])).to_dense()
+            # From this masked distance tensor, we pick the edges which
+            # correspond to the selected latent space egdes as these are the
+            # only ones that result in gradients.
+            sig_data = data_sel_distances[
+                (latent_pairs_0[:, 0], latent_pairs_0[:, 1])]
+
         topo_error = self.sig_error(sig_data, sig_latent)
 
         loss = reconst_error + self.lam * topo_error
@@ -118,5 +134,5 @@ class TopologicalSignature(nn.Module):
             selected_distances = torch.cat(
                 (selected_distances, selected_cycle_distances))
 
-        return selected_distances
+        return selected_distances, pairs_0, pairs_1
 
