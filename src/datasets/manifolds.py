@@ -13,6 +13,7 @@ def normalize_features(data_train, data_test):
 
     Returns:
         (transformed_data_train, transformed_data_test)
+
     """
     mean = np.mean(data_train, axis=0, keepdims=True)
     std = np.std(data_train, axis=0, keepdims=True)
