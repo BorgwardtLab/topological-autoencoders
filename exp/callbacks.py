@@ -10,7 +10,7 @@ from src.callbacks import Callback
 class LogTrainingLoss(Callback):
     """Logging of loss during training into sacred run."""
 
-    def __init__(self, run):
+    def __init__(self, run, print_loss=False):
         """Create logger callback.
 
         Log the training loss using the sacred metrics API.
@@ -19,10 +19,21 @@ class LogTrainingLoss(Callback):
             run: Sacred run
         """
         self.run = run
+        self.print_loss = print_loss
         self.epoch_losses = None
         self.logged_averages = defaultdict(list)
         self.logged_stds = defaultdict(list)
         self.iterations = 0
+
+    def _description(self):
+        all_keys = self.logged_averages.keys()
+        elements = []
+        for key in all_keys:
+            last_average = self.logged_averages[key][-1]
+            last_std = self.logged_stds[key][-1]
+            elements.append(
+                f'{key}: {last_average:3.3f} +/- {last_std:3.3f}')
+        return ' '.join(elements)
 
     def on_epoch_begin(self, **kwargs):
         self.epoch_losses = defaultdict(list)
@@ -38,7 +49,7 @@ class LogTrainingLoss(Callback):
             self.epoch_losses[storage_key].append(value)
             self.run.log_scalar(storage_key + '.batch', value, self.iterations)
 
-    def on_epoch_end(self, **kwargs):
+    def on_epoch_end(self, epoch, **kwargs):
         for key, values in self.epoch_losses.items():
             mean = np.mean(values)
             std = np.std(values)
@@ -47,6 +58,8 @@ class LogTrainingLoss(Callback):
             self.run.log_scalar(key + '.std', std, self.iterations)
             self.logged_stds[key].append(std)
         self.epoch_losses = defaultdict(list)
+        if self.print_loss:
+            print(f'Epoch {epoch}:', self._description())
 
 
 class LogDatasetLoss(Callback):

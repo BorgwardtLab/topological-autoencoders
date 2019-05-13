@@ -28,11 +28,11 @@ def cfg():
     learning_rate = 1e-3
     weight_decay = 1e-5
     val_size = 0.2
-    val_frequency = 4
+    quiet = False
 
 @EXP.automain
 def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
-          val_frequency, _run, _log, _seed, _rnd):
+          quiet, _run, _log, _seed, _rnd):
     """Sacred wrapped function to run training of model."""
     torch.manual_seed(_seed)
     # Get data, sacred does some magic here so we need to hush the linter
@@ -47,11 +47,12 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
     model = model_config.get_instance()
 
     callbacks = [
-        LogTrainingLoss(_run),
+        LogTrainingLoss(_run, print_loss=quiet),
         LogDatasetLoss('validation', validation_dataset, _run, batch_size),
         LogDatasetLoss('testing', test_dataset, _run, batch_size),
-        Progressbar(print_loss_components=True)
     ]
+    if not quiet:
+        callbacks.append(Progressbar(print_loss_components=True))
 
     # If we are logging this run save reconstruction images
     rundir = None
