@@ -52,8 +52,7 @@ class LogTrainingLoss(Callback):
 class LogDatasetLoss(Callback):
     """Logging of loss during training into sacred run."""
 
-    def __init__(self, dataset_name, dataset, run, batch_size=128,
-                 frequency=4):
+    def __init__(self, dataset_name, dataset, run, batch_size=128):
         """Create logger callback.
 
         Log the training loss using the sacred metrics API.
@@ -78,14 +77,17 @@ class LogDatasetLoss(Callback):
             # Rescale the losses as batch_size might not divide dataset
             # perfectly
             n_instances = len(data)
-            losses[f'{self.prefix}.loss'].append(loss.item()*n_instances)
+            losses['loss'].append(loss.item()*n_instances)
             for loss_component, value in loss_components.items():
-                losses[f'{self.prefix}.{loss_component}'].append(
+                losses[loss_component].append(
                     value.item()*n_instances)
         return {
             name: sum(values) / len(self.dataset)
             for name, values in losses.items()
         }
+
+    def on_batch_end(self, **kwargs):
+        self.iterations += 1
 
     def on_epoch_begin(self, model, epoch, **kwargs):
         """Store the loss on the dataset prior to training."""
