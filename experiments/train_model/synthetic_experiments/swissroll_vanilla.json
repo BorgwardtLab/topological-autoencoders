@@ -1,0 +1,19 @@
+{
+  "batch_size": 64,
+  "dataset": {
+    "__doc__": "Swissroll dataset.",
+    "name": "SwissRoll",
+    "parameters": {}
+  },
+  "learning_rate": 0.001,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "VanillaAutoencoderModel",
+    "parameters": {
+      "autoencoder_model": "MLPAutoencoder"
+    }
+  },
+  "n_epochs": 50,
+  "seed": 829367737,
+  "weight_decay": 1e-05
+}
