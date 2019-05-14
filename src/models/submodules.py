@@ -207,3 +207,61 @@ class MLPAutoencoder(AutoencoderModel):
         x_reconst = self.decode(latent)
         reconst_error = self.reconst_error(x, x_reconst)
         return reconst_error, {'reconstruction_error': reconst_error}
+
+
+
+class MLPAutoencoder_Spheres(AutoencoderModel):
+    def __init__(self, arch=[3, 32, 32, 2]):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Linear(101, 32),
+            nn.BatchNorm1d(32),
+            nn.ReLU(True),
+            nn.Linear(32, 32),
+            nn.BatchNorm1d(32),
+            nn.ReLU(True),
+            nn.Linear(32, 2),
+            nn.ReLU()
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(2, 32),
+            nn.BatchNorm1d(32),
+            nn.ReLU(True),
+            nn.Linear(32, 32),
+            nn.BatchNorm1d(32),
+            nn.ReLU(True),
+            nn.Linear(32, 101)
+        )
+        self.reconst_error = nn.MSELoss()
+
+    @staticmethod
+    def _build_layers(arch, final_bias, final_relu):
+        layers = []
+        for i, (d_in, d_out) in enumerate(zip(arch, arch[1:])):
+            layers.append(nn.Linear(d_in, d_out))
+            if i == len(arch)-2 and not final_relu:
+                layers.append(nn.ReLU(True))
+        return layers
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        return self.encoder(x)
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        return self.decoder(z)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent = self.encode(x)
+        x_reconst = self.decode(latent)
+        reconst_error = self.reconst_error(x, x_reconst)
+        return reconst_error, {'reconstruction_error': reconst_error}
