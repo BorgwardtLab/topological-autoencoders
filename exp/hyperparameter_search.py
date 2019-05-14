@@ -30,12 +30,12 @@ def cfg():
     overrides = {
         'batch_size': 64,
         'evaluation__active': True,
-        'n_epochs': 200,
+        'n_epochs': 100,
         'quiet': True
     }
     nan_replacement = 20.
-    n_random_starts = 50
-    n_calls = 500
+    n_random_starts = 10
+    n_calls = 30
     load_result = None  # load the previous optimization results from here
 
 
@@ -47,6 +47,71 @@ def TopoRegMNIST():
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
         'dataset__name': 'MNIST'
+    }
+
+
+@ex.named_config
+def TopoRegVertexMNIST():
+    hyperparameter_space = {
+        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
+    }
+    overrides = {
+        'model__name': 'TopologicallyRegularizedAutoencoder',
+        'model__parameters__toposig_kwargs__sort_selected': True,
+        'dataset__name': 'MNIST'
+    }
+
+
+@ex.named_config
+def TopoRegVertexFashionMNIST():
+    hyperparameter_space = {
+        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
+    }
+    overrides = {
+        'model__name': 'TopologicallyRegularizedAutoencoder',
+        'model__parameters__toposig_kwargs__sort_selected': True,
+        'dataset__name': 'FashionMNIST'
+    }
+
+
+@ex.named_config
+def TopoRegEdgeMNIST():
+    hyperparameter_space = {
+        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
+    }
+    overrides = {
+        'model__name': 'TopologicallyRegularizedAutoencoder',
+        'model__parameters__match_distances': True,
+        'dataset__name': 'MNIST'
+    }
+
+
+@ex.named_config
+def TopoRegEdgeFashionMNIST():
+    hyperparameter_space = {
+        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
+    }
+    overrides = {
+        'model__name': 'TopologicallyRegularizedAutoencoder',
+        'model__parameters__match_distances': True,
+        'dataset__name': 'FashionMNIST'
+    }
+
+
+@ex.named_config
+def VanillaMNIST():
+    overrides = {
+        'model__name': 'VanillaAutoencoderModel',
+        'dataset__name': 'FashionMNIST'
+
+    }
+
+
+@ex.named_config
+def VanillaFashionMNIST():
+    overrides = {
+        'model__name': 'VanillaAutoencoderModel',
+        'dataset__name': 'FashionMNIST'
     }
 
 
