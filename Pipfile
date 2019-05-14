@@ -15,6 +15,7 @@ sacred = {git = "https://github.com/IDSIA/sacred.git"}
 tqdm = "*"
 scikit-optimize = "*"
 pandas = "*"
+tadasets = "*"
 
 [requires]
 python_version = "3.6"
