@@ -76,8 +76,11 @@ class LogDatasetLoss(Callback):
         """
         self.prefix = dataset_name
         self.dataset = dataset
+        # TODO: Ideally drop last should be set to fals, yet this is currently
+        # incompatible with the surrogate approach as it assumes a constant
+        # batch size.
         self.data_loader = DataLoader(self.dataset, batch_size=batch_size,
-                                      drop_last=False)
+                                      drop_last=True)
         self.run = run
         self.print_progress = print_progress
         self.iterations = 0
@@ -90,7 +93,8 @@ class LogDatasetLoss(Callback):
             loss, loss_components = model(data)
 
             # Rescale the losses as batch_size might not divide dataset
-            # perfectly
+            # perfectly, this currently is a nop as drop_last is set to True in
+            # the constructor.
             n_instances = len(data)
             losses['loss'].append(loss.item()*n_instances)
             for loss_component, value in loss_components.items():
