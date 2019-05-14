@@ -50,7 +50,7 @@ def SCurve():
 @ingredient.named_config
 def STL10():
     """STL10 dataset."""
-    name = 'SCurve'
+    name = 'STL10'
     parameters = {
     }
 
