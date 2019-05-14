@@ -66,9 +66,9 @@ class Evaluation:
         k_preds = get_k_predictions(data, labels, k)
         nmis = get_NMI(k_preds, labels)
         accs = get_acc(k_preds, labels)
-        result = {'nmis_avg': nmis.mean()[0],
+        result = {'nmis_avg': nmis.mean(),
                   'nmis': nmis,
-                  'accs_avg': accs.mean()[0],
+                  'accs_avg': accs.mean(),
                   'accs': accs }
         return result
 

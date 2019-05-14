@@ -25,10 +25,10 @@ def cfg():
     """Hyperparameter search configuration."""
     hyperparameter_space = {
         # Training parameters
-        'learning_rate': ('Real', 10**-4, 10**-2, 'log-uniform'),
-        'batch_size': ('Integer', 32, 64),
+        'learning_rate': ('Real', 10**-4, 10**-2, 'log-uniform')
     }
     overrides = {
+        'batch_size': 64,
         'evaluation__active': True,
         'n_epochs': 200,
         'quiet': True
