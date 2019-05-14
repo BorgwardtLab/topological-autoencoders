@@ -7,6 +7,7 @@ import torch
 
 from src.callbacks import SaveReconstructedImages, Progressbar
 from src.datasets.splitting import split_validation
+from src.evaluation.eval import Evaluation
 from src.training import TrainingLoop
 from src.visualization import plot_losses
 
@@ -29,10 +30,15 @@ def cfg():
     weight_decay = 1e-5
     val_size = 0.2
     quiet = False
+    evaluation = {
+        'active': False,
+        'k': 15
+    }
+
 
 @EXP.automain
 def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
-          quiet, _run, _log, _seed, _rnd):
+          quiet, evaluation, _run, _log, _seed, _rnd):
     """Sacred wrapped function to run training of model."""
     torch.manual_seed(_seed)
     # Get data, sacred does some magic here so we need to hush the linter
@@ -87,7 +93,19 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
             save_file=os.path.join(rundir, 'loss.png')
         )
 
-    # Convert the default dict into a regular one
-    return dict(logged_averages.items())
+    result = {
+        key: values[-1] for key, values in 
+        logged_averages.items()
+    }
+
+    if evaluation['active']:
+        dataloader = torch.utils.data.DataLoader(
+            test_dataset, batch_size=batch_size, drop_last=True)
+        evaluator = Evaluation('latent', dataloader, model=model)
+        data, latent = evaluator.get_data()
+        ev_result = evaluator.evaluate_space(data, latent, k=evaluation['k'])
+        result.update(ev_result)
+
+    return result
 
 

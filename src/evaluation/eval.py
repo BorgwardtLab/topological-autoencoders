@@ -30,52 +30,39 @@ class Evaluation:
         else: 
             self.mode = 'latent' 
 
-    '''
-    Extract specified space (data or latent space)
-    - takes dataloader and model and mode (data or latent space) and returns 
-    [data, labels]
-    '''    
     def get_data(self):
-        model = self.model
-        dataloader = self.dataloader
-        mode = self.mode
-        seed = self.seed
-        
-        return get_space(model, dataloader, mode, seed) 
-    
-    '''
-    Apply a sklearn standard scaler to a data matrix before dim red method
-    ''' 
+        """Extract specified space (data or latent space).
+
+        Takes dataloader and model and mode (data or latent space) and returns
+            [data, labels].
+        """
+        return get_space(self.model, self.dataloader, self.mode, self.seed)
+
     def rescale(self, data):
+        """Apply a sklearn standard scaler data matrix before dim red method."""
         return rescaling(data)
 
-    '''
-    Subsampling n_samples from data_matrix and labels
-    '''
     def subsample(self, data, labels):
+        """Subsampling n_samples from data_matrix and labels."""
         n_samples = self.n_samples
         return data[:n_samples,:], labels[:n_samples]
 
-
-    '''
-    Embed data matrix using one of the available dim red methods: pca, tsne, ..
-    '''        
     def get_embedding(self, data, emb_method):
+        """Embed data matrix using one of the available dim red methods: pca, tsne, .."""
         pass
 
-    '''
-    Plot 2d embedding
-    '''
     def plot_embedding(self, transformed):
+        """Plot 2d embedding."""
         pass
 
-    '''
-    Evaluate Space with kNN-based classification (accuracy) and label clustering (NMI) 
-    - data: samples from data or latent space as a data matrix
-    - labels: corresponding labels to the samples
-    - k: number of neighbors up to which the evaluation is iterating.
-    '''
     def evaluate_space(self, data, labels, k):
+        """Evaluate Space with kNN-based classification (accuracy) and label
+        clustering (NMI).
+
+        - data: samples from data or latent space as a data matrix
+        - labels: corresponding labels to the samples
+        - k: number of neighbors up to which the evaluation is iterating.
+        """
         k_preds = get_k_predictions(data, labels, k)
         nmis = get_NMI(k_preds, labels)
         accs = get_acc(k_preds, labels)
@@ -84,7 +71,6 @@ class Evaluation:
                   'accs_avg': accs.mean(),
                   'accs': accs }
         return result
-
 
 #def plot_scores(ax, method, embeddings, true_labels, metric, k=40):
 #    #first get predicted labels (based on up to k neighbors)

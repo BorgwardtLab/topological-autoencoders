@@ -34,6 +34,7 @@ def TopologicallyRegularizedAutoencoder():
         'lam': 1.
     }
 
+
 @ingredient.named_config
 def VanillaAutoencoder():
     name = 'VanillaAutoencoderModel'

@@ -13,6 +13,8 @@ matplotlib = "*"
 sklearn = "*"
 sacred = {git = "https://github.com/IDSIA/sacred.git"}
 tqdm = "*"
+scikit-optimize = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.6"
