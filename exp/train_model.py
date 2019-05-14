@@ -47,9 +47,11 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
     model = model_config.get_instance()
 
     callbacks = [
-        LogTrainingLoss(_run, print_loss=quiet),
-        LogDatasetLoss('validation', validation_dataset, _run, batch_size),
-        LogDatasetLoss('testing', test_dataset, _run, batch_size),
+        LogTrainingLoss(_run, print_progress=quiet),
+        LogDatasetLoss('validation', validation_dataset, _run,
+                       print_progress=True, batch_size=batch_size),
+        LogDatasetLoss('testing', test_dataset, _run, print_progress=True,
+                       batch_size=batch_size),
     ]
     if not quiet:
         callbacks.append(Progressbar(print_loss_components=True))
