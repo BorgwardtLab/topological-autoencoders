@@ -26,7 +26,7 @@ def cfg():
     hyperparameter_space = {
         # Training parameters
         'learning_rate': ('Real', 10**-4, 10**-2, 'log-uniform'),
-        'batch_size': ('Integer', 64, 256),
+        'batch_size': ('Integer', 32, 64),
     }
     overrides = {
         'evaluation__active': True,
@@ -168,19 +168,13 @@ def search_hyperparameter_space(n_random_starts, n_calls, overrides,
             # gp optimize does not handle nan values, thus we need
             # to return something fake if we diverge before the end
             # of the first epoch
-            if np.isfinite(run.result['best_val_auprc']):
-                return_value = -run.result['best_val_auprc']
+            if np.isfinite(run.result['nmis_avg']):
+                return_value = -run.result['nmis_avg']
             else:
                 return_value = nan_replacement
         except Exception as e:
             _log.error('An exception occured during fitting: {}'.format(e))
-            results.append({
-                'epochs_trained': np.nan,
-                'end_train_loss': np.nan,
-                'best_train_loss': np.nan,
-                'end_val_auprc': np.nan,
-                'best_val_auprc': np.nan
-            })
+            results.append({})
             return_value = nan_replacement
 
         # Store the results into sacred infrastructure

@@ -93,7 +93,10 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
             save_file=os.path.join(rundir, 'loss.png')
         )
 
-    result = dict(logged_averages.items())
+    result = {
+        key: values[-1] for key, values in 
+        logged_averages.items()
+    }
 
     if evaluation['active']:
         dataloader = torch.utils.data.DataLoader(
@@ -101,7 +104,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         evaluator = Evaluation('latent', dataloader, model=model)
         data, latent = evaluator.get_data()
         ev_result = evaluator.evaluate_space(data, latent, k=evaluation['k'])
-        result['evaluation'] = ev_result
+        result.update(ev_result)
 
     return result
 
