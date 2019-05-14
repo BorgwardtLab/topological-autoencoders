@@ -58,8 +58,11 @@ class TrainingLoop():
         learning_rate = self.learning_rate
 
         n_instances = len(dataset)
+        # TODO: Currently we drop the last batch as it might not evenly divide
+        # the dataset. This is necassary because the surrogate approach does
+        # not yet support changes in the batch dimension.
         train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True,
-                                  pin_memory=True)
+                                  pin_memory=True, drop_last=True)
         n_batches = len(train_loader)
 
         optimizer = torch.optim.Adam(
