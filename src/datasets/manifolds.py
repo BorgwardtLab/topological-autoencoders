@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.datasets import make_s_curve, make_swiss_roll
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
-
+from .topo_dataset.spheres import create_sphere_dataset
 
 def normalize_features(data_train, data_test):
     """Normalize features to zero mean and unit variance.
@@ -57,4 +57,16 @@ class SCurve(ManifoldDataset):
         data = data.astype(np.float32)
         pos = pos.astype(np.float32)
         super().__init__(data, pos, train, test_fraction, _rnd)
+
+class Spheres(ManifoldDataset):
+    def __init__(self, train=True, n_samples=1000, d=100, n_spheres=11, r=5,
+                test_fraction=0.1, seed=42):
+        #here pos are actually class labels, just conforming with parent class!
+        data, labels = create_sphere_dataset(n_samples, d, n_spheres, r, seed=seed)
+        pos = labels
+        data = data.astype(np.float32)
+        pos = pos.astype(np.float32)
+        _rnd = np.random.RandomState(seed)
+        super().__init__(data, pos, train, test_fraction, _rnd)
+
 

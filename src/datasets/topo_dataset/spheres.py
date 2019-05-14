@@ -7,12 +7,12 @@ import numpy as np
 #import tadasets 
 import matplotlib
 import matplotlib.pyplot as plt
-import custom_shapes as cs
+from .custom_shapes import dsphere 
 
 from IPython import embed
 
-def create_sphere_dataset(n_samples=1000, d=100, n_spheres=11, r=5, plot=False):
-    np.random.seed(42)
+def create_sphere_dataset(n_samples=1000, d=100, n_spheres=11, r=5, plot=False, seed=42):
+    np.random.seed(seed)
 
     #it seemed that rescaling the shift variance by sqrt of d lets big sphere stay around the inner spheres
     variance=10/np.sqrt(d)
@@ -22,13 +22,13 @@ def create_sphere_dataset(n_samples=1000, d=100, n_spheres=11, r=5, plot=False):
     spheres = [] 
     n_datapoints = 0
     for i in np.arange(n_spheres-1):
-        sphere = cs.dsphere(n=n_samples, d=d, r=r)
+        sphere = dsphere(n=n_samples, d=d, r=r)
         spheres.append(sphere + shift_matrix[i,:])
         n_datapoints += n_samples
 
     #Additional big surrounding sphere:
     n_samples_big = n_samples #int(n_samples/2)
-    big = cs.dsphere(n=n_samples_big, d=d, r=r*5)
+    big = dsphere(n=n_samples_big, d=d, r=r*5)
     spheres.append(big)
     n_datapoints += n_samples_big
 
