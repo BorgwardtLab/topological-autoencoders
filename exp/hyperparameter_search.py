@@ -102,7 +102,7 @@ def TopoRegEdgeFashionMNIST():
 def VanillaMNIST():
     overrides = {
         'model__name': 'VanillaAutoencoderModel',
-        'dataset__name': 'FashionMNIST'
+        'dataset__name': 'MNIST'
 
     }
 
