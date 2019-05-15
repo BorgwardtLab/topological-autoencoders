@@ -29,6 +29,7 @@ def cfg():
     learning_rate = 1e-3
     weight_decay = 1e-5
     val_size = 0.15
+    early_stopping = 10
     quiet = False
     evaluation = {
         'active': False,
@@ -44,7 +45,7 @@ class NewlineCallback(Callback):
 
 @EXP.automain
 def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
-          quiet, evaluation, _run, _log, _seed, _rnd):
+          early_stopping, quiet, evaluation, _run, _log, _seed, _rnd):
     """Sacred wrapped function to run training of model."""
     torch.manual_seed(_seed)
     # Get data, sacred does some magic here so we need to hush the linter
@@ -62,7 +63,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         LogTrainingLoss(_run, print_progress=quiet),
         LogDatasetLoss('validation', validation_dataset, _run,
                        print_progress=True, batch_size=batch_size,
-                       early_stopping=5),
+                       early_stopping=early_stopping),
         LogDatasetLoss('testing', test_dataset, _run, print_progress=True,
                        batch_size=batch_size),
     ]
