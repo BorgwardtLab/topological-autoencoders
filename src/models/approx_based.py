@@ -60,8 +60,8 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
 
         loss = reconst_error + self.lam * topo_error
         loss_components = {
-            'reconst_error': reconst_error,
-            'topo_error': topo_error
+            'loss.reconst_error': reconst_error,
+            'loss.topo_error': topo_error
         }
         loss_components.update(topo_error_components)
         return (
@@ -145,7 +145,7 @@ class TopologicalSignatureDistance(nn.Module):
         sig2 = self._select_distances_from_pairs(distances2, pairs2)
 
         distance_components = {
-            'matched_pairs': self._count_matching_pairs(pairs1, pairs2)
+            'metrics.matched_pairs': self._count_matching_pairs(pairs1, pairs2)
         }
 
         if self.match_edges is None:
@@ -173,8 +173,8 @@ class TopologicalSignatureDistance(nn.Module):
 
             distance1_2 = self.sig_error(sig1_1, sig1_2)
             distance2_1 = self.sig_error(sig2_1, sig2_2)
-            distance_components['distance1-2'] = distance1_2
-            distance_components['distance2-1'] = distance2_1
+            distance_components['metrics.distance1-2'] = distance1_2
+            distance_components['metrics.distance2-1'] = distance2_1
 
             distance = distance1_2 + distance2_1
 

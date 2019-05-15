@@ -20,9 +20,9 @@
       }
     }
   },
-  "n_epochs": 10,
+  "n_epochs": 100,
   "quiet": false,
-  "seed": 759391399,
+  "seed": 719740136,
   "val_size": 0.15,
   "weight_decay": 1e-05
 }

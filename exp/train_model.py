@@ -97,6 +97,12 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         torch.save(model, os.path.join(rundir, 'model.pth'))
     logged_averages = callbacks[0].logged_averages
     logged_stds = callbacks[0].logged_stds
+    logged_averages = {
+        key: value for key, value in logged_averages.items() if 'loss' in key
+    }
+    logged_stds = {
+        key: value for key, value in logged_stds.items() if 'loss' in key
+    }
     if rundir:
         plot_losses(
             logged_averages,
