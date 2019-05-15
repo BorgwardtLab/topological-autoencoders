@@ -2,7 +2,7 @@
   "batch_size": 64,
   "dataset": {
     "__doc__": "FashionMNIST dataset.",
-    "name": "SwissRoll",
+    "name": "SCurve",
     "parameters": {}
   },
   "evaluation": {
@@ -16,13 +16,13 @@
     "parameters": {
       "autoencoder_model": "MLPAutoencoder",
       "toposig_kwargs": {
-        "match_edges": "mask-one-way"
+        "match_edges": "symmetric"
       }
     }
   },
   "n_epochs": 100,
   "quiet": false,
-  "seed": 305569085,
+  "seed": 221083547,
   "val_size": 0.15,
   "weight_decay": 1e-05
 }
