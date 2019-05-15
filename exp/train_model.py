@@ -5,7 +5,7 @@ from sacred import Experiment
 from sacred.utils import apply_backspaces_and_linefeeds
 import torch
 
-from src.callbacks import SaveReconstructedImages, Progressbar
+from src.callbacks import Callback, SaveReconstructedImages, Progressbar
 from src.datasets.splitting import split_validation
 from src.evaluation.eval import Evaluation
 from src.training import TrainingLoop
@@ -28,12 +28,18 @@ def cfg():
     batch_size = 64
     learning_rate = 1e-3
     weight_decay = 1e-5
-    val_size = 0.2
+    val_size = 0.15
     quiet = False
     evaluation = {
         'active': False,
         'k': 15
     }
+
+
+class NewlineCallback(Callback):
+    """Add newline between epochs for better readability."""
+    def on_epoch_end(self, **kwargs):
+        print()
 
 
 @EXP.automain
@@ -55,11 +61,16 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
     callbacks = [
         LogTrainingLoss(_run, print_progress=quiet),
         LogDatasetLoss('validation', validation_dataset, _run,
-                       print_progress=True, batch_size=batch_size),
+                       print_progress=True, batch_size=batch_size,
+                       early_stopping=5),
         LogDatasetLoss('testing', test_dataset, _run, print_progress=True,
                        batch_size=batch_size),
     ]
-    if not quiet:
+
+    if quiet:
+        # Add newlines between epochs
+        callbacks.append(NewlineCallback())
+    else:
         callbacks.append(Progressbar(print_loss_components=True))
 
     # If we are logging this run save reconstruction images

@@ -66,24 +66,34 @@ class LogDatasetLoss(Callback):
     """Logging of loss during training into sacred run."""
 
     def __init__(self, dataset_name, dataset, run, print_progress=True,
-                 batch_size=128):
+                 batch_size=128, early_stopping=None):
         """Create logger callback.
 
         Log the training loss using the sacred metrics API.
 
         Args:
+            dataset_name: Name of dataset
+            dataset: Dataset to use
             run: Sacred run
+            print_progress: Print evaluated loss
+            batch_size: Batch size
+            early_stopping: if int the number of epochs to wait befor stopping
+                training due to non-decreasing loss, if None dont use
+                early_stopping
         """
         self.prefix = dataset_name
         self.dataset = dataset
-        # TODO: Ideally drop last should be set to fals, yet this is currently
+        # TODO: Ideally drop last should be set to false, yet this is currently
         # incompatible with the surrogate approach as it assumes a constant
         # batch size.
         self.data_loader = DataLoader(self.dataset, batch_size=batch_size,
                                       drop_last=True)
         self.run = run
         self.print_progress = print_progress
+        self.early_stopping = early_stopping
         self.iterations = 0
+        self.patience = 0
+        self.best_loss = np.inf
 
     def _compute_average_losses(self, model):
         losses = defaultdict(list)
@@ -139,3 +149,17 @@ class LogDatasetLoss(Callback):
                 value,
                 self.iterations
             )
+        if self.early_stopping is not None:
+            if losses['loss'] < self.best_loss:
+                self.best_loss = losses['loss']
+                self.patience = 0
+            else:
+                self.patience += 1
+
+            if self.early_stopping <= self.patience:
+                print(
+                    'Stopping training due to non-decreasing '
+                    f'{self.prefix} loss'
+                )
+                return True
+

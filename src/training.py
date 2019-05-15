@@ -29,16 +29,20 @@ class TrainingLoop():
         self.callbacks = callbacks if callbacks else []
 
     def _execute_callbacks(self, hook, local_variables):
+        stop = False
         for callback in self.callbacks:
-            getattr(callback, hook)(**local_variables)
+            # Convert return value to bool --> if callback doesn't return
+            # anything we interpret it as False
+            stop |= bool(getattr(callback, hook)(**local_variables))
+        return stop
 
     def on_epoch_begin(self, local_variables):
         """Call callbacks before an epoch begins."""
-        self._execute_callbacks('on_epoch_begin', local_variables)
+        return self._execute_callbacks('on_epoch_begin', local_variables)
 
     def on_epoch_end(self, local_variables):
         """Call callbacks after an epoch is finished."""
-        self._execute_callbacks('on_epoch_end', local_variables)
+        return self._execute_callbacks('on_epoch_end', local_variables)
 
     def on_batch_begin(self, local_variables):
         """Call callbacks before a batch is being processed."""
@@ -69,8 +73,11 @@ class TrainingLoop():
             model.parameters(), lr=learning_rate,
             weight_decay=self.weight_decay)
 
+        epoch = 1
         for epoch in range(1, n_epochs+1):
-            self.on_epoch_begin(remove_self(locals()))
+            if self.on_epoch_begin(remove_self(locals())):
+                break
+
             for batch, (img, label) in enumerate(train_loader):
                 self.on_batch_begin(remove_self(locals()))
 
@@ -84,7 +91,10 @@ class TrainingLoop():
 
                 # Call callbacks
                 self.on_batch_end(remove_self(locals()))
-            self.on_epoch_end(remove_self(locals()))
+
+            if self.on_epoch_end(remove_self(locals())):
+                break
+        return epoch
 
 
 def remove_self(dictionary):
