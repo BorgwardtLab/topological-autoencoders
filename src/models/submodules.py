@@ -152,26 +152,26 @@ class ConvolutionalAutoencoder_STL10(AutoencoderModel):
         reconst_error = self.reconst_error(x, x_reconst)
         return reconst_error, {'reconstruction_error': reconst_error}
 
+
 class MLPAutoencoder(AutoencoderModel):
     def __init__(self, arch=[3, 32, 32, 2]):
         super().__init__()
         self.encoder = nn.Sequential(
             nn.Linear(3, 32),
-            nn.BatchNorm1d(32),
             nn.ReLU(True),
+            nn.BatchNorm1d(32),
             nn.Linear(32, 32),
-            nn.BatchNorm1d(32),
             nn.ReLU(True),
+            nn.BatchNorm1d(32),
             nn.Linear(32, 2),
-            nn.ReLU()
         )
         self.decoder = nn.Sequential(
             nn.Linear(2, 32),
-            nn.BatchNorm1d(32),
             nn.ReLU(True),
+            nn.BatchNorm1d(32),
             nn.Linear(32, 32),
-            nn.BatchNorm1d(32),
             nn.ReLU(True),
+            nn.BatchNorm1d(32),
             nn.Linear(32, 3)
         )
         self.reconst_error = nn.MSELoss()
