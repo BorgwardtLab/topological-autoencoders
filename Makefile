@@ -7,7 +7,11 @@ EXPERIMENT_OUTPUT_PATH := exp_runs
 RUN_EXPERIMENTS := $(foreach exp_config,$(EXPERIMENT_CONFIGS),$(EXPERIMENT_OUTPUT_PATH)/$(subst .json,,$(exp_config)))
 #$(info $$RUN_EXPERIMENTS is [${RUN_EXPERIMENTS}])
 
-.PHONY: help all
+FILTER := 
+FILTERED_EXPERIMENTS := $(shell echo $(RUN_EXPERIMENTS) | tr ' ' '\n' | grep $(FILTER))
+
+.PHONY: help all filtered
+
 
 help:
 	@# Got this from https://gist.github.com/rcmachado/af3db315e31383502660#gistcomment-1585632
@@ -26,6 +30,8 @@ help:
 
 ## Run all experiments defined in $(EXPERIMENT_CONFIGS_PATH)
 all: $(RUN_EXPERIMENTS)
+
+filtered: $(FILTERED_EXPERIMENTS)
 
 $(EXPERIMENT_OUTPUT_PATH)/%: $(EXPERIMENT_CONFIGS_PATH)/%.json
 	@# Split of the highest level directory besides $(EXPERIMENT_CONFIGS_PATH) and interpret it 
