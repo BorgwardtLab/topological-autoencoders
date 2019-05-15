@@ -2,9 +2,25 @@
 from collections import defaultdict
 
 import numpy as np
+import torch
 from torch.utils.data import DataLoader
 
 from src.callbacks import Callback
+
+
+def convert_to_base_type(value):
+    """Convert a value into a python base datatype.
+
+    Args:
+        value: numpy or torch value
+
+    Returns:
+        Python base type
+    """
+    if isinstance(value, (torch.Tensor, np.generic)):
+        return value.item()
+    else:
+        return value
 
 
 class LogTrainingLoss(Callback):
@@ -39,12 +55,12 @@ class LogTrainingLoss(Callback):
         self.epoch_losses = defaultdict(list)
 
     def on_batch_end(self, loss, loss_components, **kwargs):
+        loss = convert_to_base_type(loss)
         self.iterations += 1
-        loss = loss.cpu().item()
         self.epoch_losses['training.loss'].append(loss)
         self.run.log_scalar('training.loss.batch', loss, self.iterations)
         for key, value in loss_components.items():
-            value = value.cpu().item()
+            value = convert_to_base_type(value)
             storage_key = 'training.' + key
             self.epoch_losses[storage_key].append(value)
             self.run.log_scalar(storage_key + '.batch', value, self.iterations)
@@ -101,15 +117,17 @@ class LogDatasetLoss(Callback):
         for batch in self.data_loader:
             data, _ = batch
             loss, loss_components = model(data)
+            loss = convert_to_base_type(loss)
 
             # Rescale the losses as batch_size might not divide dataset
             # perfectly, this currently is a nop as drop_last is set to True in
             # the constructor.
             n_instances = len(data)
-            losses['loss'].append(loss.item()*n_instances)
+            losses['loss'].append(loss*n_instances)
             for loss_component, value in loss_components.items():
+                value = convert_to_base_type(value)
                 losses[loss_component].append(
-                    value.item()*n_instances)
+                    value*n_instances)
         return {
             name: sum(values) / len(self.dataset)
             for name, values in losses.items()
