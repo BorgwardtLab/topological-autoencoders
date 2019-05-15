@@ -22,7 +22,7 @@
   },
   "n_epochs": 100,
   "quiet": false,
-  "seed": 719740136,
+  "seed": 279595222,
   "val_size": 0.15,
   "weight_decay": 1e-05
 }
