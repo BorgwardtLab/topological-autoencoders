@@ -17,7 +17,8 @@ import skopt
 from .train_model import EXP as train_experiment
 
 ex = Experiment('hyperparameter_search')
-ex.observers.append(FileStorageObserver.create('hyperparameter_search_runs'))
+if not ex.observers:
+    ex.observers.append(FileStorageObserver.create('hyperparameter_search_runs'))
 
 
 @ex.config
@@ -40,78 +41,56 @@ def cfg():
 
 
 @ex.named_config
-def TopoRegMNIST():
+def MNIST():
+    overrides = {
+        'dataset__name': 'MNIST'
+
+    }
+
+
+@ex.named_config
+def FashionMNIST():
+    overrides = {
+        'dataset__name': 'FashionMNIST'
+    }
+
+
+@ex.named_config
+def Vanilla():
+    overrides = {
+        'model__name': 'VanillaAutoencoderModel',
+    }
+
+
+@ex.named_config
+def TopoReg():
     hyperparameter_space = {
         'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
-        'dataset__name': 'MNIST'
     }
 
 
 @ex.named_config
-def TopoRegVertexMNIST():
+def TopoRegVertex():
     hyperparameter_space = {
         'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
         'model__parameters__toposig_kwargs__sort_selected': True,
-        'dataset__name': 'MNIST'
     }
 
 
 @ex.named_config
-def TopoRegVertexFashionMNIST():
-    hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
-    }
-    overrides = {
-        'model__name': 'TopologicallyRegularizedAutoencoder',
-        'model__parameters__toposig_kwargs__sort_selected': True,
-        'dataset__name': 'FashionMNIST'
-    }
-
-
-@ex.named_config
-def TopoRegEdgeMNIST():
+def TopoRegEdge():
     hyperparameter_space = {
         'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
         'model__parameters__match_distances': True,
-        'dataset__name': 'MNIST'
-    }
-
-
-@ex.named_config
-def TopoRegEdgeFashionMNIST():
-    hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
-    }
-    overrides = {
-        'model__name': 'TopologicallyRegularizedAutoencoder',
-        'model__parameters__match_distances': True,
-        'dataset__name': 'FashionMNIST'
-    }
-
-
-@ex.named_config
-def VanillaMNIST():
-    overrides = {
-        'model__name': 'VanillaAutoencoderModel',
-        'dataset__name': 'MNIST'
-
-    }
-
-
-@ex.named_config
-def VanillaFashionMNIST():
-    overrides = {
-        'model__name': 'VanillaAutoencoderModel',
-        'dataset__name': 'FashionMNIST'
     }
 
 
