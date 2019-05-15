@@ -1,0 +1,23 @@
+{
+  "batch_size": 64,
+  "dataset": {
+    "__doc__": "SCurve dataset.",
+    "name": "SCurve",
+    "parameters": {}
+  },
+  "learning_rate": 0.001,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "TopologicallyRegularizedAutoencoder",
+    "parameters": {
+      "autoencoder_model": "MLPAutoencoder",
+      "lam": 1.0,
+      "toposig_kwargs": {
+        "sort_selected": true
+      }
+    }
+  },
+  "n_epochs": 50,
+  "seed": 970626801,
+  "weight_decay": 1e-05
+}

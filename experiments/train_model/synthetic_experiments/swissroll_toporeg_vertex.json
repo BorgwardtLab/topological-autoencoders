@@ -1,0 +1,23 @@
+{
+  "batch_size": 64,
+  "dataset": {
+    "__doc__": "Swissroll dataset.",
+    "name": "SwissRoll",
+    "parameters": {}
+  },
+  "learning_rate": 0.001,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "TopologicallyRegularizedAutoencoder",
+    "parameters": {
+      "autoencoder_model": "MLPAutoencoder",
+      "lam": 1.0,
+      "toposig_kwargs": {
+        "sort_selected": true
+      } 
+    }
+  },
+  "n_epochs": 50,
+  "seed": 829367737,
+  "weight_decay": 1e-05
+}

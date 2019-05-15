@@ -1,0 +1,23 @@
+{
+  "batch_size": 64,
+  "dataset": {
+    "__doc__": "Spheres dataset.",
+    "name": "Spheres",
+    "parameters": {}
+  },
+  "learning_rate": 0.001,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "TopologicallyRegularizedAutoencoder",
+    "parameters": {
+      "autoencoder_model": "MLPAutoencoder_Spheres",
+      "lam": 1.0,
+      "toposig_kwargs": {
+        "sort_selected": true
+      }
+    }
+  },
+  "n_epochs": 50,
+  "seed": 829367737,
+  "weight_decay": 1e-05
+}
