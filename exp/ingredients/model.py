@@ -28,18 +28,42 @@ def TopologicalSurrogateAutoencoder():
 
 
 @ingredient.named_config
-def TopologicallyRegularizedAutoencoder():
+def Vanilla():
+    name =  'VanillaAutoencoderModel'
+
+
+@ingredient.named_config
+def TopoReg():
+    name = 'TopologicallyRegularizedAutoencoder'
+
+
+@ingredient.named_config
+def TopoRegVertex():
     name = 'TopologicallyRegularizedAutoencoder'
     parameters = {
-        'lam': 1.
+        'toposig_kwargs': {
+            'sort_selected': True
+        }
     }
 
 
 @ingredient.named_config
-def VanillaAutoencoder():
-    name = 'VanillaAutoencoderModel'
-    parameters = {}
+def TopoRegEdge():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'toposig_kwargs': {
+            'match_edges': 'mask-one-way'
+        }
+    }
 
+@ingredient.named_config
+def TopoRegEdgeSymmetric():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'toposig_kwargs': {
+            'match_edges': 'symmetric'
+        }
+    }
 
 @ingredient.capture
 def get_instance(name, parameters, _log):

@@ -1,0 +1,25 @@
+{
+  "batch_size": 64,
+  "dataset": {
+    "__doc__": "FashionMNIST dataset.",
+    "name": "SCurve",
+    "parameters": {}
+  },
+  "evaluation": {
+    "active": false,
+    "k": 15
+  },
+  "learning_rate": 0.001,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "VanillaAutoencoderModel",
+    "parameters": {
+      "autoencoder_model": "MLPAutoencoder"
+    }
+  },
+  "n_epochs": 10,
+  "quiet": false,
+  "seed": 382349313,
+  "val_size": 0.15,
+  "weight_decay": 1e-05
+}
