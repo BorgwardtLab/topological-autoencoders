@@ -33,6 +33,14 @@ def Vanilla():
 
 
 @ingredient.named_config
+def VAE():
+    name =  'VanillaAutoencoderModel'
+    parameters = {
+        'autoencoder_model': 'MLPVAE'
+    }
+
+
+@ingredient.named_config
 def TopoReg():
     name = 'TopologicallyRegularizedAutoencoder'
 

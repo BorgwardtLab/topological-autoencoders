@@ -1,5 +1,7 @@
 """Submodules used by models."""
+import torch
 import torch.nn as nn
+from torch.distributions import Normal
 
 from .base import AutoencoderModel
 # Hush the linter: Warning W0221 corresponds to a mismatch between parent class
@@ -264,3 +266,76 @@ class MLPAutoencoder_Spheres(AutoencoderModel):
         x_reconst = self.decode(latent)
         reconst_error = self.reconst_error(x, x_reconst)
         return reconst_error, {'reconstruction_error': reconst_error}
+
+
+class MLPVAE(AutoencoderModel):
+    def __init__(self, input_dim=3, latent_dim=2):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Linear(input_dim, 32),
+            nn.ReLU(True),
+            nn.BatchNorm1d(32),
+            nn.Linear(32, 32),
+            nn.ReLU(True),
+            nn.BatchNorm1d(32),
+            nn.Linear(32, latent_dim*2),
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 32),
+            nn.ReLU(True),
+            nn.BatchNorm1d(32),
+            nn.Linear(32, 32),
+            nn.ReLU(True),
+            nn.BatchNorm1d(32),
+            nn.Linear(32, input_dim*2)
+        )
+
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return mu + eps*std
+
+    def _split_to_parameters(self, x):
+        return x.split(x.size(-1) // 2, dim=-1)
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        mu, logvar = self._encode_latent_parameters(x)
+        encoded = self.reparameterize(mu, logvar)
+        return encoded
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        mu, logvar = self._decode_latent_parameters(z)
+        encoded = self.reparameterize(mu, logvar)
+        return encoded
+
+    def log_likelihood(self, x, reconst_mean, reconst_std):
+        predicted_x = Normal(loc=reconst_mean, scale=reconst_std)
+        return predicted_x.log_prob(x).sum(dim=-1)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent_mu, latent_logvar = self._split_to_parameters(self.encoder(x))
+        latent = self.reparameterize(latent_mu, latent_logvar)
+
+        data_mu, data_logvar = self._split_to_parameters(self.decoder(latent))
+        data_std = torch.exp(0.5*data_logvar)
+
+        likelihood = -self.log_likelihood(x, data_mu, data_std).mean(dim=0)
+
+        # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
+        kl_div = -0.5 * torch.sum(
+            1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp(),
+            dim=-1
+        ).mean(dim=0)
+        loss = likelihood + kl_div
+        return loss, {'likelihood': likelihood, 'kl_divergence': kl_div}

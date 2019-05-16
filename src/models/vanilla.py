@@ -37,4 +37,3 @@ class VanillaAutoencoderModel(AutoencoderModel):
 
     def decode(self, z):
         return self.autoencoder.decode(z)
-
