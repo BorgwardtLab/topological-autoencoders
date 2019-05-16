@@ -62,7 +62,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         LogTrainingLoss(_run, print_progress=quiet),
         LogDatasetLoss('validation', validation_dataset, _run,
                        print_progress=True, batch_size=batch_size,
-                       early_stopping=5),
+                       early_stopping=25),
         LogDatasetLoss('testing', test_dataset, _run, print_progress=True,
                        batch_size=batch_size),
     ]
