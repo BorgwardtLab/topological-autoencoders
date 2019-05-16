@@ -7,6 +7,8 @@
 import numpy as np
 import sys
 
+import matplotlib.pyplot as plt
+
 
 def diameter(X):
     '''
@@ -55,14 +57,19 @@ if __name__ == '__main__':
 
     n_points = 100
     d = 2
-    n_subsamples = 50
+    n_subsamples = 100
     m = 10
 
     X = np.random.normal(size=(n_points, d))
     X_diam = diameter(X)
 
+    distances = []
+
     for _ in range(n_subsamples):
         Y = X[np.random.choice(X.shape[0], m)]
         Y_diam = diameter(Y)
 
-        print(hausdorff_distance(X, Y))
+        distances.append(hausdorff_distance(X, Y))
+
+    plt.hist(distances)
+    plt.show()
