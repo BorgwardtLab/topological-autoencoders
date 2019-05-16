@@ -177,7 +177,7 @@ class LogDatasetLoss(Callback):
             if self.early_stopping <= self.patience:
                 print(
                     'Stopping training due to non-decreasing '
-                    f'{self.prefix} loss'
+                    f'{self.prefix} loss over {self.early_stopping} epochs'
                 )
                 return True
 

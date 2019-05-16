@@ -1,0 +1,6 @@
+.DS_Store
+Pipfile.lock
+__pycache__/
+data/
+notebooks/.ipynb_checkpoints/
+exp_runs/

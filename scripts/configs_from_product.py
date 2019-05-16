@@ -12,6 +12,7 @@ def main():
     parser.add_argument('--set', required=True, nargs='+', type=str,
                         action='append')
     parser.add_argument('--output-pattern', required=True, type=str)
+    parser.add_argument('--overwrite', action='store_true', default=False)
 
     args = parser.parse_args()
     assert len(args.name) == len(args.set)
@@ -19,6 +20,9 @@ def main():
     for possible_parameters in itertools.product(*args.set):
         parameter_mapping = dict(zip(args.name, possible_parameters))
         output_filename = args.output_pattern.format(**parameter_mapping)
+        if not args.overwrite and os.path.exists(output_filename):
+            print(f'Skipping... {output_filename} already exists.')
+            continue
         os.makedirs(os.path.dirname(output_filename), exist_ok=True)
         subprocess.call(
             [

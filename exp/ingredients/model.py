@@ -33,6 +33,14 @@ def Vanilla():
 
 
 @ingredient.named_config
+def VAE():
+    name =  'VanillaAutoencoderModel'
+    parameters = {
+        'autoencoder_model': 'MLPVAE'
+    }
+
+
+@ingredient.named_config
 def TopoReg():
     name = 'TopologicallyRegularizedAutoencoder'
 
@@ -56,12 +64,34 @@ def TopoRegEdge():
         }
     }
 
+
 @ingredient.named_config
 def TopoRegEdgeSymmetric():
     name = 'TopologicallyRegularizedAutoencoder'
     parameters = {
         'toposig_kwargs': {
             'match_edges': 'symmetric'
+        }
+    }
+
+
+@ingredient.named_config
+def TopoRegEdgeRandom():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'toposig_kwargs': {
+            'match_edges': 'random'
+        }
+    }
+
+
+@ingredient.named_config
+def VAETopoRegSymmetric():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'autoencoder_model': 'MLPVAE',
+        'toposig_kwargs': {
+            'match_edges': 'random'
         }
     }
 

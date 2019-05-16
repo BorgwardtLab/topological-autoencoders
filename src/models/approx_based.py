@@ -44,7 +44,6 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         """
         batch_size = x.size()[0]
         latent = self.autoencoder.encode(x)
-        reconst = self.autoencoder.decode(latent)
 
         x_distances = self._compute_distance_matrix(x)
         # TODO: Normalize the distances in the data space --> does this make
@@ -53,17 +52,18 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         latent_distances = self._compute_distance_matrix(latent)
 
         # Use reconstruction loss of autoencoder
-        reconst_error = self.autoencoder.reconst_error(x, reconst)
+        ae_loss, ae_loss_comp = self.autoencoder(x)
 
         topo_error, topo_error_components = self.topo_sig(
             x_distances, latent_distances)
 
-        loss = reconst_error + self.lam * topo_error
+        loss = ae_loss + self.lam * topo_error
         loss_components = {
-            'loss.reconst_error': reconst_error,
+            'loss.autoencoder': ae_loss,
             'loss.topo_error': topo_error
         }
         loss_components.update(topo_error_components)
+        loss_components.update(ae_loss_comp)
         return (
             loss,
             loss_components
@@ -165,11 +165,40 @@ class TopologicalSignatureDistance(nn.Module):
                 (pairs1[0][:, 0], pairs1[0][:, 1])]
             distance = self.sig_error(sig1, sig2)
         elif self.match_edges == 'symmetric':
-            sig1_1 = self._select_distances_from_pairs(distances1, pairs1)
             sig1_2 = self._select_distances_from_pairs(distances2, pairs1)
 
-            sig2_2 = self._select_distances_from_pairs(distances2, pairs2)
             sig2_1 = self._select_distances_from_pairs(distances1, pairs2)
+
+            distance1_2 = self.sig_error(sig1, sig1_2)
+            distance2_1 = self.sig_error(sig2, sig2_1)
+            distance_components['metrics.distance1-2'] = distance1_2
+            distance_components['metrics.distance2-1'] = distance2_1
+
+            distance = distance1_2 + distance2_1
+
+        elif self.match_edges == 'random':
+            # Create random selection in oder to verify if what we are seeing
+            # is the topological constraint or an implicit latent space prior
+            # for compactness
+            n_instances = len(pairs1[0])
+            pairs1 = torch.cat([
+                torch.randperm(n_instances)[:, None],
+                torch.randperm(n_instances)[:, None]
+            ], dim=1)
+            pairs2 = torch.cat([
+                torch.randperm(n_instances)[:, None],
+                torch.randperm(n_instances)[:, None]
+            ], dim=1)
+
+            sig1_1 = self._select_distances_from_pairs(
+                distances1, (pairs1, None))
+            sig1_2 = self._select_distances_from_pairs(
+                distances2, (pairs1, None))
+
+            sig2_2 = self._select_distances_from_pairs(
+                distances2, (pairs2, None))
+            sig2_1 = self._select_distances_from_pairs(
+                distances1, (pairs2, None))
 
             distance1_2 = self.sig_error(sig1_1, sig1_2)
             distance2_1 = self.sig_error(sig2_1, sig2_2)
