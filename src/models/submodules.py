@@ -300,13 +300,13 @@ class MLPVAE(AutoencoderModel):
 
     def encode(self, x):
         """Compute latent representation using convolutional autoencoder."""
-        mu, logvar = self._encode_latent_parameters(x)
+        mu, logvar = self._split_to_parameters(self.encoder(x))
         encoded = self.reparameterize(mu, logvar)
         return encoded
 
     def decode(self, z):
         """Compute reconstruction using convolutional autoencoder."""
-        mu, logvar = self._decode_latent_parameters(z)
+        mu, logvar = self._split_to_parameters(self.decode(z))
         encoded = self.reparameterize(mu, logvar)
         return encoded
 
