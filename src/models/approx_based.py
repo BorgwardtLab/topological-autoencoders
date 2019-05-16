@@ -93,7 +93,7 @@ class AlephPersistenHomologyCalculation():
             pairs_0 = self._aleph.vietoris_rips_from_matrix_1d(
                 distance_matrix)
             pairs_0 = np.array(pairs_0)
-            pairs_1 = None
+            pairs_1 = np.array([])
 
         return pairs_0, pairs_1
 
