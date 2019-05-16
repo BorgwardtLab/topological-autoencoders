@@ -79,18 +79,17 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
 
 class AlephPersistenHomologyCalculation():
     def __init__(self, compute_cycles):
-        import aleph
-        self._aleph = aleph
         self.compute_cycles = compute_cycles
 
     def __call__(self, distance_matrix):
+        import aleph
         if self.compute_cycles:
-            pairs_0, pairs_1 = self._aleph.vietoris_rips_from_matrix_2d(
+            pairs_0, pairs_1 = aleph.vietoris_rips_from_matrix_2d(
                 distance_matrix)
             pairs_0 = np.array(pairs_0)
             pairs_1 = np.array(pairs_1)
         else:
-            pairs_0 = self._aleph.vietoris_rips_from_matrix_1d(
+            pairs_0 = aleph.vietoris_rips_from_matrix_1d(
                 distance_matrix)
             pairs_0 = np.array(pairs_0)
             pairs_1 = np.array([])
