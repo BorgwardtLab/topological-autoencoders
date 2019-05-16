@@ -15,12 +15,12 @@
     "__doc__": "Model configuration.",
     "name": "TopologicallyRegularizedAutoencoder",
     "parameters": {
-      "autoencoder_model": "MLPAutoencoder_Shperes"
+      "autoencoder_model": "MLPAutoencoder_Spheres"
     }
   },
   "n_epochs": 100,
   "quiet": false,
-  "seed": 864628102,
+  "seed": 35536765,
   "val_size": 0.15,
   "weight_decay": 1e-05
 }
