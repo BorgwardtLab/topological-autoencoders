@@ -220,8 +220,7 @@ class MLPAutoencoder_Spheres(AutoencoderModel):
             nn.Linear(32, 32),
             nn.BatchNorm1d(32),
             nn.ReLU(True),
-            nn.Linear(32, 2),
-            nn.ReLU()
+            nn.Linear(32, 2)
         )
         self.decoder = nn.Sequential(
             nn.Linear(2, 32),
