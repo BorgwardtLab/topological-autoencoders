@@ -306,7 +306,7 @@ class MLPVAE(AutoencoderModel):
 
     def decode(self, z):
         """Compute reconstruction using convolutional autoencoder."""
-        mu, logvar = self._split_to_parameters(self.decode(z))
+        mu, logvar = self._split_to_parameters(self.decoder(z))
         encoded = self.reparameterize(mu, logvar)
         return encoded
 
