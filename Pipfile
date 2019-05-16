@@ -16,6 +16,7 @@ tqdm = "*"
 scikit-optimize = "*"
 pandas = "*"
 tadasets = "*"
+umap-learn = "*"
 
 [requires]
 python_version = "3.6"
