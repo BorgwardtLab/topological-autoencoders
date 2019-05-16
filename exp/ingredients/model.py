@@ -56,12 +56,23 @@ def TopoRegEdge():
         }
     }
 
+
 @ingredient.named_config
 def TopoRegEdgeSymmetric():
     name = 'TopologicallyRegularizedAutoencoder'
     parameters = {
         'toposig_kwargs': {
             'match_edges': 'symmetric'
+        }
+    }
+
+
+@ingredient.named_config
+def TopoRegEdgeRandom():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'toposig_kwargs': {
+            'match_edges': 'random'
         }
     }
 
