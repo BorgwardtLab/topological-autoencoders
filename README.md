@@ -48,7 +48,17 @@ variable:
 ```bash
 make -j 2 filtered FILTER=train_model/synthetic_experiments SACRED_OVERRIDES='quiet=True'
 ```
+### Creating config files
 
+```bash
+python scripts/configs_from_product.py exp.train_model \
+  --name model \
+  --set model.Vanilla model.TopoReg model.TopoRegVertex model.TopoRegEdge model.TopoRegEdgeSymmetric \
+  --name dataset --set dataset.SwissRoll dataset.SCurve \
+  --name dummy --set model.parameters.autoencoder_model=MLPAutoencoder \
+  --name dummy2 --set n_epochs=100 \
+  --output-pattern 'experiments/train_model/mlpautoencoder_dimred/{dataset}/{model}.json'
+```
 
 ## Implementation TODOs:
 
