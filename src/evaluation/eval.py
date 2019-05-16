@@ -17,6 +17,23 @@ Evaluation object:
     - dataloader: torch iterable dataloader object of pre-specified dataset and train/val/test split
 '''
 
+def evaluate_space(data, labels, k):
+    """Evaluate Space with kNN-based classification (accuracy) and label
+    clustering (NMI).
+
+    - data: samples from data or latent space as a data matrix
+    - labels: corresponding labels to the samples
+    - k: number of neighbors up to which the evaluation is iterating.
+    """
+    k_preds = get_k_predictions(data, labels, k)
+    nmis = get_NMI(k_preds, labels)
+    accs = get_acc(k_preds, labels)
+    result = {'nmis_avg': nmis.mean(),
+              'nmis': nmis,
+              'accs_avg': accs.mean(),
+              'accs': accs }
+    return result
+
 class Evaluation:
     def __init__(self, method, dataloader, n_samples=500, seed=42, model=None):
         self.method = method
