@@ -15,12 +15,12 @@
     "__doc__": "Model configuration.",
     "name": "VanillaAutoencoderModel",
     "parameters": {
-      "autoencoder_model": "MLPAutoencoder"
+      "autoencoder_model": "MLPAutoencoder_Shperes"
     }
   },
   "n_epochs": 100,
   "quiet": false,
-  "seed": 930591756,
+  "seed": 459944765,
   "val_size": 0.15,
   "weight_decay": 1e-05
 }

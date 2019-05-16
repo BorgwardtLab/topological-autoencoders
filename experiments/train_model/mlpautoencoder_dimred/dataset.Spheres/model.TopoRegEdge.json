@@ -15,7 +15,7 @@
     "__doc__": "Model configuration.",
     "name": "TopologicallyRegularizedAutoencoder",
     "parameters": {
-      "autoencoder_model": "MLPAutoencoder",
+      "autoencoder_model": "MLPAutoencoder_Shperes",
       "toposig_kwargs": {
         "match_edges": "mask-one-way"
       }
@@ -23,7 +23,7 @@
   },
   "n_epochs": 100,
   "quiet": false,
-  "seed": 848791818,
+  "seed": 860248907,
   "val_size": 0.15,
   "weight_decay": 1e-05
 }
