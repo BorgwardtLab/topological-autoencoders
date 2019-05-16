@@ -46,8 +46,6 @@ def hausdorff_distance(X, Y):
 
         d_y_X = max(d_y_X, d_y_x)
 
-    print(d_x_Y, d_y_X)
-
     return max(d_x_Y, d_y_X)
 
 
