@@ -1,4 +1,5 @@
 """Topolologically regularized autoencoder using approximation."""
+import numpy as np
 import torch
 import torch.nn as nn
 
@@ -76,6 +77,27 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         return self.autoencoder.decode(z)
 
 
+class AlephPersistenHomologyCalculation():
+    def __init__(self, compute_cycles):
+        import aleph
+        self._aleph = aleph
+        self.compute_cycles = compute_cycles
+
+    def __call__(self, distance_matrix):
+        if self.compute_cycles:
+            pairs_0, pairs_1 = self._aleph.vietoris_rips_from_matrix_2d(
+                distance_matrix)
+            pairs_0 = np.array(pairs_0)
+            pairs_1 = np.array(pairs_1)
+        else:
+            pairs_0 = self._aleph.vietoris_rips_from_matrix_1d(
+                distance_matrix)
+            pairs_0 = np.array(pairs_0)
+            pairs_1 = None
+
+        return pairs_0, pairs_1
+
+
 class TopologicalSignatureDistance(nn.Module):
     """Topological signature."""
 
@@ -92,7 +114,11 @@ class TopologicalSignatureDistance(nn.Module):
         self.sort_selected = sort_selected
         self.use_cycles = use_cycles
         self.match_edges = match_edges
-        self.signature_calculator = PersistentHomologyCalculation()
+
+        self.signature_calculator = AlephPersistenHomologyCalculation(
+            compute_cycles=use_cycles)
+        # else:
+        #     self.signature_calculator = PersistentHomologyCalculation()
 
     def _get_pairings(self, distances):
         pairs_0, pairs_1 = self.signature_calculator(distances.detach().numpy())
@@ -110,10 +136,12 @@ class TopologicalSignatureDistance(nn.Module):
         selected_distances = distance_matrix[(pairs_0[:, 0], pairs_0[:, 1])]
 
         if self.use_cycles:
-            selected_cycle_distances = \
-                distance_matrix[(pairs_1[:, 0], pairs_1[:, 1])]
+            edges_1 = distance_matrix[(pairs_1[:, 0], pairs_1[:, 1])]
+            edges_2 = distance_matrix[(pairs_1[:, 2], pairs_1[:, 3])]
+            edge_differences = edges_2 - edges_1
+
             selected_distances = torch.cat(
-                (selected_distances, selected_cycle_distances))
+                (selected_distances, edge_differences))
 
         return selected_distances
 
