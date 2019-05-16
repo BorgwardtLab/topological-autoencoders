@@ -84,6 +84,17 @@ def TopoRegEdgeRandom():
         }
     }
 
+
+@ingredient.named_config
+def VAETopoRegSymmetric():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'autoencoder_model': 'MLPVAE',
+        'toposig_kwargs': {
+            'match_edges': 'random'
+        }
+    }
+
 @ingredient.capture
 def get_instance(name, parameters, _log):
     """Get an instance of a model according to parameters in the configuration.

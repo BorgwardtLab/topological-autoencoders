@@ -44,7 +44,6 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         """
         batch_size = x.size()[0]
         latent = self.autoencoder.encode(x)
-        reconst = self.autoencoder.decode(latent)
 
         x_distances = self._compute_distance_matrix(x)
         # TODO: Normalize the distances in the data space --> does this make
@@ -53,17 +52,18 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         latent_distances = self._compute_distance_matrix(latent)
 
         # Use reconstruction loss of autoencoder
-        reconst_error = self.autoencoder.reconst_error(x, reconst)
+        ae_loss, ae_loss_comp = self.autoencoder(x)
 
         topo_error, topo_error_components = self.topo_sig(
             x_distances, latent_distances)
 
-        loss = reconst_error + self.lam * topo_error
+        loss = ae_loss + self.lam * topo_error
         loss_components = {
-            'loss.reconst_error': reconst_error,
+            'loss.autoencoder': ae_loss,
             'loss.topo_error': topo_error
         }
         loss_components.update(topo_error_components)
+        loss_components.update(ae_loss_comp)
         return (
             loss,
             loss_components

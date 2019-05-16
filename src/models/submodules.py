@@ -338,4 +338,4 @@ class MLPVAE(AutoencoderModel):
             dim=-1
         ).mean(dim=0)
         loss = likelihood + kl_div
-        return loss, {'likelihood': likelihood, 'kl_divergence': kl_div}
+        return loss, {'loss.likelihood': likelihood, 'loss.kl_divergence': kl_div}
