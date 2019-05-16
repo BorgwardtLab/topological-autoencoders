@@ -47,10 +47,18 @@ def SCurve():
     parameters = {
     }
 
+
 @ingredient.named_config
 def STL10():
     """STL10 dataset."""
     name = 'STL10'
+    parameters = {
+    }
+
+
+@ingredient.named_config
+def Spheres():
+    name ='Spheres'
     parameters = {
     }
 
