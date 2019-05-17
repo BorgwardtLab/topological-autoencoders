@@ -3,10 +3,10 @@
 # hausdorff_subsampling.py: investigates the behaviour of the Hausdorff
 # distance under random subsampling.
 
-
-import numpy as np
+import argparse
 import sys
 
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -63,12 +63,20 @@ def hausdorff_distance(X, Y):
 
 if __name__ == '__main__':
 
-    np.random.seed(42)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-d', '--dimension', type=int, default=2)
+    parser.add_argument('-n', '--n_points', type=int, default=100)
+    parser.add_argument('-s', '--n_subsamples', type=int, default=20)
+    parser.add_argument('-m', type=int, default=25)
 
-    n_points = 100
-    d = 2
-    n_subsamples = 20
-    m = 25
+    args = parser.parse_args()
+
+    n_points = args.n_points
+    d = args.dimension
+    n_subsamples = args.n_subsamples
+    m = args.m
+
+    np.random.seed(42)
 
     X = np.random.normal(size=(n_points, d))
     X_diam = diameter(X)
@@ -95,4 +103,6 @@ if __name__ == '__main__':
 
         #print(np.mean(hausdorff_distances) / np.mean(Y_diameters))
 
-        print(np.mean(hausdorff_distances))
+        print(m, np.mean(hausdorff_distances))
+
+    print()
