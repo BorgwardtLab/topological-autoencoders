@@ -65,28 +65,32 @@ if __name__ == '__main__':
 
     np.random.seed(42)
 
-    n_points = 200
-    d = 100
-    n_subsamples = 100
-    m = 5
+    n_points = 100
+    d = 3
+    n_subsamples = 20
+    m = 25
 
-    X = np.random.normal(size=(n_points, d))
-    X_diam = diameter(X)
+    for d in [2, 10, 100, 1000]:
 
-    X_pairwise_distances = pairwise_distances(X)
+        X = np.random.normal(size=(n_points, d))
+        X_diam = diameter(X)
 
-    X_mean_distance = np.mean(X_pairwise_distances)
-    X_mean_distance_upper_bound = np.sqrt(2 * d)
+        X_pairwise_distances = pairwise_distances(X)
 
-    hausdorff_distances = []
-    Y_diameters = []
+        X_mean_distance = np.mean(X_pairwise_distances)
+        X_mean_distance_upper_bound = np.sqrt(2 * d)
 
-    for _ in range(n_subsamples):
-        Y = X[np.random.choice(X.shape[0], m)]
-        Y_diam = diameter(Y)
+        hausdorff_distances = []
+        Y_diameters = []
 
-        Y_diameters.append(Y_diam)
-        hausdorff_distances.append(hausdorff_distance(X, Y))
+        for _ in range(n_subsamples):
+            Y = X[np.random.choice(X.shape[0], m)]
 
-    plt.hist(X_diam - np.array(Y_diameters), bins=20)
-    plt.show()
+            Y_diameters.append(diameter(Y))
+            hausdorff_distances.append(hausdorff_distance(X, Y))
+
+        #print(np.array([X_diam] * n_subsamples), np.array(Y_diameters), hausdorff_distances)
+        #print(Y_diameters - X_diam)
+        #print(np.all(Y_diameters >= hausdorff_distances))
+
+        print(np.mean(hausdorff_distances) / np.mean(Y_diameters))
