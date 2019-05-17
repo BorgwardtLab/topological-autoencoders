@@ -76,18 +76,15 @@ class PersistentHomologyCalculation:
             younger_component = uf.find(u)
             older_component = uf.find(v)
 
-            if younger_component == older_component:
-                # The edge gives rise to a new cycle; in terms of
-                # persistent homology, it is a destroyer, and not
-                # a creator.
-                cycle_pairs.append((u, v))
-                continue
+            if younger_component > older_component:
+                uf.merge(v, u)
+            else:
+                uf.merge(u, v)
 
-            elif younger_component > older_component:
-                u, v = v, u
-
-            uf.merge(u, v)
-            persistence_pairs.append((u, v))
+            if u < v:
+                persistence_pairs.append((u, v))
+            else:
+                persistence_pairs.append((v, u))
 
         # For each unpaired component (ideally, there is only one), pair
         # it with itself. This is technically not correct but it permits
