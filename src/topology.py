@@ -65,7 +65,6 @@ class PersistentHomologyCalculation:
         # 1st dimension: 'source' vertex index of edge
         # 2nd dimension: 'target' vertex index of edge
         persistence_pairs = []
-        cycle_pairs = []
 
         for edge_index, edge_weight in \
                 zip(edge_indices, edge_weights[edge_indices]):
@@ -86,7 +85,7 @@ class PersistentHomologyCalculation:
             else:
                 persistence_pairs.append((v, u))
 
-        return np.array(persistence_pairs), np.array(cycle_pairs)
+        return np.array(persistence_pairs)
 
 
 class AlephPersistenHomologyCalculation():
