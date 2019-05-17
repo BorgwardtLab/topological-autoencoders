@@ -53,7 +53,7 @@ class UnionFind:
 
 
 class PersistentHomologyCalculation:
-    def __call__(self, matrix, pair_roots=False):
+    def __call__(self, matrix):
 
         n_vertices = matrix.shape[0]
         uf = UnionFind(n_vertices)
@@ -85,13 +85,6 @@ class PersistentHomologyCalculation:
                 persistence_pairs.append((u, v))
             else:
                 persistence_pairs.append((v, u))
-
-        # For each unpaired component (ideally, there is only one), pair
-        # it with itself. This is technically not correct but it permits
-        # sorting the pairs afterwards correctly.
-        if pair_roots:
-            for root in uf.roots():
-                persistence_pairs.append((root, root))
 
         return np.array(persistence_pairs), np.array(cycle_pairs)
 
