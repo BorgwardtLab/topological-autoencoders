@@ -65,10 +65,10 @@ if __name__ == '__main__':
 
     np.random.seed(42)
 
-    n_points = 100
-    d = 2
+    n_points = 200
+    d = 100
     n_subsamples = 100
-    m = 10
+    m = 5
 
     X = np.random.normal(size=(n_points, d))
     X_diam = diameter(X)
@@ -78,18 +78,26 @@ if __name__ == '__main__':
     X_mean_distance = np.mean(X_pairwise_distances)
     X_mean_distance_upper_bound = np.sqrt(2 * d)
 
-    plt.hist(X_pairwise_distances, bins=100)
-    plt.axvline(X_mean_distance, c='k')
-    plt.axvline(X_mean_distance_upper_bound, c='k', linestyle='dashed')
-    plt.show()
-
-    distances = []
+    hausdorff_distances = []
+    Y_diameters = []
 
     for _ in range(n_subsamples):
         Y = X[np.random.choice(X.shape[0], m)]
         Y_diam = diameter(Y)
 
-        distances.append(hausdorff_distance(X, Y))
+        Y_diameters.append(Y_diam)
+        hausdorff_distances.append(hausdorff_distance(X, Y))
 
-    plt.hist(distances)
+    plt.hist(X_diam - np.array(Y_diameters), bins=20)
+    plt.show()
+
+    #plt.hist(hausdorff_distances, bins=10)
+    #plt.axvline(np.mean(hausdorff_distances), c='k')
+    #plt.axvline(X_diam * m / n_points, c='r')
+    #plt.axvline(X_diam, c='k', linestyle='dashed')
+
+    #plt.hist(means, bins=50)
+    #plt.axvline(np.mean(means), c='r')
+    #plt.axvline(X_mean_distance, c='k')
+    #plt.axvline(X_mean_distance_upper_bound, c='k', linestyle='dashed')
     plt.show()
