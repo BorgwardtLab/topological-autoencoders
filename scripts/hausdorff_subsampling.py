@@ -22,6 +22,16 @@ def diameter(X):
     return np.amax(D)
 
 
+def pairwise_distances(X):
+    '''
+    Calculates pairwise distance matrix of a given finite metric space and
+    returns it in the form of a vector.
+    '''
+
+    D = np.sum((X[None, :] - X[:, None])**2, -1)**0.5
+    return D.ravel()
+
+
 def hausdorff_distance(X, Y):
     '''
     Calculates the Hausdorff distance between two finite metric spaces,
@@ -62,6 +72,16 @@ if __name__ == '__main__':
 
     X = np.random.normal(size=(n_points, d))
     X_diam = diameter(X)
+
+    X_pairwise_distances = pairwise_distances(X)
+
+    X_mean_distance = np.mean(X_pairwise_distances)
+    X_mean_distance_upper_bound = np.sqrt(2 * d)
+
+    plt.hist(X_pairwise_distances, bins=100)
+    plt.axvline(X_mean_distance, c='k')
+    plt.axvline(X_mean_distance_upper_bound, c='k', linestyle='dashed')
+    plt.show()
 
     distances = []
 
