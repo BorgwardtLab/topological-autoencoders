@@ -91,8 +91,12 @@ class TopologicalSignatureDistance(nn.Module):
                 or not.
         """
         super().__init__()
+        assert (sort_selected and not use_cycles) or \
+            (not sort_selected and use_cycles) or \
+            (not sort_selected and not use_cycles)
         self.sort_selected = sort_selected
         self.use_cycles = use_cycles
+
         self.match_edges = match_edges
 
         self.signature_calculator = AlephPersistenHomologyCalculation(
@@ -105,8 +109,7 @@ class TopologicalSignatureDistance(nn.Module):
 
         if self.sort_selected:
             # Sort arrays in-place
-            pairs_0.sort()
-            pairs_1.sort()
+            pairs_0 = pairs_0[np.lexsort((pairs_0[:, 0], pairs_0[:, 1]))]
 
         return pairs_0, pairs_1
 
@@ -179,6 +182,7 @@ class TopologicalSignatureDistance(nn.Module):
 
             distance1_2 = self.sig_error(sig1, sig1_2)
             distance2_1 = self.sig_error(sig2, sig2_1)
+
             distance_components['metrics.distance1-2'] = distance1_2
             distance_components['metrics.distance2-1'] = distance2_1
 
