@@ -90,14 +90,3 @@ if __name__ == '__main__':
 
     plt.hist(X_diam - np.array(Y_diameters), bins=20)
     plt.show()
-
-    #plt.hist(hausdorff_distances, bins=10)
-    #plt.axvline(np.mean(hausdorff_distances), c='k')
-    #plt.axvline(X_diam * m / n_points, c='r')
-    #plt.axvline(X_diam, c='k', linestyle='dashed')
-
-    #plt.hist(means, bins=50)
-    #plt.axvline(np.mean(means), c='r')
-    #plt.axvline(X_mean_distance, c='k')
-    #plt.axvline(X_mean_distance_upper_bound, c='k', linestyle='dashed')
-    plt.show()
