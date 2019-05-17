@@ -88,14 +88,31 @@ class PersistentHomologyCalculation:
             else:
                 persistence_pairs.append((v, u))
 
-        return np.array(persistence_pairs)
+        # Return empty cycles component
+        return np.array(persistence_pairs), np.array([])
 
 
 class AlephPersistenHomologyCalculation():
-    def __init__(self, compute_cycles):
+    def __init__(self, compute_cycles, sort_selected):
+        """Calculate persistent homology using aleph.
+
+        Args:
+            compute_cycles: Whether to compute cycles
+            sort_selected: Whether to sort the selected pairs using the
+                distance matrix (such that they are in the order of the
+                filteration)
+        """
         self.compute_cycles = compute_cycles
+        self.sort_selected = sort_selected
 
     def __call__(self, distance_matrix):
+        """Do PH calculation.
+
+        Args:
+            distance_matrix: numpy array of distances
+
+        Returns: tuple(edge_featues, cycle_features)
+        """
         import aleph
         if self.compute_cycles:
             pairs_0, pairs_1 = aleph.vietoris_rips_from_matrix_2d(
@@ -106,6 +123,13 @@ class AlephPersistenHomologyCalculation():
             pairs_0 = aleph.vietoris_rips_from_matrix_1d(
                 distance_matrix)
             pairs_0 = np.array(pairs_0)
+            # Return empty cycles component
             pairs_1 = np.array([])
+
+        if self.sort_selected:
+            selected_distances = \
+                distance_matrix[(pairs_0[:, 0], pairs_0[:, 1])]
+            indices_0 = np.argsort(selected_distances)
+            pairs_0 = pairs_0[indices_0]
 
         return pairs_0, pairs_1
