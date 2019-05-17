@@ -75,7 +75,10 @@ class PersistentHomologyCalculation:
             younger_component = uf.find(u)
             older_component = uf.find(v)
 
-            if younger_component > older_component:
+            # Not an edge of the MST, so skip it
+            if younger_component == older_component:
+                continue
+            elif younger_component > older_component:
                 uf.merge(v, u)
             else:
                 uf.merge(u, v)
