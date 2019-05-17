@@ -1,8 +1,7 @@
 {
   "batch_size": 64,
   "dataset": {
-    "__doc__": "MNIST dataset.",
-    "name": "MNIST",
+    "name": "SwissRoll",
     "parameters": {}
   },
   "learning_rate": 0.001,
@@ -11,11 +10,12 @@
     "name": "TopologicallyRegularizedAutoencoder",
     "parameters": {
       "lam": 1.0,
+      "autoencoder_model": "MLPAutoencoder",
       "toposig_kwargs": {
         "sort_selected": false
       }
     }
   },
-  "n_epochs": 10,
+  "n_epochs": 10000,
   "seed": 928552535
 }
