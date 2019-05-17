@@ -64,7 +64,7 @@ def hausdorff_distance(X, Y):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--dimension', type=int, default=2)
+    parser.add_argument('-d', '--dimension', type=int, nargs='+', default=2)
     parser.add_argument('-n', '--n_points', type=int, default=100)
     parser.add_argument('-s', '--n_subsamples', type=int, default=20)
     parser.add_argument('-m', type=int, default=25)
@@ -76,33 +76,37 @@ if __name__ == '__main__':
     n_subsamples = args.n_subsamples
     m = args.m
 
-    np.random.seed(42)
+    for d in args.dimension:
 
-    X = np.random.normal(size=(n_points, d))
-    X_diam = diameter(X)
+        print(f'# dim = {d}') 
 
-    X_pairwise_distances = pairwise_distances(X)
+        np.random.seed(42)
 
-    X_mean_distance = np.mean(X_pairwise_distances)
-    X_mean_distance_upper_bound = np.sqrt(2 * d)
+        X = np.random.normal(size=(n_points, d))
+        X_diam = diameter(X)
 
-    for m in range(10, 110, 10):
-        
-        hausdorff_distances = []
-        Y_diameters = []
+        X_pairwise_distances = pairwise_distances(X)
 
-        for _ in range(n_subsamples):
-            Y = X[np.random.choice(X.shape[0], m, replace=False)]
+        X_mean_distance = np.mean(X_pairwise_distances)
+        X_mean_distance_upper_bound = np.sqrt(2 * d)
 
-            Y_diameters.append(diameter(Y))
-            hausdorff_distances.append(hausdorff_distance(X, Y))
+        for m in range(1, 101):
 
-        #print(np.array([X_diam] * n_subsamples), np.array(Y_diameters), hausdorff_distances)
-        #print(Y_diameters - X_diam)
-        #print(np.all(Y_diameters >= hausdorff_distances))
+            hausdorff_distances = []
+            Y_diameters = []
 
-        #print(np.mean(hausdorff_distances) / np.mean(Y_diameters))
+            for _ in range(n_subsamples):
+                Y = X[np.random.choice(X.shape[0], m, replace=False)]
 
-        print(m, np.mean(hausdorff_distances))
+                Y_diameters.append(diameter(Y))
+                hausdorff_distances.append(hausdorff_distance(X, Y))
 
-    print()
+            #print(np.array([X_diam] * n_subsamples), np.array(Y_diameters), hausdorff_distances)
+            #print(Y_diameters - X_diam)
+            #print(np.all(Y_diameters >= hausdorff_distances))
+
+            #print(np.mean(hausdorff_distances) / np.mean(Y_diameters))
+
+            print(m, np.mean(hausdorff_distances))
+
+        print()
