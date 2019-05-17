@@ -137,7 +137,7 @@ class TopologicalSignatureDistance(nn.Module):
     def _count_matching_pairs(pairs1, pairs2):
         def to_set(array):
             return set((v1, v2) for v1, v2 in array)
-        return float(len(to_set(pairs1[0]).intersection(to_set(pairs2[0]))))
+        return float(len(to_set(pairs1).intersection(to_set(pairs2))))
 
     # pylint: disable=W0221
     def forward(self, distances1, distances2):
@@ -156,8 +156,12 @@ class TopologicalSignatureDistance(nn.Module):
         sig2 = self._select_distances_from_pairs(distances2, pairs2)
 
         distance_components = {
-            'metrics.matched_pairs': self._count_matching_pairs(pairs1, pairs2)
+            'metrics.matched_pairs_0D': self._count_matching_pairs(
+                pairs1[0], pairs2[0])
         }
+        if self.use_cycles:
+            distance_components['metrics.matched_pairs_1D'] = \
+                self._count_matching_pairs(pairs1[1], pairs2[1])
 
         if self.match_edges is None:
             distance = self.sig_error(sig1, sig2)
