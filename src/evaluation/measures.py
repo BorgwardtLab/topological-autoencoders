@@ -16,6 +16,21 @@ def pairwise_distances(X):
     D = np.sum((X[None, :] - X[:, None])**2, -1)**0.5
     return D
 
+
+def stress(X, Z):
+    '''
+    Calculates the stress measure between the data space `X` and the
+    latent space `Z`.
+    '''
+
+    sum_of_squared_differences = np.square(X - Z).sum()
+    sum_of_squares = np.square(Z).sum()
+
+    return np.sqrt(sum_of_squared_differences / sum_of_squares)
+
+
 np.random.seed(42)
 X = np.random.normal(size=(10, 2))
-print(X)
+Z = np.random.normal(size=(10, 2))
+
+print(stress(X, Z))
