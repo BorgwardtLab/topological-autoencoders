@@ -107,6 +107,29 @@ def continuity(X, Z, k):
     # Notice that the parameters have to be flipped here.
     return trustworthiness(Z, X, k)
 
+def neighbouhood_loss(X, Z, k):
+    '''
+    Calculates the neighbourhood loss quality measure between the data
+    space `X` and the latent space `Z` for some neighbourhood size $k$
+    that has to be pre-defined.
+    '''
+
+    X_neighbourhood, _ = get_neighbours_and_ranks(X, k)
+    Z_neighbourhood, _ = get_neighbours_and_ranks(Z, k)
+
+    result = 0.0
+    n = X.shape[0]
+
+    for row in range(n):
+        shared_neighbours = np.intersect1d(
+            X_neighbourhood[row],
+            Z_neighbourhood[row]
+        )
+
+        result += len(shared_neighbours) / k
+
+    return 1.0 - result / n
+
 
 np.random.seed(42)
 X = np.random.normal(size=(10, 2))
@@ -116,3 +139,4 @@ print(stress(X, Z))
 print(RMSE(X, Z))
 print(trustworthiness(X, Z, 1))
 print(continuity(X, Z, 1))
+print(neighbouhood_loss(X, Z, 5))
