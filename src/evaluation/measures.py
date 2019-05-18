@@ -29,8 +29,20 @@ def stress(X, Z):
     return np.sqrt(sum_of_squared_differences / sum_of_squares)
 
 
+def RMSE(X, Z):
+    '''
+    Calculates the RMSE measure between the data space `X` and the
+    latent space `Z`.
+    '''
+
+    n = X.shape[0]
+    sum_of_squared_differences = np.square(X - Z).sum()
+    return np.sqrt(sum_of_squared_differences / n**2)
+
+
 np.random.seed(42)
 X = np.random.normal(size=(10, 2))
 Z = np.random.normal(size=(10, 2))
 
 print(stress(X, Z))
+print(RMSE(X, Z))
