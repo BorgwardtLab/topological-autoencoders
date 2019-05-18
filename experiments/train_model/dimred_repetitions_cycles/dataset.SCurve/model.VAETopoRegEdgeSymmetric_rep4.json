@@ -17,7 +17,7 @@
     "parameters": {
       "autoencoder_model": "MLPAutoencoder",
       "toposig_kwargs": {
-        "match_edges": "random",
+        "match_edges": "symmetric",
         "use_cycles": true
       }
     }

@@ -76,7 +76,7 @@ def VAETopoRegEdgeSymmetric():
     parameters = {
         'autoencoder_model': 'MLPVAE',
         'toposig_kwargs': {
-            'match_edges': 'random'
+            'match_edges': 'symmetric'
         }
     }
 
