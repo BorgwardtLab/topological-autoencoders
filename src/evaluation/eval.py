@@ -8,7 +8,11 @@ import torch
 from .utils import get_space, rescaling 
 from .knn_utils import get_k_predictions, get_NMI, get_acc
 
-import measures
+from .measures import RMSE, MRRE
+from .measures import trustworthiness as twn
+from .measures import continuity as cnt 
+from .measures import neighbouhood_loss as nhl
+from .measures import stress as stress_measure 
 
 torch.manual_seed(42)
 
@@ -36,9 +40,9 @@ Evaluation object:
     - dataloader: torch iterable dataloader object of pre-specified dataset and train/val/test split
 '''
 class Multi_Evaluation:
-    def __init__(self, dataloader, seed=42, model=None):
-        self.method = method
-        self.dataloader = dataloader
+    def __init__(self, dataloader=None, seed=42, model=None):
+        if dataloader:
+            self.dataloader = dataloader
         self.seed = seed
         if model:
             self.model = model
@@ -66,10 +70,10 @@ class Multi_Evaluation:
         - latent: samples from the latent space as a matrix
         - labels: corresponding labels of the samples
         """
-        results = get_multi_evals(data, latent, labels, K)
+        results = self.get_multi_evals(data, latent, labels, K)
         return results
 
-    def get_multi_evals(data, latent, labels, K):
+    def get_multi_evals(self, data, latent, labels, K):
         '''
         Performs multiple evaluations for nonlinear dimensionality
         reduction.
@@ -82,23 +86,23 @@ class Multi_Evaluation:
         X = data
         Z = latent
 
-        stress = measures.stress(X, Z)
-        rmse = measures.RMSE(X, Z)
+        stress = stress_measure(X, Z)
+        rmse = RMSE(X, Z)
 
         trustworthiness = np.array(
-            [measures.trustworthiness(X, Z, k) for k in range(1, K+1)]
+            [twn(X, Z, k) for k in range(1, K+1)]
         )
 
         continuity = np.array(
-            [measures.continuity(X, Z, k) for k in range(1, K+1)]
+            [cnt(X, Z, k) for k in range(1, K+1)]
         )
 
         neighbourhood_loss = np.array(
-            [measures.neighbouhood_loss(X, Z, k) for k in range(1, K+1)]
+            [nhl(X, Z, k) for k in range(1, K+1)]
         )
 
         mrre = np.array(
-            [measures.MRRE(X, Z, k) for k in range(1, K+1)]
+            [MRRE(X, Z, k) for k in range(1, K+1)]
         )
 
         result = {
