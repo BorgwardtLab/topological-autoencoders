@@ -170,15 +170,3 @@ def MRRE(X, Z, k):
     # Normalisation constant
     C = n * sum([abs(2*j - n - 1) / j for j in range(1, k+1)])
     return mrre_ZX / C, mrre_XZ / C
-
-
-np.random.seed(42)
-X = np.random.normal(size=(10, 2))
-Z = np.random.normal(size=(10, 2))
-
-print(stress(X, Z))
-print(RMSE(X, Z))
-print(trustworthiness(X, Z, 1))
-print(continuity(X, Z, 1))
-print(neighbouhood_loss(X, Z, 5))
-print(MRRE(X, Z, 2))
