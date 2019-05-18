@@ -8,6 +8,8 @@ import torch
 from .utils import get_space, rescaling 
 from .knn_utils import get_k_predictions, get_NMI, get_acc
 
+import measures
+
 torch.manual_seed(42)
 
 def evaluate_space(data, labels, k):
@@ -57,15 +59,66 @@ class Multi_Evaluation:
         """Subsampling n_samples from data_matrix and labels."""
         return data[:n_samples,:], labels[:n_samples]
 
-    def evaluate_space(self, data, latent, labels):
+    def evaluate_space(self, data, latent, labels, K):
         """Evaluate Space with multiple evaluation metrics for NLDR.
 
         - data: samples from data as a data matrix
         - latent: samples from the latent space as a matrix
         - labels: corresponding labels of the samples
         """
-        results = get_multi_evals(data, latent, labels)
+        results = get_multi_evals(data, latent, labels, K)
         return results
+
+    def get_multi_evals(data, latent, labels, K):
+        '''
+        Performs multiple evaluations for nonlinear dimensionality
+        reduction.
+
+        - data: data samples as matrix
+        - latent: latent samples as matrix
+        - labels: labels of samples
+        '''
+
+        X = data
+        Z = latent
+
+        stress = measures.stress(X, Z)
+        rmse = measures.RMSE(X, Z)
+
+        trustworthiness = np.array(
+            [measures.trustworthiness(X, Z, k) for k in range(1, K+1)]
+        )
+
+        continuity = np.array(
+            [measures.continuity(X, Z, k) for k in range(1, K+1)]
+        )
+
+        neighbourhood_loss = np.array(
+            [measures.neighbouhood_loss(X, Z, k) for k in range(1, K+1)]
+        )
+
+        mrre = np.array(
+            [measures.MRRE(X, Z, k) for k in range(1, K+1)]
+        )
+
+        result = {
+            # Scalars
+            'stress': stress,
+            'rmse': rmse,
+            # Arrays/lists
+            'trustworthiness': trustworthiness.tolist(),
+            'continuity': continuity.tolist(),
+            'neighbourhood_loss': neighbourhood_loss.tolist(),
+            'mrre': mrre.tolist(),
+            # Means
+            'mean_trustworthiness': trustworthiness.mean(),
+            'mean_continuity': continuity.mean(),
+            'mean_neighbourhood_loss': neighbourhood_loss.mean(),
+            'mean_mrre': mrre.mean()
+        }
+
+        return result
+
 
 '''
 Evaluation object using KNN properties alone
