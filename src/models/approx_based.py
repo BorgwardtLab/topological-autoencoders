@@ -128,13 +128,13 @@ class TopologicalSignatureDistance(nn.Module):
     @staticmethod
     def _count_matching_pairs(pairs1, pairs2):
         def to_set(array):
-            return set((v1, v2) for v1, v2 in array)
+            return set(tuple(elements) for elements in array)
         return float(len(to_set(pairs1).intersection(to_set(pairs2))))
 
     @staticmethod
     def _get_nonzero_cycles(pairs):
         all_indices_equal = np.sum(pairs[:, [0]] == pairs[:, 1:], axis=-1) == 3
-        return pairs[np.logical_not(all_indices_equal)]
+        return np.sum(np.logical_not(all_indices_equal))
 
     # pylint: disable=W0221
     def forward(self, distances1, distances2):
