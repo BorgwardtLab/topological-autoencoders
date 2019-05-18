@@ -53,7 +53,7 @@ class UnionFind:
 
 
 class PersistentHomologyCalculation:
-    def __call__(self, matrix, pair_roots=False):
+    def __call__(self, matrix):
 
         n_vertices = matrix.shape[0]
         uf = UnionFind(n_vertices)
@@ -65,7 +65,6 @@ class PersistentHomologyCalculation:
         # 1st dimension: 'source' vertex index of edge
         # 2nd dimension: 'target' vertex index of edge
         persistence_pairs = []
-        cycle_pairs = []
 
         for edge_index, edge_weight in \
                 zip(edge_indices, edge_weights[edge_indices]):
@@ -76,24 +75,61 @@ class PersistentHomologyCalculation:
             younger_component = uf.find(u)
             older_component = uf.find(v)
 
+            # Not an edge of the MST, so skip it
             if younger_component == older_component:
-                # The edge gives rise to a new cycle; in terms of
-                # persistent homology, it is a destroyer, and not
-                # a creator.
-                cycle_pairs.append((u, v))
                 continue
-
             elif younger_component > older_component:
-                u, v = v, u
+                uf.merge(v, u)
+            else:
+                uf.merge(u, v)
 
-            uf.merge(u, v)
-            persistence_pairs.append((u, v))
+            if u < v:
+                persistence_pairs.append((u, v))
+            else:
+                persistence_pairs.append((v, u))
 
-        # For each unpaired component (ideally, there is only one), pair
-        # it with itself. This is technically not correct but it permits
-        # sorting the pairs afterwards correctly.
-        if pair_roots:
-            for root in uf.roots():
-                persistence_pairs.append((root, root))
+        # Return empty cycles component
+        return np.array(persistence_pairs), np.array([])
 
-        return np.array(persistence_pairs), np.array(cycle_pairs)
+
+class AlephPersistenHomologyCalculation():
+    def __init__(self, compute_cycles, sort_selected):
+        """Calculate persistent homology using aleph.
+
+        Args:
+            compute_cycles: Whether to compute cycles
+            sort_selected: Whether to sort the selected pairs using the
+                distance matrix (such that they are in the order of the
+                filteration)
+        """
+        self.compute_cycles = compute_cycles
+        self.sort_selected = sort_selected
+
+    def __call__(self, distance_matrix):
+        """Do PH calculation.
+
+        Args:
+            distance_matrix: numpy array of distances
+
+        Returns: tuple(edge_featues, cycle_features)
+        """
+        import aleph
+        if self.compute_cycles:
+            pairs_0, pairs_1 = aleph.vietoris_rips_from_matrix_2d(
+                distance_matrix)
+            pairs_0 = np.array(pairs_0)
+            pairs_1 = np.array(pairs_1)
+        else:
+            pairs_0 = aleph.vietoris_rips_from_matrix_1d(
+                distance_matrix)
+            pairs_0 = np.array(pairs_0)
+            # Return empty cycles component
+            pairs_1 = np.array([])
+
+        if self.sort_selected:
+            selected_distances = \
+                distance_matrix[(pairs_0[:, 0], pairs_0[:, 1])]
+            indices_0 = np.argsort(selected_distances)
+            pairs_0 = pairs_0[indices_0]
+
+        return pairs_0, pairs_1

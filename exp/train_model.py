@@ -37,11 +37,27 @@ def cfg():
     }
 
 
+@EXP.named_config
+def rep1():
+    seed = 249040430
+
+@EXP.named_config
+def rep2():
+    seed = 621965744
+
+@EXP.named_config
+def rep3():
+    seed=771860110
+
+@EXP.named_config
+def rep4():
+    seed=775293950
+
+
 class NewlineCallback(Callback):
     """Add newline between epochs for better readability."""
     def on_epoch_end(self, **kwargs):
         print()
-
 
 @EXP.automain
 def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
@@ -98,22 +114,32 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         torch.save(model, os.path.join(rundir, 'model.pth'))
     logged_averages = callbacks[0].logged_averages
     logged_stds = callbacks[0].logged_stds
-    logged_averages = {
+    loss_averages = {
         key: value for key, value in logged_averages.items() if 'loss' in key
     }
-    logged_stds = {
+    loss_stds = {
         key: value for key, value in logged_stds.items() if 'loss' in key
+    }
+    metric_averages = {
+        key: value for key, value in logged_averages.items() if 'metric' in key
+    }
+    metric_stds = {
+        key: value for key, value in logged_stds.items() if 'metric' in key
     }
     if rundir:
         plot_losses(
-            logged_averages,
-            logged_stds,
+            loss_averages,
+            loss_stds,
             save_file=os.path.join(rundir, 'loss.png')
+        )
+        plot_losses(
+            metric_averages,
+            metric_stds,
+            save_file=os.path.join(rundir, 'metrics.png')
         )
 
     result = {
-        key: values[-1] for key, values in 
-        logged_averages.items()
+        key: values[-1] for key, values in logged_averages.items()
     }
 
     if evaluation['active']:

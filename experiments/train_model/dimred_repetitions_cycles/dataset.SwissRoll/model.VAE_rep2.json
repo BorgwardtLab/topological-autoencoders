@@ -1,0 +1,29 @@
+{
+  "batch_size": 64,
+  "dataset": {
+    "__doc__": "FashionMNIST dataset.",
+    "name": "SwissRoll",
+    "parameters": {}
+  },
+  "early_stopping": 10,
+  "evaluation": {
+    "active": false,
+    "k": 15
+  },
+  "learning_rate": 0.001,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "VanillaAutoencoderModel",
+    "parameters": {
+      "autoencoder_model": "MLPAutoencoder",
+      "toposig_kwargs": {
+        "use_cycles": true
+      }
+    }
+  },
+  "n_epochs": 100,
+  "quiet": false,
+  "seed": 621965744,
+  "val_size": 0.15,
+  "weight_decay": 1e-05
+}
