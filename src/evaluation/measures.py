@@ -131,6 +131,47 @@ def neighbouhood_loss(X, Z, k):
     return 1.0 - result / n
 
 
+def MRRE(X, Z, k):
+    '''
+    Calculates the mean relative rank error quality metric of the data
+    space `X` with respect to the latent space `Z`, subject to its $k$
+    nearest neighbours.
+    '''
+
+    X_neighbourhood, X_ranks = get_neighbours_and_ranks(X, k)
+    Z_neighbourhood, Z_ranks = get_neighbours_and_ranks(Z, k)
+
+    n = X.shape[0]
+
+    # First component goes from the latent space to the data space, i.e.
+    # the relative quality of neighbours in `Z`.
+
+    mrre_ZX = 0.0
+    for row in range(n):
+        for neighbour in Z_neighbourhood[row]:
+            rx = X_ranks[row, neighbour]
+            rz = Z_ranks[row, neighbour]
+
+            mrre_ZX += abs(rx - rz) / rz
+
+    # Second component goes from the data space to the latent space,
+    # i.e. the relative quality of neighbours in `X`.
+
+    mrre_XZ = 0.0
+    for row in range(n):
+        # Note that this uses a different neighbourhood definition!
+        for neighbour in X_neighbourhood[row]:
+            rx = X_ranks[row, neighbour]
+            rz = Z_ranks[row, neighbour]
+
+            # Note that this uses a different normalisation factor
+            mrre_XZ += abs(rx - rz) / rx
+
+    # Normalisation constant
+    C = n * sum([abs(2*j - n - 1) / j for j in range(1, k+1)])
+    return mrre_ZX / C, mrre_XZ / C
+
+
 np.random.seed(42)
 X = np.random.normal(size=(10, 2))
 Z = np.random.normal(size=(10, 2))
@@ -140,3 +181,4 @@ print(RMSE(X, Z))
 print(trustworthiness(X, Z, 1))
 print(continuity(X, Z, 1))
 print(neighbouhood_loss(X, Z, 5))
+print(MRRE(X, Z, 2))
