@@ -45,6 +45,27 @@ def RMSE(X, Z):
     sum_of_squared_differences = np.square(X - Z).sum()
     return np.sqrt(sum_of_squared_differences / n**2)
 
+def get_neighbours_and_ranks(X, k):
+    '''
+    Calculates the neighbourhoods and the ranks of a given space `X`,
+    and returns the corresponding tuple. An additional parameter $k$,
+    the size of the neighbourhood, is required.
+    '''
+
+    X = pairwise_distances(X)
+
+    # Warning: this is only the ordering of neighbours that we need to
+    # extract neighbourhoods below. The ranking comes later!
+    X_ranks = np.argsort(X, axis=-1, kind='stable')
+
+    # Extract neighbourhoods.
+    X_neighbourhood = X_ranks[:, 1:k+1]
+
+    # Convert this into ranks (finally)
+    X_ranks = X_ranks.argsort(axis=-1, kind='stable')
+
+    return X_neighbourhood, X_ranks
+
 
 def trustworthiness(X, Z, k):
     '''
@@ -53,22 +74,8 @@ def trustworthiness(X, Z, k):
     defining the extent of neighbourhoods.
     '''
 
-    X = pairwise_distances(X)
-    Z = pairwise_distances(Z)
-
-    # Warning: this is only the ordering of neighbours that we need to
-    # extract neighbourhoods below. The ranking comes later!
-    X_ranks = np.argsort(X, axis=-1, kind='stable')
-    Z_ranks = np.argsort(Z, axis=-1, kind='stable')
-
-    # Extract neighbourhoods.
-    X_neighbourhood = X_ranks[:, 1:k+1]
-    Z_neighbourhood = Z_ranks[:, 1:k+1]
-
-    # Convert this into ranks (finally) in order to make the lookup
-    # possible later on.
-    X_ranks = X_ranks.argsort(axis=-1, kind='stable')
-    Z_ranks = Z_ranks.argsort(axis=-1, kind='stable')
+    X_neighbourhood, X_ranks = get_neighbours_and_ranks(X, k)
+    Z_neighbourhood, Z_ranks = get_neighbours_and_ranks(Z, k)
 
     result = 0.0
 
