@@ -88,6 +88,18 @@ def trustworthiness(X, Z, k):
     return 1 - 2 / (n * k * (2 * n - 3 * k - 1) ) * result
 
 
+def continuity(X, Z, k):
+    '''
+    Calculates the continuity measure between the data space `X` and the
+    latent space `Z`, given a neighbourhood parameter `k` for setting up
+    the extent of neighbourhoods.
+
+    This is just the 'flipped' variant of the 'trustworthiness' measure.
+    '''
+
+    # Notice that the parameters have to be flipped here.
+    return trustworthiness(Z, X, k)
+
 
 np.random.seed(42)
 X = np.random.normal(size=(10, 2))
@@ -96,3 +108,4 @@ Z = np.random.normal(size=(10, 2))
 print(stress(X, Z))
 print(RMSE(X, Z))
 print(trustworthiness(X, Z, 1))
+print(continuity(X, Z, 1))
