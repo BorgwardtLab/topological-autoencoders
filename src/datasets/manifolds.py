@@ -59,7 +59,7 @@ class SCurve(ManifoldDataset):
         super().__init__(data, pos, train, test_fraction, _rnd)
 
 class Spheres(ManifoldDataset):
-    def __init__(self, train=True, n_samples=1000, d=100, n_spheres=11, r=5,
+    def __init__(self, train=True, n_samples=500, d=100, n_spheres=11, r=5,
                 test_fraction=0.1, seed=42):
         #here pos are actually class labels, just conforming with parent class!
         data, labels = create_sphere_dataset(n_samples, d, n_spheres, r, seed=seed)
