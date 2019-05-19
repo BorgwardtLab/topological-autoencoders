@@ -131,5 +131,17 @@ class AlephPersistenHomologyCalculation():
                 distance_matrix[(pairs_0[:, 0], pairs_0[:, 1])]
             indices_0 = np.argsort(selected_distances)
             pairs_0 = pairs_0[indices_0]
+            if self.compute_cycles:
+                cycle_creation_times = \
+                    distance_matrix[(pairs_1[:, 0], pairs_1[:, 1])]
+                cycle_destruction_times = \
+                    distance_matrix[(pairs_1[:, 2], pairs_1[:, 3])]
+                cycle_persistences = \
+                    cycle_destruction_times - cycle_creation_times
+                # First sort by destruction time and then by persistence of the
+                # create cycles in order to recover original filtration order.
+                indices_1 = np.lexsort(
+                    (cycle_destruction_times, cycle_persistences))
+                pairs_1 = pairs_1[indices_1]
 
         return pairs_0, pairs_1
