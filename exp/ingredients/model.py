@@ -41,6 +41,15 @@ def VAE():
 
 
 @ingredient.named_config
+def TopoReg():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'toposig_kwargs': {
+            'sort_selected': False
+        }
+    }
+
+@ingredient.named_config
 def TopoRegSorted():
     name = 'TopologicallyRegularizedAutoencoder'
     parameters = {
@@ -69,6 +78,27 @@ def TopoRegEdgeRandom():
         }
     }
 
+
+@ingredient.named_config
+def VAETopoReg():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'autoencoder_model': 'MLPVAE',
+        'toposig_kwargs': {
+            'sort_selected': False
+        }
+    }
+
+
+@ingredient.named_config
+def VAETopoRegSorted():
+    name = 'TopologicallyRegularizedAutoencoder'
+    parameters = {
+        'autoencoder_model': 'MLPVAE',
+        'toposig_kwargs': {
+            'sort_selected': True
+        }
+    }
 
 @ingredient.named_config
 def VAETopoRegEdgeSymmetric():
