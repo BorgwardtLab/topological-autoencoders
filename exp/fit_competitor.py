@@ -7,6 +7,7 @@ import pickle
 from sacred import Experiment
 
 from src.datasets.splitting import split_validation
+from src.evaluation.eval import Multi_Evaluation
 
 from .ingredients import model as model_config
 from .ingredients import dataset as dataset_config
@@ -61,5 +62,17 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
                 transformed_train)
 
     result = {}
+    if evaluation['active']:
+        data = train_data_flattened
+        labels = np.array(
+            [y for X, y in train_dataset]
+        )
+        latent = transformed_train
+
+        evaluator = Multi_Evaluation(
+            dataloader=None, seed=_seed, model=None)
+        ev_result = evaluator.evaluate_space(
+            data, latent, labels, K=evaluation['k'])
+        result.update(ev_result)
 
     return result

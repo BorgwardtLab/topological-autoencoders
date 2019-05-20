@@ -122,7 +122,7 @@ def VAETopoRegEdgeRandom():
     }
 
 @ingredient.capture
-def get_instance(name, parameters, _log):
+def get_instance(name, parameters, _log, _rnd):
     """Get an instance of a model according to parameters in the configuration.
 
     Also, check if the provided parameters fit to the signature of the model
@@ -146,10 +146,23 @@ def get_instance(name, parameters, _log):
     # Now check if optional parameters of the constructor are not defined
     optional_parameters = list(available_parameters.keys())[4:]
     for parameter_name in optional_parameters:
-        if parameter_name not in parameters.keys():
-            # If an optional parameter is not defined warn and run with default
-            default = available_parameters[parameter_name].default
-            _log.warning(f'Optional parameter {parameter_name} not explicitly '
-                         f'defined, will run with {parameter_name}={default}')
+        # Copy list beforehand, so we can manipulate the parameter dict in the
+        # loop
+        parameter_keys = list(parameters.keys())
+        if parameter_name not in parameter_keys:
+            if parameter_name != 'random_state':
+                # If an optional parameter is not defined warn and run with
+                # default
+                default = available_parameters[parameter_name].default
+                _log.warning(
+                    f'Optional parameter {parameter_name} not explicitly '
+                    f'defined, will run with {parameter_name}={default}'
+                )
+            else:
+                _log.info(
+                    f'Passing random_state of experiment to model parameter '
+                    '`random_state`.'
+                )
+                parameters['random_state'] = _rnd
 
     return model_cls(**parameters)
