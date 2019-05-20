@@ -63,6 +63,7 @@ def PCA():
     train_module = 'fit_competitor'
     overrides = {
         'model__name': 'PCA',
+        'model__parameters__n_components': 2
     }
 
 def TSNE():

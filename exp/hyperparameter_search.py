@@ -16,7 +16,8 @@ from sacred.utils import set_by_dotted_path
 
 import skopt
 
-from .train_model import EXP as train_experiment
+import exp.train_model
+import exp.fit_competitor
 from .hypersearch_configs import add_datasets, add_models, add_competitors
 
 ex = Experiment('hyperparameter_search')

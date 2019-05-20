@@ -4,13 +4,14 @@ import os
 from sacred import Experiment
 from sacred.utils import apply_backspaces_and_linefeeds
 import torch
+import numpy as np
 
 from src.callbacks import Callback, SaveReconstructedImages, Progressbar
 from src.datasets.splitting import split_validation
 from src.evaluation.eval import Multi_Evaluation
 from src.evaluation.utils import get_space
 from src.training import TrainingLoop
-from src.visualization import plot_losses
+from src.visualization import plot_losses, visualize_latents
 
 from .callbacks import LogDatasetLoss, LogTrainingLoss
 from .ingredients import model as model_config
@@ -158,10 +159,18 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
             data, labels = get_space(None, dataloader, mode='data', seed=_seed)
             latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
 
+        if latent.shape[1] == 2 and rundir:
+            # Visualize latent space
+            visualize_latents(
+                latent, labels,
+                save_file=os.path.join(rundir, 'latent_visualization.pdf')
+            )
+
+        np.savez(
+            os.path.join(rundir, 'latents.npz'), latents=latent, labels=labels)
+
         evaluator = Multi_Evaluation(
             dataloader=dataloader, seed=_seed, model=model)
-        data, labels = evaluator.get_data(mode='data')
-        latent, _ = evaluator.get_data(mode='latent')
         ev_result = evaluator.evaluate_space(
             data, latent, labels, K=evaluation['k'])
         prefixed_ev_result = {

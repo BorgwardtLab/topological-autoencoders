@@ -8,6 +8,7 @@ from sacred import Experiment
 
 from src.datasets.splitting import split_validation
 from src.evaluation.eval import Multi_Evaluation
+from src.visualization import visualize_latents
 
 from .ingredients import model as model_config
 from .ingredients import dataset as dataset_config
@@ -53,7 +54,7 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
         _log.warn('Directly running on test dataset!')
         data, labels = zip(*test_dataset)
 
-    data = np.array(data)
+    data = np.stack(data).reshape(len(data), -1)
     labels = np.array(labels)
 
     _log.info('Fitting model...')
@@ -79,20 +80,30 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
         if supports_transform:
             if evaluate_on == 'validation':
                 data, labels = zip(*validation_dataset)
-                data = np.array(data)
-                labels = np.array(labels)
-                transformed_data = model.transform(data)
             else:
                 # Load dedicated test dataset and predict on it
                 data, labels = zip(*test_dataset)
-                data = np.array(data)
-                labels = np.array(labels)
-                transformed_data = model.transform(data)
+            data = np.stack(data).reshape(len(data), -1)
+            labels = np.array(labels)
+
+        latent = model.transform(data)
+
+        if rundir:
+            np.savez(
+                os.path.join(rundir, 'latents.npz'),
+                latents=latent, labels=labels
+            )
+        if latent.shape[1] == 2 and rundir:
+            # Visualize latent space
+            visualize_latents(
+                latent, labels,
+                save_file=os.path.join(rundir, 'latent_visualization.pdf')
+            )
 
         evaluator = Multi_Evaluation(
             dataloader=None, seed=_seed, model=None)
         ev_result = evaluator.evaluate_space(
-            data, transformed_data, labels, K=evaluation['k'])
+            data, latent, labels, K=evaluation['k'])
         prefixed_ev_result = {
             evaluate_on + '_' + key: value
             for key, value in ev_result.items()
