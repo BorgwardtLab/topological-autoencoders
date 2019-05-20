@@ -91,6 +91,6 @@ class COIL100(COIL100Base):
     def __init__(self, train=True):
         """COIL100 dataset normalized."""
         super().__init__(
-            BASEPATH, transform=self.transforms, train=train, download=True)
+            BASEPATH, transform=self.transforms, train=train)
 
 
