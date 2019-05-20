@@ -101,7 +101,7 @@ def TopoRegVertex():
 @ex.named_config
 def TopoRegEdgeSymmetric():
     hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
+        'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
