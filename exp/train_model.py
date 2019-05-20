@@ -7,7 +7,8 @@ import torch
 
 from src.callbacks import Callback, SaveReconstructedImages, Progressbar
 from src.datasets.splitting import split_validation
-from src.evaluation.eval import Evaluation
+from src.evaluation.eval import Multi_Evaluation
+from src.evaluation.utils import get_space
 from src.training import TrainingLoop
 from src.visualization import plot_losses
 
@@ -145,9 +146,14 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
     if evaluation['active']:
         dataloader = torch.utils.data.DataLoader(
             test_dataset, batch_size=batch_size, drop_last=True)
-        evaluator = Evaluation('latent', dataloader, model=model)
-        data, latent = evaluator.get_data()
-        ev_result = evaluator.evaluate_space(data, latent, k=evaluation['k'])
+        data, labels = get_space(None, dataloader, mode='data', seed=_seed)
+        latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+        evaluator = Multi_Evaluation(
+            dataloader=dataloader, seed=_seed, model=model)
+        data, labels = evaluator.get_data(mode='data')
+        latent, _ = evaluator.get_data(mode='latent')
+        ev_result = evaluator.evaluate_space(
+            data, latent, labels, K=evaluation['k'])
         result.update(ev_result)
 
     return result
