@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ae_models=(Vanilla TopoRegEdgeSymmetric)
-ae_models_cycles=(model.TopoReg model.TopoRegSorted model.TopoRegEdgeSymmetric)
+ae_models_cycles=(TopoRegEdgeSymmetric)
 competitor_methods=(PCA TSNE Isomap UMAP)
 output_pattern='experiments/hyperparameter_search/real_world/{dataset}/{model}.json'
 output_pattern_cycle='experiments/hyperparameter_search/real_world/{dataset}/{model}-cycle.json'
