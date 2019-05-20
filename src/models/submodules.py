@@ -57,6 +57,85 @@ class ConvolutionalAutoencoder(AutoencoderModel):
         return reconst_error, {'reconstruction_error': reconst_error}
 
 
+class View(nn.Module):
+    def __init__(self, shape):
+        super().__init__()
+        self.shape = shape
+
+    def forward(self, x):
+        return x.view(*self.shape)
+
+class Print(nn.Module):
+    def __init__(self, name):
+        self.name = name
+        super().__init__()
+
+    def forward(self, x):
+        print(self.name, x.size())
+        return x
+
+
+class ConvolutionalAutoencoder_2D(AutoencoderModel):
+    """Convolutional Autoencoder with 2d latent space.
+
+    Architecture from:
+        Guo, Xifeng, et al. "Deep clustering with convolutional autoencoders."
+        International Conference on Neural Information Processing. Springer,
+        Cham, 2017.
+    """
+
+    def __init__(self, input_channels=1):
+        """Convolutional Autoencoder."""
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(input_channels, 32, 5, stride=2, padding=2),  # b, 16, 10, 10
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 5, stride=2, padding=2),  # b, 2, 3, 3
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, stride=2, padding=0),
+            nn.ReLU(),
+            View((-1, 1152)),
+            nn.Linear(1152, 2),
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(2, 1152),
+            nn.ReLU(),
+            View((-1, 128, 3, 3)),
+            nn.ReLU(),
+            nn.ConvTranspose2d(128, 64, 3, stride=2, padding=0),
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 32, 5, stride=2, padding=2, output_padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, input_channels, 5, stride=2, padding=2,
+                               output_padding=1),
+            nn.Tanh()
+        )
+        self.reconst_error = nn.MSELoss()
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        return self.encoder(x)
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        return self.decoder(z)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent = self.encode(x)
+        x_reconst = self.decode(latent)
+        reconst_error = self.reconst_error(x, x_reconst)
+        return reconst_error, {'reconstruction_error': reconst_error}
+
+
 class ConvolutionalAutoencoder_2D(AutoencoderModel):
     """Convolutional Autoencoder."""
 
@@ -115,9 +194,9 @@ class ConvolutionalAutoencoder_STL10(AutoencoderModel):
             nn.Conv2d(3, 16, 8, stride=3, padding=1),  # b, 16, 31, 31
             nn.ReLU(True),
             nn.MaxPool2d(2, stride=2),  # b, 16, 15, 15
-            nn.Conv2d(16, 8, 5, stride=2, padding=1),  # b, 8, 7, 7 
+            nn.Conv2d(16, 8, 5, stride=2, padding=1),  # b, 8, 7, 7
             nn.ReLU(True),
-            nn.MaxPool2d(3, stride=3)  # b, 8, 2, 2 
+            nn.MaxPool2d(3, stride=3)  # b, 8, 2, 2
         )
         self.decoder = nn.Sequential(
             nn.ConvTranspose2d(8, 16, 3, stride=2),  # b, 16, 5, 5

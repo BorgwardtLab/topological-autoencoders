@@ -18,6 +18,7 @@ pandas = "*"
 tadasets = "*"
 umap-learn = "*"
 seaborn = "*"
+requests = "*"
 
 [requires]
 python_version = "3.6"
