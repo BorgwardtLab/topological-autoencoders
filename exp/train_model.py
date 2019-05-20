@@ -34,7 +34,8 @@ def cfg():
     quiet = False
     evaluation = {
         'active': False,
-        'k': 15
+        'k': 15,
+        'evaluate_on': 'test'
     }
 
 
@@ -144,18 +145,29 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
     }
 
     if evaluation['active']:
-        dataloader = torch.utils.data.DataLoader(
-            test_dataset, batch_size=batch_size, drop_last=True)
-        data, labels = get_space(None, dataloader, mode='data', seed=_seed)
-        latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+        evaluate_on = evaluation['evaluate_on']
+        _log.info(f'Running evaluation on {evaluate_on} dataset')
+        if evaluate_on == 'validation':
+            dataloader = torch.utils.data.DataLoader(
+                validation_dataset, batch_size=batch_size, drop_last=True)
+            data, labels = get_space(None, dataloader, mode='data', seed=_seed)
+            latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+        else:
+            dataloader = torch.utils.data.DataLoader(
+                test_dataset, batch_size=batch_size, drop_last=True)
+            data, labels = get_space(None, dataloader, mode='data', seed=_seed)
+            latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+
         evaluator = Multi_Evaluation(
             dataloader=dataloader, seed=_seed, model=model)
         data, labels = evaluator.get_data(mode='data')
         latent, _ = evaluator.get_data(mode='latent')
         ev_result = evaluator.evaluate_space(
             data, latent, labels, K=evaluation['k'])
-        result.update(ev_result)
+        prefixed_ev_result = {
+            evaluation['evaluate_on'] + '_' + key: value
+            for key, value in ev_result.items()
+        }
+        result.update(prefixed_ev_result)
 
     return result
-
-
