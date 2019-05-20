@@ -1,5 +1,7 @@
 """Module with scared experiment for hyperparameter search."""
 import os
+import math
+
 from tempfile import NamedTemporaryFile
 from collections import defaultdict
 from copy import deepcopy
@@ -31,9 +33,15 @@ def cfg():
     overrides = {
         'batch_size': 64,
         'evaluation__active': True,
+        'evaluation__k': 20,
         'n_epochs': 100,
-        'quiet': True
+        'quiet': True,
+        'evaluation__evaluate_on': 'validation'
     }
+    evaluation_metrics = [
+        'validation_mean_mrre',
+        'validation_mean_neighbourhood_loss'
+    ]
     nan_replacement = 20.
     n_random_starts = 10
     n_calls = 30
@@ -61,6 +69,13 @@ def Vanilla():
         'model__name': 'VanillaAutoencoderModel',
     }
 
+@ex.named_config
+def SCurve():
+    overrides = {
+        'dataset__name': 'SCurve',
+        'model__parameters__autoencoder_model': 'MLPAutoencoder'
+    }
+
 
 @ex.named_config
 def TopoReg():
@@ -84,13 +99,13 @@ def TopoRegVertex():
 
 
 @ex.named_config
-def TopoRegEdge():
+def TopoRegEdgeSymmetric():
     hyperparameter_space = {
         'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
-        'model__parameters__match_distances': True,
+        'model__parameters__toposig_kwargs__match_edges': 'symmetric',
     }
 
 
@@ -134,21 +149,21 @@ class SkoptCheckpointCallback:
         skopt.dump(res_without_func, self.filename)
 
 
-def prepare_evaluation_results(parameters, results):
-    """Convert parameter and results log into dictionary of lists."""
-    combined_dict = defaultdict(list)
-    for parameters, results in zip(parameters, results):
-        for parameter, value in parameters.items():
-            combined_dict[parameter].append(value)
-        for result, value in results.items():
-            combined_dict[result].append(value)
-    return dict(combined_dict)
+def combine_metrics(metrics, eps=1e-15):
+    """Combine multiple metrics into a single metric.
+
+    Args:
+        *metrics: Metrics to combine, smaller is better
+        eps: Minimal value used instead of zero.
+    """
+    return sum((math.log(value + eps) for value in metrics))
+
 
 
 @ex.main
 def search_hyperparameter_space(n_random_starts, n_calls, overrides,
-                                nan_replacement, load_result, _rnd, _run,
-                                _log):
+                                evaluation_metrics, nan_replacement,
+                                load_result, _rnd, _run, _log):
     """Search hyperparameter space of an experiment."""
     # Add observer to child experiment to store all intermediate results
     if _run.observers:
@@ -193,7 +208,6 @@ def search_hyperparameter_space(n_random_starts, n_calls, overrides,
         params = {
             key.replace('__', '.'): value for key, value in params.items()
         }
-        evaluated_parameters.append(params)
 
         # Convert to nested dict
         transformed_params = {}
@@ -207,27 +221,33 @@ def search_hyperparameter_space(n_random_starts, n_calls, overrides,
             # Run the experiment and update config according to overrides
             # to overrides and sampled parameters
             run = train_experiment.run(config_updates=transformed_params)
-            results.append(run.result)
+            result = run.result
+            results.append(result)
 
             # gp optimize does not handle nan values, thus we need
             # to return something fake if we diverge before the end
             # of the first epoch
-            if np.isfinite(run.result['nmis_avg']):
-                return_value = -run.result['nmis_avg']
+            metric_values = [
+                result[eval_metric] for eval_metric in evaluation_metrics]
+            all_finite = all((np.isfinite(val) for val in metric_values))
+            if all_finite:
+                return_value = combine_metrics(metric_values)
             else:
                 return_value = nan_replacement
+            result['hyperparam_optimization_objective'] = return_value
         except Exception as e:
             _log.error('An exception occured during fitting: {}'.format(e))
             results.append({})
             return_value = nan_replacement
+            result = {}
 
         # Store the results into sacred infrastructure
         # Ensures they can be used even if the experiment is terminated
-        parameter_evaluations = prepare_evaluation_results(
-            evaluated_parameters, results)
-        _run.result['parameter_evaluations'] = parameter_evaluations
+        params.update(result)
+        evaluated_parameters.append(params)
+        _run.result['parameter_evaluations'] = evaluated_parameters
         with NamedTemporaryFile(suffix='.csv') as f:
-            df = pd.DataFrame.from_dict(parameter_evaluations)
+            df = pd.DataFrame(evaluated_parameters)
             df.to_csv(f.name)
             _run.add_artifact(f.name, 'parameter_evaluations.csv')
         return return_value
@@ -258,14 +278,12 @@ def search_hyperparameter_space(n_random_starts, n_calls, overrides,
         skopt.dump(res_without_func, f.name)
         _run.add_artifact(f.name, 'result.pck')
 
-    parameter_evaluations = prepare_evaluation_results(
-        evaluated_parameters, results)
     best_parameters = {
         variable.name: value
         for variable, value in zip(search_space, res_gp.x)
     }
     return {
-        'parameter_evaluations': parameter_evaluations,
+        'parameter_evaluations': evaluated_parameters,
         'Best score': res_gp.fun,
         'best_parameters': best_parameters
     }
