@@ -37,3 +37,5 @@ python scripts/configs_from_product.py exp.hyperparameter_search \
   --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder_Spheres \
   --name dummy2 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
   --output-pattern ${output_pattern_cycle}
+
+
