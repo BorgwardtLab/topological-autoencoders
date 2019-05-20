@@ -7,6 +7,10 @@ from torchvision import transforms
 import requests
 import zipfile 
 import io
+import glob
+import pandas as pd
+import numpy as np
+import matplotlib.image as mpimg
 
 
 BASEPATH = os.path.abspath(
@@ -33,7 +37,7 @@ class COIL100Base(Dataset):
     def __len__(self):
         return len(self.data.shape[0])
 
-    def __getitem__(self, idx):
+    def __getitem__(self, index):
         img, target = self.data[index], int(self.labels[index])
         #TODO: check if images are in correct dimension ordering!
         if self.transform is not None:
@@ -56,9 +60,12 @@ class COIL100Base(Dataset):
         data = []
         for filename in filelist:
             im = mpimg.imread(filename)
-            imt = np.transpose(im, (2, 0, 1)) # for consistency with other datasets put color channels first
-            data.append(imt) #imshow doesnt take it like that, transpose back for that
-        return np.array(data), labels
+            print(f'IM SHAPE: {im.shape}')
+            #imt = np.transpose(im, (2, 0, 1)) # for consistency with other datasets put color channels first
+            #print(f'IMT SHAPE: {imt.shape}')
+            #data.append(imt) 
+            data.append(im) #imshow doesnt take it like that, transpose back for that
+        return np.stack(data), labels
 
 
 class COIL100(COIL100Base):
