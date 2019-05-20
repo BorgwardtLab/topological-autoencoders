@@ -14,7 +14,7 @@ class FashionMNIST(datasets.FashionMNIST):
 
     transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
+        transforms.Normalize((0.2860402,), (0.3530239,))
     ])
 
     def __init__(self, train=True):

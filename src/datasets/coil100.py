@@ -1,16 +1,17 @@
 """Datasets."""
-import os
-from torch.utils.data import Dataset
-from torchvision import datasets
-from torchvision import transforms
-
-import requests
-import zipfile 
 import io
 import glob
+import os
+import zipfile
+
+import requests
 import pandas as pd
 import numpy as np
 import matplotlib.image as mpimg
+
+from sklearn.model_selection import train_test_split
+from torch.utils.data import Dataset
+from torchvision import transforms
 
 
 BASEPATH = os.path.abspath(
@@ -19,52 +20,60 @@ BASEPATH = os.path.abspath(
 class COIL100Base(Dataset):
     """Rotated Objects Dataset. Base Class for downloading and loading the data"""
 
-    def __init__(self, root, transform=None, train=True, download=True):
+    url = (
+        'http://www.cs.columbia.edu/CAVE/databases/'
+        'SLAM_coil-20_coil-100/coil-100/coil-100.zip'
+    )
+
+    def __init__(self, root, transform=None, train=True, test_fraction=0.1,
+                 seed=42):
         """
         Args:
             root (string): Directory with all the images.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
-        self.root = root
+        self.root = os.path.join(root, 'coil-100')
         self.transform = transform
 
-        if not os.path.exists(self.root + '/coil-100'):
-            self.download()
+        if not os.path.exists(self.root):
+            self._download()
 
-        self.data, self.labels = self.load_data()            
-    
+        data, labels = self._load_data()
+        data_train, data_test, labels_train, labels_test = train_test_split(
+            data, labels, test_size=test_fraction, stratify=labels,
+            random_state=seed)
+        if train:
+            self.data = data_train
+            self.labels = labels_train
+        else:
+            self.data = data_test
+            self.labels = labels_test
+
     def __len__(self):
         return len(self.data.shape[0])
 
     def __getitem__(self, index):
         img, target = self.data[index], int(self.labels[index])
-        #TODO: check if images are in correct dimension ordering!
         if self.transform is not None:
-            img = self.transform(img)        
+            img = self.transform(img)
         return img, target
 
-    def download(self):
-        url = 'http://www.cs.columbia.edu/CAVE/databases/SLAM_coil-20_coil-100/coil-100/'
-        name = 'coil-100.zip' 
-        file_path = path+name
-        results = requests.get(file_path)
+    def _download(self):
+        results = requests.get(self.url)
         z = zipfile.ZipFile(io.BytesIO(results.content))
-        z.extractall(self.root)
+        # Get dirname of root because zip file contains the folder coil-100
+        z.extractall(os.path.dirname(self.root))
 
-    def load_data(self): 
-        filelist = glob.glob(self.root + '/coil-100/*.png')
-        #labels are sorted according to filelist:
+    def _load_data(self):
+        filelist = glob.glob(self.root + '/*.png')
+        # labels are sorted according to filelist:
         labels = pd.Series(filelist).str.extract("obj([0-9]+)", expand=False)
         labels = [int(i) for i in labels.values]
         data = []
         for filename in filelist:
             im = mpimg.imread(filename)
-            print(f'IM SHAPE: {im.shape}')
-            #imt = np.transpose(im, (2, 0, 1)) # for consistency with other datasets put color channels first
-            #print(f'IMT SHAPE: {imt.shape}')
-            #data.append(imt) 
-            data.append(im) #imshow doesnt take it like that, transpose back for that
+            data.append(im)
         return np.stack(data), labels
 
 
@@ -73,12 +82,14 @@ class COIL100(COIL100Base):
 
     transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
+        transforms.Normalize(
+            (0.1580247, 0.1580247, 0.13644657),
+            (0.28469974, 0.22121184, 0.19787617)
+        )
     ])
 
     def __init__(self, train=True):
         """COIL100 dataset normalized."""
-
         super().__init__(
             BASEPATH, transform=self.transforms, train=train, download=True)
 

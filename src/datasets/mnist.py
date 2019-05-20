@@ -14,7 +14,7 @@ class MNIST(datasets.MNIST):
 
     transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
+        transforms.Normalize((0.13066062,), (0.30810776,))
     ])
 
     def __init__(self, train=True):

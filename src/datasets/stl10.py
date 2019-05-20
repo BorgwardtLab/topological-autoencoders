@@ -14,7 +14,10 @@ class STL10(datasets.STL10):
 
     transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.5,), (0.5,))
+        transforms.Normalize(
+            (0.44671103, 0.43980882, 0.40664575),
+            (0.2603408, 0.25657743, 0.2712671)
+        )
     ])
 
     def __init__(self, train=True):
