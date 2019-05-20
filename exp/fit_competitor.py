@@ -33,20 +33,31 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
     # Get data, sacred does some magic here so we need to hush the linter
     # pylint: disable=E1120,E1123
 
-    dataset = dataset_config.get_instance(train=True)
-    train_dataset, validation_dataset = split_validation(
-        dataset, val_size, _rnd)
+    train_dataset = dataset_config.get_instance(train=True)
+    # train_dataset, validation_dataset = split_validation(
+    #     dataset, val_size, _rnd)
     test_dataset = dataset_config.get_instance(train=False)
 
     # Get model, sacred does some magic here so we need to hush the linter
     # pylint: disable=E1120
     model = model_config.get_instance()
 
-    train_data_flattened = np.array(
-        [X for X, y in train_dataset]
-    )
+    supports_transform = hasattr(model, 'transform')
+    if supports_transform:
+        # Models that support fitting on train and predicting on test
+        data, labels = zip(*train_dataset)
+    else:
+        # Models which do not derive an mapping to the latent space
+        _log.warn('Model does not support separate training and prediction.')
+        _log.warn('Directly running on test dataset!')
+        data, labels = zip(*test_dataset)
 
-    transformed_train = model.fit_transform(train_data_flattened)
+    data = np.array(data)
+    labels = np.array(labels)
+
+
+    _log.info('Fitting model...')
+    transformed_data = model.fit_transform(data)
 
     rundir = None
     try:
@@ -58,21 +69,23 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
         # Save model state (and entire model)
         with open(os.path.join(rundir, 'model.pth'), 'wb') as f:
             pickle.dump(model, f)
-        np.save(os.path.join(rundir, 'train_transformed.npy'),
-                transformed_train)
+        np.save(os.path.join(rundir, 'transformed_data.npy'),
+                transformed_data)
 
     result = {}
     if evaluation['active']:
-        data = train_data_flattened
-        labels = np.array(
-            [y for X, y in train_dataset]
-        )
-        latent = transformed_train
+        _log.info('Running evaluation...')
+        if supports_transform:
+            # Load dedicated test dataset and predict on it
+            data, labels = zip(*test_dataset)
+            data = np.array(data)
+            labels = np.array(labels)
+            transformed_data = model.transform(data)
 
         evaluator = Multi_Evaluation(
             dataloader=None, seed=_seed, model=None)
         ev_result = evaluator.evaluate_space(
-            data, latent, labels, K=evaluation['k'])
+            data, transformed_data, labels, K=evaluation['k'])
         result.update(ev_result)
 
     return result
