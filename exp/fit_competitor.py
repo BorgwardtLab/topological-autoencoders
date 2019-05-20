@@ -70,8 +70,6 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
         # Save model state (and entire model)
         with open(os.path.join(rundir, 'model.pth'), 'wb') as f:
             pickle.dump(model, f)
-        np.save(os.path.join(rundir, 'transformed_data.npy'),
-                transformed_data)
 
     result = {}
     if evaluation['active']:
@@ -85,8 +83,9 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
                 data, labels = zip(*test_dataset)
             data = np.stack(data).reshape(len(data), -1)
             labels = np.array(labels)
-
-        latent = model.transform(data)
+            latent = model.transform(data)
+        else:
+            latent = transformed_data
 
         if rundir:
             np.savez(
