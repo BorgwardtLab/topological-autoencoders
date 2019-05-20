@@ -17,8 +17,11 @@ from sacred.utils import set_by_dotted_path
 import skopt
 
 from .train_model import EXP as train_experiment
+from .hypersearch_configs import add_datasets, add_models
 
 ex = Experiment('hyperparameter_search')
+add_datasets(ex)
+add_models(ex)
 
 
 @ex.config
@@ -44,67 +47,6 @@ def cfg():
     n_random_starts = 10
     n_calls = 30
     load_result = None  # load the previous optimization results from here
-
-
-@ex.named_config
-def MNIST():
-    overrides = {
-        'dataset__name': 'MNIST'
-
-    }
-
-
-@ex.named_config
-def FashionMNIST():
-    overrides = {
-        'dataset__name': 'FashionMNIST'
-    }
-
-
-@ex.named_config
-def Vanilla():
-    overrides = {
-        'model__name': 'VanillaAutoencoderModel',
-    }
-
-@ex.named_config
-def SCurve():
-    overrides = {
-        'dataset__name': 'SCurve',
-        'model__parameters__autoencoder_model': 'MLPAutoencoder'
-    }
-
-
-@ex.named_config
-def TopoReg():
-    hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
-    }
-    overrides = {
-        'model__name': 'TopologicallyRegularizedAutoencoder',
-    }
-
-
-@ex.named_config
-def TopoRegVertex():
-    hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.1, 10, 'log-uniform')
-    }
-    overrides = {
-        'model__name': 'TopologicallyRegularizedAutoencoder',
-        'model__parameters__toposig_kwargs__sort_selected': True,
-    }
-
-
-@ex.named_config
-def TopoRegEdgeSymmetric():
-    hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
-    }
-    overrides = {
-        'model__name': 'TopologicallyRegularizedAutoencoder',
-        'model__parameters__toposig_kwargs__match_edges': 'symmetric',
-    }
 
 
 @ex.capture
