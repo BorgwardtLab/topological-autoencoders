@@ -19,8 +19,6 @@ import skopt
 from .train_model import EXP as train_experiment
 
 ex = Experiment('hyperparameter_search')
-if not ex.observers:
-    ex.observers.append(FileStorageObserver.create('hyperparameter_search_runs'))
 
 
 @ex.config
