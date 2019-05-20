@@ -1,5 +1,7 @@
 """Datasets."""
 import os
+
+import torch
 from torch.utils.data import Dataset
 from torchvision import datasets
 from torchvision import transforms
@@ -12,9 +14,12 @@ BASEPATH = os.path.abspath(
 class FashionMNIST(datasets.FashionMNIST):
     """Fashion MNIST dataset."""
 
+    mean_channels = (0.2860402,)
+    std_channels = (0.3530239,)
+
     transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.2860402,), (0.3530239,))
+        transforms.Normalize(mean_channels, std_channels)
     ])
 
     def __init__(self, train=True):
@@ -22,8 +27,7 @@ class FashionMNIST(datasets.FashionMNIST):
         super().__init__(
             BASEPATH, transform=self.transforms, train=train, download=True)
 
-    @staticmethod
-    def inverse_normalization(normalized):
+    def inverse_normalization(self, normalized):
         """Inverse the normalization applied to the original data.
 
         Args:
@@ -33,8 +37,10 @@ class FashionMNIST(datasets.FashionMNIST):
             Tensor with normalization inversed.
 
         """
-        normalized = 0.5 * (normalized + 1)
-        normalized = normalized.clamp(0, 1)
-        normalized = normalized.view(normalized.size(0), 1, 28, 28)
+        normalized = normalized * \
+            torch.tensor(self.std_channels)[None, :, None, None]
+        normalized = normalized + \
+            torch.tensor(self.mean_channels)[None, :, None, None]
+        normalized = (normalized - normalized.min()) / normalized.max()
         return normalized
 
