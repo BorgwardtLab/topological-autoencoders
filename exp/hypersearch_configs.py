@@ -21,9 +21,11 @@ def add_datasets(experiment):
     experiment.named_config(Spheres)
 
 def Vanilla():
+    train_module = 'train_model'
     overrides = {'model__name': 'VanillaAutoencoderModel'}
 
 def TopoReg():
+    train_module = 'train_model'
     hyperparameter_space = {
         'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
     }
@@ -32,6 +34,7 @@ def TopoReg():
     }
 
 def TopoRegVertex():
+    train_module = 'train_model'
     hyperparameter_space = {
         'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
     }
@@ -41,6 +44,7 @@ def TopoRegVertex():
     }
 
 def TopoRegEdgeSymmetric():
+    train_module = 'train_model'
     hyperparameter_space = {
         'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
     }
@@ -56,16 +60,19 @@ def add_models(experiment):
     experiment.named_config(TopoRegEdgeSymmetric)
 
 def PCA():
+    train_module = 'fit_competitor'
     overrides = {
         'model__name': 'PCA',
     }
 
 def TSNE():
+    train_module = 'fit_competitor'
     overrides = {
         'model__name': 'TSNE'
     }
 
 def UMAP():
+    train_module = 'fit_competitor'
     overrides = {
         'model__name': 'UMAP'
     }

@@ -17,36 +17,46 @@ from sacred.utils import set_by_dotted_path
 import skopt
 
 from .train_model import EXP as train_experiment
-from .hypersearch_configs import add_datasets, add_models
+from .hypersearch_configs import add_datasets, add_models, add_competitors
 
 ex = Experiment('hyperparameter_search')
 add_datasets(ex)
 add_models(ex)
+add_competitors(ex)
 
 
 @ex.config
 def cfg():
     """Hyperparameter search configuration."""
-    hyperparameter_space = {
-        # Training parameters
-        'learning_rate': ('Real', 10**-4, 10**-2, 'log-uniform')
-    }
+    hyperparameter_space = {}
     overrides = {
-        'batch_size': 64,
         'evaluation__active': True,
         'evaluation__k': 20,
-        'n_epochs': 100,
-        'quiet': True,
         'evaluation__evaluate_on': 'validation'
     }
     evaluation_metrics = [
         'validation_mean_mrre',
         'validation_mean_neighbourhood_loss'
     ]
+    train_module = 'train_model'
     nan_replacement = 20.
     n_random_starts = 10
     n_calls = 30
     load_result = None  # load the previous optimization results from here
+
+
+@ex.config
+def cfg_train_model_defaults(train_module):
+    """These are config entries specific to train_model."""
+    if train_module == 'train_model':
+        hyperparameter_space = {
+            'learning_rate': ('Real', 10**-4, 10**-2, 'log-uniform')
+        }
+        overrides = {
+            'batch_size': 64,
+            'n_epochs': 100,
+            'quiet': True,
+        }
 
 
 @ex.capture
@@ -101,10 +111,13 @@ def combine_metrics(metrics, eps=1e-15):
 
 
 @ex.main
-def search_hyperparameter_space(n_random_starts, n_calls, overrides,
-                                evaluation_metrics, nan_replacement,
+def search_hyperparameter_space(train_module, n_random_starts, n_calls,
+                                overrides, evaluation_metrics, nan_replacement,
                                 load_result, _rnd, _run, _log):
     """Search hyperparameter space of an experiment."""
+    import exp
+    train_module = getattr(exp, train_module)
+    train_experiment = train_module.EXP
     # Add observer to child experiment to store all intermediate results
     if _run.observers:
         run_dir = _run.observers[0].dir

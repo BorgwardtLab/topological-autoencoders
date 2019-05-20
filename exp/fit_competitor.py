@@ -23,7 +23,8 @@ def config():
     val_size = 0.15
     evaluation = {
         'active': False,
-        'k': 15
+        'k': 15,
+        'evaluate_on': 'test'
     }
 
 
@@ -33,9 +34,9 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
     # Get data, sacred does some magic here so we need to hush the linter
     # pylint: disable=E1120,E1123
 
-    train_dataset = dataset_config.get_instance(train=True)
-    # train_dataset, validation_dataset = split_validation(
-    #     dataset, val_size, _rnd)
+    dataset = dataset_config.get_instance(train=True)
+    train_dataset, validation_dataset = split_validation(
+        dataset, val_size, _rnd)
     test_dataset = dataset_config.get_instance(train=False)
 
     # Get model, sacred does some magic here so we need to hush the linter
@@ -55,7 +56,6 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
     data = np.array(data)
     labels = np.array(labels)
 
-
     _log.info('Fitting model...')
     transformed_data = model.fit_transform(data)
 
@@ -74,18 +74,29 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
 
     result = {}
     if evaluation['active']:
-        _log.info('Running evaluation...')
+        evaluate_on = evaluation['evaluate_on']
+        _log.info(f'Running evaluation on {evaluate_on} dataset')
         if supports_transform:
-            # Load dedicated test dataset and predict on it
-            data, labels = zip(*test_dataset)
-            data = np.array(data)
-            labels = np.array(labels)
-            transformed_data = model.transform(data)
+            if evaluate_on == 'validation':
+                data, labels = zip(*validation_dataset)
+                data = np.array(data)
+                labels = np.array(labels)
+                transformed_data = model.transform(data)
+            else:
+                # Load dedicated test dataset and predict on it
+                data, labels = zip(*test_dataset)
+                data = np.array(data)
+                labels = np.array(labels)
+                transformed_data = model.transform(data)
 
         evaluator = Multi_Evaluation(
             dataloader=None, seed=_seed, model=None)
         ev_result = evaluator.evaluate_space(
             data, transformed_data, labels, K=evaluation['k'])
-        result.update(ev_result)
+        prefixed_ev_result = {
+            evaluate_on + '_' + key: value
+            for key, value in ev_result.items()
+        }
+        result.update(prefixed_ev_result)
 
     return result
