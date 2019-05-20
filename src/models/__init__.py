@@ -2,7 +2,7 @@
 from .approx_based import TopologicallyRegularizedAutoencoder
 from .surrogate_based import TopologicalSurrogateAutoencoder
 from .vanilla import ConvolutionalAutoencoderModel, VanillaAutoencoderModel
-from .competitors import Isomap, MDS, PCA, TSNE
+from .competitors import Isomap, PCA, TSNE, UMAP
 
 __all__ = [
     'ConvolutionalAutoencoderModel',
@@ -10,7 +10,7 @@ __all__ = [
     'TopologicalSurrogateAutoencoder',
     'VanillaAutoencoderModel',
     'Isomap',
-    'MDS',
     'PCA',
-    'TSNE'
+    'TSNE',
+    'UMAP'
 ]
