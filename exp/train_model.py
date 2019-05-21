@@ -6,7 +6,8 @@ from sacred.utils import apply_backspaces_and_linefeeds
 import torch
 import numpy as np
 
-from src.callbacks import Callback, SaveReconstructedImages, Progressbar
+from src.callbacks import Callback, SaveReconstructedImages, \
+    SaveLatentRepresentation, Progressbar
 from src.datasets.splitting import split_validation
 from src.evaluation.eval import Multi_Evaluation
 from src.evaluation.utils import get_space
@@ -37,7 +38,8 @@ def cfg():
     evaluation = {
         'active': False,
         'k': 15,
-        'evaluate_on': 'test'
+        'evaluate_on': 'test',
+        'online_visualization': True
     }
 
 
@@ -62,6 +64,7 @@ class NewlineCallback(Callback):
     """Add newline between epochs for better readability."""
     def on_epoch_end(self, **kwargs):
         print()
+
 
 @EXP.automain
 def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
@@ -102,6 +105,12 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         if hasattr(dataset, 'inverse_normalization'):
             # We have image data so we can visualize reconstructed images
             callbacks.append(SaveReconstructedImages(rundir))
+        if evaluation['online_visualization']:
+            callbacks.append(
+                SaveLatentRepresentation(
+                    test_dataset, rundir, batch_size=64, device=device)
+            )
+
     except IndexError:
         pass
 

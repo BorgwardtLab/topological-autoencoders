@@ -1,7 +1,11 @@
 """Callbacks for training loop."""
 import os
 from tqdm import tqdm
+from torch.utils.data import DataLoader
 from torchvision.utils import save_image
+
+from src.evaluation.utils import get_space
+from src.visualization import visualize_latents
 
 # Hush the linter, child callbacks will always have different parameters than
 # the overwritten method of the parent class. Further kwargs will mostly be an
@@ -91,3 +95,30 @@ class SaveReconstructedImages(Callback):
         reconstructed_image = dataset.inverse_normalization(reconst)
         save_image(
             reconstructed_image, os.path.join(self.path, f'epoch_{epoch}.png'))
+
+
+class SaveLatentRepresentation(Callback):
+    """Callback to save images of the reconstruction."""
+
+    def __init__(self, dataset, path, batch_size=64, device='cuda'):
+        """Save images of the reconstruction.
+
+        Args:
+            path: Path to store the images to
+        """
+        self.path = path
+        self.dataset = dataset
+        self.device = device
+        self.data_loader = DataLoader(self.dataset, batch_size=batch_size,
+                                      drop_last=True, pin_memory=True)
+
+    def on_epoch_end(self, model, dataset, img, epoch, **kwargs):
+        """Save reconstruction images."""
+        model.eval()
+        latents, labels = get_space(model, self.data_loader, mode='latent',
+                                    device=self.device)
+        visualize_latents(
+            latents,
+            labels,
+            save_file=os.path.join(self.path, f'latent_epoch_{epoch}.pdf')
+        )
