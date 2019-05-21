@@ -66,9 +66,9 @@ class MeasureCalculator():
         return {key: fn(self, k) for key, fn in
                 self.measures.get_k_dependent_measures().items()}
 
-    def compute_measures_for_all_k(self):
+    def compute_measures_for_ks(self, ks):
         return {
-            key: np.array([fn(self, k) for k in range(1, self.k_max)])
+            key: np.array([fn(self, k) for k in ks])
             for key, fn in self.measures.get_k_dependent_measures().items()
         }
 

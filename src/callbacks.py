@@ -56,7 +56,7 @@ class Progressbar(Callback):
         if self.print_loss_components:
             description += ', '
             description += ', '.join([
-                f'{name}: {value:3.3f}'
+                f'{name}: {value:4.2f}'
                 for name, value in loss_components.items()
             ])
         return description

@@ -24,8 +24,10 @@ def config():
     val_size = 0.15
     evaluation = {
         'active': False,
-        'k': 15,
-        'evaluate_on': 'test'
+        'k_min': 10,
+        'k_max': 200,
+        'k_step': 10,
+        'evaluate_on': 'test',
     }
 
 
@@ -99,10 +101,14 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
                 save_file=os.path.join(rundir, 'latent_visualization.pdf')
             )
 
+        k_min, k_max, k_step = \
+            evaluation['k_min'], evaluation['k_max'], evaluation['k_step']
+        ks = list(range(k_min, k_max + k_step, k_step))
+
         evaluator = Multi_Evaluation(
             dataloader=None, seed=_seed, model=None)
-        ev_result = evaluator.evaluate_space(
-            data, latent, labels, K=evaluation['k'])
+        ev_result = evaluator.get_multi_evals(
+            data, latent, labels, ks=ks)
         prefixed_ev_result = {
             evaluate_on + '_' + key: value
             for key, value in ev_result.items()

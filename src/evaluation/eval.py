@@ -70,7 +70,7 @@ class Multi_Evaluation:
         results = self.get_multi_evals(data, latent, labels, K)
         return results
 
-    def get_multi_evals(self, data, latent, labels, K):
+    def get_multi_evals(self, data, latent, labels, ks):
         '''
         Performs multiple evaluations for nonlinear dimensionality
         reduction.
@@ -80,10 +80,10 @@ class Multi_Evaluation:
         - labels: labels of samples
         '''
 
-        calc = MeasureCalculator(data, latent, K)
+        calc = MeasureCalculator(data, latent, max(ks))
 
         indep_measures = calc.compute_k_independent_measures()
-        dep_measures = calc.compute_measures_for_all_k()
+        dep_measures = calc.compute_measures_for_ks(ks)
         mean_dep_measures = {
             key: values.mean() for key, values in dep_measures.items()
         }

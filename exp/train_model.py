@@ -37,7 +37,9 @@ def cfg():
     quiet = False
     evaluation = {
         'active': False,
-        'k': 15,
+        'k_min': 10,
+        'k_max': 200,
+        'k_step': 10,
         'evaluate_on': 'test',
         'online_visualization': True
     }
@@ -169,7 +171,8 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
             drop_last=True
         )
         data, labels = get_space(None, dataloader, mode='data', seed=_seed)
-        latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+        latent, _ = get_space(model, dataloader, mode='latent', device=device,
+                              seed=_seed)
 
         if latent.shape[1] == 2 and rundir:
             # Visualize latent space
@@ -178,13 +181,18 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
                 save_file=os.path.join(rundir, 'latent_visualization.pdf')
             )
 
-        np.savez(
-            os.path.join(rundir, 'latents.npz'), latents=latent, labels=labels)
+        if rundir:
+            np.savez(os.path.join(rundir, 'latents.npz'), latents=latent,
+                     labels=labels)
+
+        k_min, k_max, k_step = \
+            evaluation['k_min'], evaluation['k_max'], evaluation['k_step']
+        ks = list(range(k_min, k_max + k_step, k_step))
 
         evaluator = Multi_Evaluation(
             dataloader=dataloader, seed=_seed, model=model)
-        ev_result = evaluator.evaluate_space(
-            data, latent, labels, K=evaluation['k'])
+        ev_result = evaluator.get_multi_evals(
+            data, latent, labels, ks=ks)
         prefixed_ev_result = {
             evaluation['evaluate_on'] + '_' + key: value
             for key, value in ev_result.items()
