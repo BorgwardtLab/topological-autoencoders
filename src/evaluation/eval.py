@@ -85,7 +85,7 @@ class Multi_Evaluation:
         indep_measures = calc.compute_k_independent_measures()
         dep_measures = calc.compute_measures_for_ks(ks)
         mean_dep_measures = {
-            key: values.mean() for key, values in dep_measures.items()
+            'mean_' + key: values.mean() for key, values in dep_measures.items()
         }
 
         return {
