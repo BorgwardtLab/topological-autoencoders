@@ -124,7 +124,7 @@ class TopologicalSignatureDistance(nn.Module):
     @staticmethod
     def sig_error(signature1, signature2):
         """Compute distance between two topological signatures."""
-        return ((signature1 - signature2)**2).sum(dim=-1) ** 0.5
+        return ((signature1 - signature2)**2).sum(dim=-1)
 
     @staticmethod
     def _count_matching_pairs(pairs1, pairs2):
