@@ -151,15 +151,16 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         evaluate_on = evaluation['evaluate_on']
         _log.info(f'Running evaluation on {evaluate_on} dataset')
         if evaluate_on == 'validation':
-            dataloader = torch.utils.data.DataLoader(
-                validation_dataset, batch_size=batch_size, drop_last=True)
-            data, labels = get_space(None, dataloader, mode='data', seed=_seed)
-            latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+            selected_dataset = validation_dataset
         else:
-            dataloader = torch.utils.data.DataLoader(
-                test_dataset, batch_size=batch_size, drop_last=True)
-            data, labels = get_space(None, dataloader, mode='data', seed=_seed)
-            latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+            selected_dataset = test_dataset
+
+        dataloader = torch.utils.data.DataLoader(
+            selected_dataset, batch_size=batch_size, pin_memory=True,
+            drop_last=True
+        )
+        data, labels = get_space(None, dataloader, mode='data', seed=_seed)
+        latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
 
         if latent.shape[1] == 2 and rundir:
             # Visualize latent space

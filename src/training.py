@@ -85,7 +85,8 @@ class TrainingLoop():
 
                 self.on_batch_begin(remove_self(locals()))
 
-                # Compute loss
+                # Set model into training mode and compute loss
+                model.train()
                 loss, loss_components = self.model(img)
 
                 # Optimize

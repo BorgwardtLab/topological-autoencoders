@@ -85,6 +85,7 @@ class SaveReconstructedImages(Callback):
 
     def on_epoch_end(self, model, dataset, img, epoch, **kwargs):
         """Save reconstruction images."""
+        model.eval()
         latent = model.encode(img)
         reconst = model.decode(latent)
         reconstructed_image = dataset.inverse_normalization(reconst)

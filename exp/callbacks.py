@@ -114,6 +114,7 @@ class LogDatasetLoss(Callback):
 
     def _compute_average_losses(self, model):
         losses = defaultdict(list)
+        model.eval()
 
         for batch in self.data_loader:
             data, _ = batch
