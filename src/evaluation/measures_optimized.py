@@ -82,7 +82,7 @@ class MeasureCalculator():
         return np.sqrt(sum_of_squared_differences / sum_of_squares)
 
     @measures.register(False)
-    def RMSE(self):
+    def rmse(self):
         n = self.pairwise_X.shape[0]
         sum_of_squared_differences = np.square(
             self.pairwise_X - self.pairwise_Z).sum()
@@ -165,7 +165,7 @@ class MeasureCalculator():
 
 
     @measures.register(True)
-    def MRRE(self, k):
+    def mrre(self, k):
         '''
         Calculates the mean relative rank error quality metric of the data
         space `X` with respect to the latent space `Z`, subject to its $k$
