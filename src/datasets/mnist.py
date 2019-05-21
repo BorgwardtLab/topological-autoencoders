@@ -39,6 +39,7 @@ class MNIST(datasets.MNIST):
             Tensor with normalization inversed.
 
         """
+        # normalized = normalized.cpu()
         normalized = normalized * \
             torch.tensor(self.std_channels)[None, :, None, None]
         normalized = normalized + \

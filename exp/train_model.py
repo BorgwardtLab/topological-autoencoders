@@ -107,7 +107,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
 
     training_loop = TrainingLoop(
         model, dataset, n_epochs, batch_size, learning_rate, weight_decay,
-        callbacks
+        device, callbacks
     )
     # Run training
     training_loop()

@@ -9,7 +9,7 @@ class TrainingLoop():
     """Training a model using a dataset."""
 
     def __init__(self, model, dataset, n_epochs, batch_size, learning_rate,
-                 weight_decay=1e-5, callbacks=None):
+                 weight_decay=1e-5, device='cuda', callbacks=None):
         """Training of a model using a dataset and the defined callbacks.
 
         Args:
@@ -26,6 +26,7 @@ class TrainingLoop():
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
+        self.device = device
         self.callbacks = callbacks if callbacks else []
 
     def _execute_callbacks(self, hook, local_variables):
@@ -79,7 +80,7 @@ class TrainingLoop():
                 break
 
             for batch, (img, label) in enumerate(train_loader):
-                if device == 'cuda':
+                if self.device == 'cuda':
                     img = img.cuda(non_blocking=True)
 
                 self.on_batch_begin(remove_self(locals()))

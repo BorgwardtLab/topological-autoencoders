@@ -37,10 +37,11 @@ class FashionMNIST(datasets.FashionMNIST):
             Tensor with normalization inversed.
 
         """
+        normalized = normlaized.cpu()
         normalized = normalized * \
             torch.tensor(self.std_channels)[None, :, None, None]
         normalized = normalized + \
             torch.tensor(self.mean_channels)[None, :, None, None]
-        normalized = (normalized - normalized.min()) / normalized.max()
+        # normalized = (normalized - normalized.min()) / normalized.max()
         return normalized
 
