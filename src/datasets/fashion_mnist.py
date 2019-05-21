@@ -19,7 +19,7 @@ class FashionMNIST(datasets.FashionMNIST):
 
     transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(mean_channels, std_channels)
+        transforms.Normalize((0.5,), (0.5,))
     ])
 
     def __init__(self, train=True):
@@ -37,11 +37,6 @@ class FashionMNIST(datasets.FashionMNIST):
             Tensor with normalization inversed.
 
         """
-        normalized = normlaized.cpu()
-        normalized = normalized * \
-            torch.tensor(self.std_channels)[None, :, None, None]
-        normalized = normalized + \
-            torch.tensor(self.mean_channels)[None, :, None, None]
-        # normalized = (normalized - normalized.min()) / normalized.max()
+        normalized = 0.5 * (normalized + 1)
         return normalized
 
