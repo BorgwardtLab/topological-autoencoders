@@ -32,6 +32,7 @@ def cfg():
     weight_decay = 1e-5
     val_size = 0.15
     early_stopping = 10
+    device = 'cuda'
     quiet = False
     evaluation = {
         'active': False,
@@ -64,7 +65,7 @@ class NewlineCallback(Callback):
 
 @EXP.automain
 def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
-          early_stopping, quiet, evaluation, _run, _log, _seed, _rnd):
+          early_stopping, device, quiet, evaluation, _run, _log, _seed, _rnd):
     """Sacred wrapped function to run training of model."""
     torch.manual_seed(_seed)
     # Get data, sacred does some magic here so we need to hush the linter
@@ -77,14 +78,15 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
     # Get model, sacred does some magic here so we need to hush the linter
     # pylint: disable=E1120
     model = model_config.get_instance()
+    model.to(device)
 
     callbacks = [
         LogTrainingLoss(_run, print_progress=quiet),
         LogDatasetLoss('validation', validation_dataset, _run,
                        print_progress=True, batch_size=batch_size,
-                       early_stopping=early_stopping),
+                       early_stopping=early_stopping, device=device),
         LogDatasetLoss('testing', test_dataset, _run, print_progress=True,
-                       batch_size=batch_size),
+                       batch_size=batch_size, device=device),
     ]
 
     if quiet:

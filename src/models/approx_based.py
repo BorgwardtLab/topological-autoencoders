@@ -101,7 +101,8 @@ class TopologicalSignatureDistance(nn.Module):
         #     self.signature_calculator = PersistentHomologyCalculation()
 
     def _get_pairings(self, distances):
-        pairs_0, pairs_1 = self.signature_calculator(distances.detach().numpy())
+        pairs_0, pairs_1 = self.signature_calculator(
+            distances.detach().cpu().numpy())
 
         return pairs_0, pairs_1
 

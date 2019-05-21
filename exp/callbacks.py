@@ -82,7 +82,7 @@ class LogDatasetLoss(Callback):
     """Logging of loss during training into sacred run."""
 
     def __init__(self, dataset_name, dataset, run, print_progress=True,
-                 batch_size=128, early_stopping=None):
+                 batch_size=128, early_stopping=None, device='cpu'):
         """Create logger callback.
 
         Log the training loss using the sacred metrics API.
@@ -103,10 +103,11 @@ class LogDatasetLoss(Callback):
         # incompatible with the surrogate approach as it assumes a constant
         # batch size.
         self.data_loader = DataLoader(self.dataset, batch_size=batch_size,
-                                      drop_last=True)
+                                      drop_last=True, pin_memory=True)
         self.run = run
         self.print_progress = print_progress
         self.early_stopping = early_stopping
+        self.device = device
         self.iterations = 0
         self.patience = 0
         self.best_loss = np.inf
@@ -116,6 +117,8 @@ class LogDatasetLoss(Callback):
 
         for batch in self.data_loader:
             data, _ = batch
+            if self.device == 'cuda':
+                data = data.cuda(non_blocking=True)
             loss, loss_components = model(data)
             loss = convert_to_base_type(loss)
 

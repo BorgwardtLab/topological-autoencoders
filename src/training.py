@@ -79,6 +79,9 @@ class TrainingLoop():
                 break
 
             for batch, (img, label) in enumerate(train_loader):
+                if device == 'cuda':
+                    img = img.cuda(non_blocking=True)
+
                 self.on_batch_begin(remove_self(locals()))
 
                 # Compute loss
