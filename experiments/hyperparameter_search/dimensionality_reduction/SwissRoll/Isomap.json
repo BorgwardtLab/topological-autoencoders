@@ -1,0 +1,29 @@
+{
+  "__doc__": "These are config entries specific to train_model.",
+  "evaluation_metrics": [
+    "validation_mean_mrre",
+    "validation_mean_neighbourhood_loss"
+  ],
+  "hyperparameter_space": {
+    "model__parameters__n_neighbors": [
+      "Integer",
+      15,
+      500
+    ]
+  },
+  "load_result": null,
+  "n_calls": 40,
+  "n_random_starts": 10,
+  "nan_replacement": 20.0,
+  "overrides": {
+    "dataset__name": "SwissRoll",
+    "evaluation__active": true,
+    "evaluation__evaluate_on": "validation",
+    "evaluation__k": 20,
+    "model__name": "Isomap",
+    "model__parameters__n_components": 2,
+    "model__parameters__n_jobs": 10
+  },
+  "seed": 916442975,
+  "train_module": "fit_competitor"
+}
