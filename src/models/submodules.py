@@ -79,35 +79,33 @@ class ConvolutionalAutoencoder_2D(AutoencoderModel):
     """Convolutional Autoencoder with 2d latent space.
 
     Architecture from:
-        Guo, Xifeng, et al. "Deep clustering with convolutional autoencoders."
-        International Conference on Neural Information Processing. Springer,
-        Cham, 2017.
+        Model 1 in 
+        `A Deep Convolutional Auto-Encoder with Pooling - Unpooling Layers in
+        Caffe - Volodymyr Turchenko, Eric Chalmers, Artur Luczak`
     """
-
     def __init__(self, input_channels=1):
         """Convolutional Autoencoder."""
         super().__init__()
         self.encoder = nn.Sequential(
-            nn.Conv2d(input_channels, 32, 5, stride=2, padding=2),  # b, 16, 10, 10
+            nn.Conv2d(input_channels, 8, 9, stride=1, padding=0),  # b, 16, 10, 10
             nn.ReLU(),
-            nn.Conv2d(32, 64, 5, stride=2, padding=2),  # b, 2, 3, 3
+            nn.Conv2d(8, 4, 9, stride=1, padding=0),  # b, 2, 3, 3
             nn.ReLU(),
-            nn.Conv2d(64, 128, 3, stride=2, padding=0),
+            View((-1, 576)),
+            nn.Linear(576, 250),
             nn.ReLU(),
-            View((-1, 1152)),
-            nn.Linear(1152, 2),
+            nn.Linear(250, 2)
         )
         self.decoder = nn.Sequential(
-            nn.Linear(2, 1152),
+            nn.Linear(2, 250),
             nn.ReLU(),
-            View((-1, 128, 3, 3)),
+            View((-1, 250, 1, 1)),
             nn.ReLU(),
-            nn.ConvTranspose2d(128, 64, 3, stride=2, padding=0),
+            nn.ConvTranspose2d(250, 4, 12, stride=1, padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 32, 5, stride=2, padding=2, output_padding=1),
+            nn.ConvTranspose2d(4, 4, 17, stride=1, padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(32, input_channels, 5, stride=2, padding=2,
-                               output_padding=1),
+            nn.Conv2d(4, 1, 1, stride=1, padding=0),
             nn.Tanh()
         )
         self.reconst_error = nn.MSELoss()
