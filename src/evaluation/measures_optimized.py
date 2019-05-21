@@ -1,5 +1,5 @@
 import numpy as np
-from .measures import pairwise_distances
+from scipy.spatial.distance import pdist, squareform
 
 
 class MeasureRegistrator():
@@ -32,8 +32,8 @@ class MeasureCalculator():
 
     def __init__(self, X, Z, k_max):
         self.k_max = k_max
-        self.pairwise_X = pairwise_distances(X)
-        self.pairwise_Z = pairwise_distances(Z)
+        self.pairwise_X = squareform(pdist(X))
+        self.pairwise_Z = squareform(pdist(Z))
         self.neighbours_X, self.ranks_X = \
             self._neighbours_and_ranks(self.pairwise_X, k_max)
         self.neighbours_Z, self.ranks_Z = \
