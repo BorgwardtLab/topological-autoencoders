@@ -20,7 +20,7 @@ def get_space(model, dataloader, mode='latent', device='cuda', seed=42):
     full_space = []
     all_labels = []
 
-    torch.manual_seed(seed)
+    # torch.manual_seed(seed)
 
     if mode == 'data':
         #Extract data samples 
