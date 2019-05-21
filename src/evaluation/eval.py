@@ -1,3 +1,4 @@
+import itertools
 
 import numpy as np
 from sklearn.manifold import TSNE, MDS, Isomap
@@ -8,13 +9,8 @@ import torch
 from .utils import get_space, rescaling 
 from .knn_utils import get_k_predictions, get_NMI, get_acc
 
-from .measures import RMSE, MRRE
-from .measures import trustworthiness as twn
-from .measures import continuity as cnt 
-from .measures import neighbouhood_loss as nhl
-from .measures import stress as stress_measure 
+from .measures_optimized import MeasureCalculator
 
-torch.manual_seed(42)
 
 def evaluate_space(data, labels, k):
     """Evaluate Space with kNN-based classification (accuracy) and label
@@ -46,10 +42,11 @@ class Multi_Evaluation:
         self.seed = seed
         if model:
             self.model = model
-    
+
     def get_data(self, mode):
         """Extract specified space (data or latent space).
-        Inputs: mode ('data' or 'latent') to extract data or latent space 
+
+        Inputs: mode ('data' or 'latent') to extract data or latent space
         Takes dataloader and model and mode (data or latent space) and returns
             [data, labels].
         """
@@ -73,7 +70,7 @@ class Multi_Evaluation:
         results = self.get_multi_evals(data, latent, labels, K)
         return results
 
-    def get_multi_evals(self, data, latent, labels, K):
+    def get_multi_evals(self, data, latent, labels, ks):
         '''
         Performs multiple evaluations for nonlinear dimensionality
         reduction.
@@ -83,45 +80,19 @@ class Multi_Evaluation:
         - labels: labels of samples
         '''
 
-        X = data
-        Z = latent
+        calc = MeasureCalculator(data, latent, max(ks))
 
-        stress = stress_measure(X, Z)
-        rmse = RMSE(X, Z)
-
-        trustworthiness = np.array(
-            [twn(X, Z, k) for k in range(1, K+1)]
-        )
-
-        continuity = np.array(
-            [cnt(X, Z, k) for k in range(1, K+1)]
-        )
-
-        neighbourhood_loss = np.array(
-            [nhl(X, Z, k) for k in range(1, K+1)]
-        )
-
-        mrre = np.array(
-            [MRRE(X, Z, k) for k in range(1, K+1)]
-        )
-
-        result = {
-            # Scalars
-            'stress': stress,
-            'rmse': rmse,
-            # Arrays/lists
-            'trustworthiness': trustworthiness.tolist(),
-            'continuity': continuity.tolist(),
-            'neighbourhood_loss': neighbourhood_loss.tolist(),
-            'mrre': mrre.tolist(),
-            # Means
-            'mean_trustworthiness': trustworthiness.mean(),
-            'mean_continuity': continuity.mean(),
-            'mean_neighbourhood_loss': neighbourhood_loss.mean(),
-            'mean_mrre': mrre.mean()
+        indep_measures = calc.compute_k_independent_measures()
+        dep_measures = calc.compute_measures_for_ks(ks)
+        mean_dep_measures = {
+            'mean_' + key: values.mean() for key, values in dep_measures.items()
         }
 
-        return result
+        return {
+            key: value for key, value in
+            itertools.chain(indep_measures.items(), dep_measures.items(),
+                            mean_dep_measures.items())
+        }
 
 
 '''

@@ -6,7 +6,8 @@ from sacred.utils import apply_backspaces_and_linefeeds
 import torch
 import numpy as np
 
-from src.callbacks import Callback, SaveReconstructedImages, Progressbar
+from src.callbacks import Callback, SaveReconstructedImages, \
+    SaveLatentRepresentation, Progressbar
 from src.datasets.splitting import split_validation
 from src.evaluation.eval import Multi_Evaluation
 from src.evaluation.utils import get_space
@@ -32,11 +33,15 @@ def cfg():
     weight_decay = 1e-5
     val_size = 0.15
     early_stopping = 10
+    device = 'cuda'
     quiet = False
     evaluation = {
         'active': False,
-        'k': 15,
-        'evaluate_on': 'test'
+        'k_min': 10,
+        'k_max': 200,
+        'k_step': 10,
+        'evaluate_on': 'test',
+        'online_visualization': False
     }
 
 
@@ -62,9 +67,10 @@ class NewlineCallback(Callback):
     def on_epoch_end(self, **kwargs):
         print()
 
+
 @EXP.automain
 def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
-          early_stopping, quiet, evaluation, _run, _log, _seed, _rnd):
+          early_stopping, device, quiet, evaluation, _run, _log, _seed, _rnd):
     """Sacred wrapped function to run training of model."""
     torch.manual_seed(_seed)
     # Get data, sacred does some magic here so we need to hush the linter
@@ -77,14 +83,15 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
     # Get model, sacred does some magic here so we need to hush the linter
     # pylint: disable=E1120
     model = model_config.get_instance()
+    model.to(device)
 
     callbacks = [
         LogTrainingLoss(_run, print_progress=quiet),
         LogDatasetLoss('validation', validation_dataset, _run,
                        print_progress=True, batch_size=batch_size,
-                       early_stopping=early_stopping),
+                       early_stopping=early_stopping, device=device),
         LogDatasetLoss('testing', test_dataset, _run, print_progress=True,
-                       batch_size=batch_size),
+                       batch_size=batch_size, device=device),
     ]
 
     if quiet:
@@ -100,12 +107,18 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         if hasattr(dataset, 'inverse_normalization'):
             # We have image data so we can visualize reconstructed images
             callbacks.append(SaveReconstructedImages(rundir))
+        if evaluation['online_visualization']:
+            callbacks.append(
+                SaveLatentRepresentation(
+                    test_dataset, rundir, batch_size=64, device=device)
+            )
+
     except IndexError:
         pass
 
     training_loop = TrainingLoop(
         model, dataset, n_epochs, batch_size, learning_rate, weight_decay,
-        callbacks
+        device, callbacks
     )
     # Run training
     training_loop()
@@ -149,15 +162,17 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         evaluate_on = evaluation['evaluate_on']
         _log.info(f'Running evaluation on {evaluate_on} dataset')
         if evaluate_on == 'validation':
-            dataloader = torch.utils.data.DataLoader(
-                validation_dataset, batch_size=batch_size, drop_last=True)
-            data, labels = get_space(None, dataloader, mode='data', seed=_seed)
-            latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+            selected_dataset = validation_dataset
         else:
-            dataloader = torch.utils.data.DataLoader(
-                test_dataset, batch_size=batch_size, drop_last=True)
-            data, labels = get_space(None, dataloader, mode='data', seed=_seed)
-            latent, _ = get_space(model, dataloader, mode='latent', seed=_seed)
+            selected_dataset = test_dataset
+
+        dataloader = torch.utils.data.DataLoader(
+            selected_dataset, batch_size=batch_size, pin_memory=True,
+            drop_last=True
+        )
+        data, labels = get_space(None, dataloader, mode='data', seed=_seed)
+        latent, _ = get_space(model, dataloader, mode='latent', device=device,
+                              seed=_seed)
 
         if latent.shape[1] == 2 and rundir:
             # Visualize latent space
@@ -166,13 +181,18 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
                 save_file=os.path.join(rundir, 'latent_visualization.pdf')
             )
 
-        np.savez(
-            os.path.join(rundir, 'latents.npz'), latents=latent, labels=labels)
+        if rundir:
+            np.savez(os.path.join(rundir, 'latents.npz'), latents=latent,
+                     labels=labels)
+
+        k_min, k_max, k_step = \
+            evaluation['k_min'], evaluation['k_max'], evaluation['k_step']
+        ks = list(range(k_min, k_max + k_step, k_step))
 
         evaluator = Multi_Evaluation(
             dataloader=dataloader, seed=_seed, model=model)
-        ev_result = evaluator.evaluate_space(
-            data, latent, labels, K=evaluation['k'])
+        ev_result = evaluator.get_multi_evals(
+            data, latent, labels, ks=ks)
         prefixed_ev_result = {
             evaluation['evaluate_on'] + '_' + key: value
             for key, value in ev_result.items()

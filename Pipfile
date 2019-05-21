@@ -19,6 +19,8 @@ tadasets = "*"
 umap-learn = "*"
 seaborn = "*"
 requests = "*"
+gitpython = "*"
+gputil = "*"
 
 [requires]
 python_version = "3.6"

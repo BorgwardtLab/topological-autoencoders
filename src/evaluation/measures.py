@@ -6,7 +6,6 @@ measures for evaluating the latent space.
 
 import numpy as np
 
-
 def pairwise_distances(X):
     '''
     Calculates pairwise distance matrix of a given data matrix and
@@ -51,7 +50,6 @@ def get_neighbours_and_ranks(X, k):
     and returns the corresponding tuple. An additional parameter $k$,
     the size of the neighbourhood, is required.
     '''
-
     X = pairwise_distances(X)
 
     # Warning: this is only the ordering of neighbours that we need to
@@ -107,7 +105,7 @@ def continuity(X, Z, k):
     # Notice that the parameters have to be flipped here.
     return trustworthiness(Z, X, k)
 
-def neighbouhood_loss(X, Z, k):
+def neighbourhood_loss(X, Z, k):
     '''
     Calculates the neighbourhood loss quality measure between the data
     space `X` and the latent space `Z` for some neighbourhood size $k$

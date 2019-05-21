@@ -1,0 +1,35 @@
+{
+  "__doc__": "These are config entries specific to train_model.",
+  "evaluation_metrics": [
+    "validation_mean_mrre",
+    "validation_mean_neighbourhood_loss"
+  ],
+  "hyperparameter_space": {
+    "model__parameters__min_dist": [
+      "Real",
+      0.0,
+      1.0,
+      "uniform"
+    ],
+    "model__parameters__n_neighbors": [
+      "Integer",
+      15,
+      500
+    ]
+  },
+  "load_result": null,
+  "n_calls": 30,
+  "n_random_starts": 10,
+  "nan_replacement": 20.0,
+  "overrides": {
+    "dataset__name": "SwissRoll",
+    "evaluation__active": true,
+    "evaluation__evaluate_on": "validation",
+    "evaluation__k": 20,
+    "model__name": "UMAP",
+    "model__parameters__metric": "euclidean",
+    "model__parameters__n_components": 2
+  },
+  "seed": 44238613,
+  "train_module": "fit_competitor"
+}

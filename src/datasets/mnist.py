@@ -21,7 +21,7 @@ class MNIST(datasets.MNIST):
 
     transforms = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(mean_channels, std_channels)
+        transforms.Normalize((0.5,), (0.5,))
     ])
 
     def __init__(self, train=True):
@@ -39,10 +39,6 @@ class MNIST(datasets.MNIST):
             Tensor with normalization inversed.
 
         """
-        normalized = normalized * \
-            torch.tensor(self.std_channels)[None, :, None, None]
-        normalized = normalized + \
-            torch.tensor(self.mean_channels)[None, :, None, None]
-        normalized = (normalized - normalized.min()) / normalized.max()
+        normalized = 0.5 * (normalized + 1)
         return normalized
 

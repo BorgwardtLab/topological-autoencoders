@@ -40,6 +40,7 @@ $(EXPERIMENT_OUTPUT_PATH)/%: $(EXPERIMENT_CONFIGS_PATH)/%.json
 	if [ -e exp/$${sacred_experiment}.py ]; then \
 	echo python -m exp.$${sacred_experiment} -e -F $@ with $< $(SACRED_OVERRIDES); \
 	mkdir -p $@; \
+	export CUDA_VISIBLE_DEVICES=$$(python -c 'import GPUtil; print(GPUtil.getAvailable("random")[0])');\
 	python -m exp.$${sacred_experiment} -F $@ with $< $(SACRED_OVERRIDES) && mv $@/1/* $@ && rm -r $@/1; \
 	fi
 

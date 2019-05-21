@@ -27,7 +27,7 @@ def Vanilla():
 def TopoReg():
     train_module = 'train_model'
     hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
+        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
@@ -36,7 +36,7 @@ def TopoReg():
 def TopoRegVertex():
     train_module = 'train_model'
     hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
+        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
@@ -46,7 +46,7 @@ def TopoRegVertex():
 def TopoRegEdgeSymmetric():
     train_module = 'train_model'
     hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 10, 'log-uniform')
+        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',

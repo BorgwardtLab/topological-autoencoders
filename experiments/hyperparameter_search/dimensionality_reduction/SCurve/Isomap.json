@@ -12,7 +12,7 @@
     ]
   },
   "load_result": null,
-  "n_calls": 30,
+  "n_calls": 40,
   "n_random_starts": 10,
   "nan_replacement": 20.0,
   "overrides": {
@@ -24,6 +24,6 @@
     "model__parameters__n_components": 2,
     "model__parameters__n_jobs": 10
   },
-  "seed": 852965586,
+  "seed": 968441602,
   "train_module": "fit_competitor"
 }

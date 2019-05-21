@@ -17,6 +17,6 @@
     "model__name": "PCA",
     "model__parameters__n_components": 2
   },
-  "seed": 60870160,
+  "seed": 778695075,
   "train_module": "fit_competitor"
 }
