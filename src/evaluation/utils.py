@@ -15,11 +15,11 @@ get_latent_space:
             'data'   --> extracts data samples
 '''
 
-def get_space(model, dataloader, mode='latent', seed=42):
+def get_space(model, dataloader, mode='latent', device='cuda', seed=42):
     #initialize output space    
     full_space = []
     all_labels = []
-    
+
     torch.manual_seed(seed)
 
     if mode == 'data':
@@ -36,24 +36,27 @@ def get_space(model, dataloader, mode='latent', seed=42):
         #Concatenate the lists to return arrays of data space and labels
         full_space = np.concatenate(full_space, axis=0)
         all_labels = np.concatenate(all_labels, axis=0)
-    
+
     elif mode == 'latent':
-        #Extract latent codes from latent space    
+        model.eval()
+        #Extract latent codes from latent space
         for index, batch in enumerate(dataloader):
             #unpack current batch:
             image, label = batch
+            if device == 'cuda':
+                image = image.cuda(non_blocking=True)
 
             #feed batch through model:
             latent = model.encode(image)
             reconst = model.decode(latent)
-            
+
             #extract latent code and flatten to vector
-            latent = latent.detach().numpy()
+            latent = latent.detach().cpu().numpy()
             latent_flat = latent.reshape(latent.shape[0], -1)
-            
+
             #extract reconstructed image 
-            reconst = reconst.detach().numpy()
-            
+            reconst = reconst.detach().cpu().numpy()
+
             #append current latent code and label to list of all 
             full_space.append(latent_flat)
             all_labels.append(label)
