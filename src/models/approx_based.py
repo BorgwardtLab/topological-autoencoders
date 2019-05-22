@@ -27,6 +27,8 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         toposig_kwargs = toposig_kwargs if toposig_kwargs else {}
         self.topo_sig = TopologicalSignatureDistance(**toposig_kwargs)
         self.autoencoder = getattr(submodules, autoencoder_model)(**ae_kwargs)
+        self.latent_norm = torch.nn.Parameter(data=torch.ones(1),
+                                              requires_grad=True)
 
     @staticmethod
     def _compute_distance_matrix(x, p=2):
@@ -44,14 +46,16 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
             Tuple of final_loss, (...loss components...)
 
         """
-        batch_size = x.size()[0]
+        batch_size, ch, b, w = x.size()
+        # Compute the maximum distance we could get in the data space (this is
+        # only valid for images wich are normalized between -1 and 1)
+        max_distance = (2**2 * ch * b * w) ** 0.5
         latent = self.autoencoder.encode(x)
 
         x_distances = self._compute_distance_matrix(x)
-        # TODO: Normalize the distances in the data space --> does this make
-        # sense?
-        x_distances = x_distances / x_distances.max()
+        x_distances = x_distances / max_distance
         latent_distances = self._compute_distance_matrix(latent)
+        latent_distances = latent_distances / self.latent_norm
 
         # Use reconstruction loss of autoencoder
         ae_loss, ae_loss_comp = self.autoencoder(x)

@@ -216,7 +216,6 @@ class DeepAE_COIL(AutoencoderModel):
             nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 16, 
             nn.ReLU(True),
             nn.MaxPool2d(2),  # b, 8, 8, 8
-            Print('Pre fc'),
 
             View((-1, 8*8*8)),
             nn.Linear(8*8*8, 1000),
