@@ -5,6 +5,7 @@ from sacred import Experiment
 from sacred.utils import apply_backspaces_and_linefeeds
 import torch
 import numpy as np
+import pandas as pd
 
 from src.callbacks import Callback, SaveReconstructedImages, \
     SaveLatentRepresentation, Progressbar
@@ -42,7 +43,7 @@ def cfg():
         'k_step': 10,
         'evaluate_on': 'test',
         'online_visualization': False,
-        'save_latents': False
+        'save_latents': True
     }
 
 
@@ -175,16 +176,21 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         latent, _ = get_space(model, dataloader, mode='latent', device=device,
                               seed=_seed)
 
+        if rundir and evaluation['save_latents']:
+            df = pd.DataFrame(latent)
+            df['labels'] = labels
+            df.to_csv(os.path.join(rundir, 'latents.csv'), index=False)
+            np.savez(
+                os.path.join(rundir, 'latents.npz'),
+                latents=latent, labels=labels
+            )
+
         if latent.shape[1] == 2 and rundir:
             # Visualize latent space
             visualize_latents(
                 latent, labels,
                 save_file=os.path.join(rundir, 'latent_visualization.pdf')
             )
-
-        if rundir and evaluation['save_latents']:
-            np.savez(os.path.join(rundir, 'latents.npz'), latents=latent,
-                     labels=labels)
 
         k_min, k_max, k_step = \
             evaluation['k_min'], evaluation['k_max'], evaluation['k_step']

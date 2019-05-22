@@ -2,6 +2,7 @@
 import os
 
 import numpy as np
+import pandas as pd
 import pickle
 
 from sacred import Experiment
@@ -28,7 +29,7 @@ def config():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
-        'save_latents': False,
+        'save_latents': True,
         'save_model': False
     }
 
@@ -95,7 +96,11 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
             latent = transformed_data[indices]
             labels = labels[indices]
 
+
         if rundir and evaluation['save_latents']:
+            df = pd.DataFrame(latent)
+            df['labels'] = labels
+            df.to_csv(os.path.join(rundir, 'latents.csv'), index=False)
             np.savez(
                 os.path.join(rundir, 'latents.npz'),
                 latents=latent, labels=labels
