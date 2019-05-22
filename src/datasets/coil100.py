@@ -77,7 +77,7 @@ class COIL100Base(Dataset):
         return np.stack(data), np.array(labels)
 
 
-class COIL100(COIL100Base):
+class COIL(COIL100Base):
     """Rotated Objects Dataset."""
 
     transforms = transforms.Compose([
