@@ -66,7 +66,7 @@ def PCA():
         'model__parameters__n_components': 2
     }
     # There are no real parameters for PCA
-    n_calls = 1
+    n_calls = 2
     n_random_starts = 1
 
 def TSNE():
