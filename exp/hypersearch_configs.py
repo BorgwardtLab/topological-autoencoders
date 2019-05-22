@@ -13,12 +13,16 @@ def SwissRoll():
 def Spheres():
     overrides = {'dataset__name': 'Spheres'}
 
+def COIL():
+    overrides = {'dataset__name': 'COIL'}
+
 def add_datasets(experiment):
     experiment.named_config(MNIST)
     experiment.named_config(FashionMNIST)
     experiment.named_config(SCurve)
     experiment.named_config(SwissRoll)
     experiment.named_config(Spheres)
+    experiment.named_config(COIL)
 
 def Vanilla():
     train_module = 'train_model'
