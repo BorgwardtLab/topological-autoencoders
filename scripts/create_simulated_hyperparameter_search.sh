@@ -2,7 +2,7 @@
 
 ae_models=(Vanilla TopoRegEdgeSymmetric)
 ae_models_cycles=(TopoRegEdgeSymmetric)
-competitor_methods=(PCA TSNE UMAP)
+competitor_methods=(PCA TSNE Isomap UMAP)
 output_pattern='experiments/hyperparameter_search/dimensionality_reduction/{dataset}/{model}.json'
 output_pattern_vae='experiments/hyperparameter_search/dimensionality_reduction/{dataset}/VAE-{model}.json'
 output_pattern_cycle='experiments/hyperparameter_search/dimensionality_reduction/{dataset}/{model}-cycle.json'

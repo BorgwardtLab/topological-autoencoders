@@ -28,7 +28,8 @@ def config():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
-        'save_latents': False
+        'save_latents': False,
+        'save_model': False
     }
 
 
@@ -69,7 +70,7 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
     except IndexError:
         pass
 
-    if rundir:
+    if rundir and evaluation['save_model']:
         # Save model state (and entire model)
         with open(os.path.join(rundir, 'model.pth'), 'wb') as f:
             pickle.dump(model, f)

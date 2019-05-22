@@ -90,7 +90,7 @@ def Isomap():
     overrides = {
         'model__name': 'Isomap',
         'model__parameters__n_components': 2,
-        'model__parameters__n_jobs': 10
+        'model__parameters__n_jobs': 4
     }
 
 def UMAP():
