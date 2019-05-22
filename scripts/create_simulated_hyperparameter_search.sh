@@ -44,40 +44,40 @@ python scripts/configs_from_product.py exp.hyperparameter_search \
   --output-pattern ${output_pattern_vae}
 
 # Cycles
-python scripts/configs_from_product.py exp.hyperparameter_search \
-  --name model \
-  --set ${ae_models_cycles[*]} \
-  --name dataset --set SCurve \
-  --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder \
-  --name dummy2 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
-  --output-pattern ${output_pattern_cycle}
-
-python scripts/configs_from_product.py exp.hyperparameter_search \
-  --name model \
-  --set ${ae_models_cycles[*]} \
-  --name dataset --set Spheres \
-  --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder_Spheres \
-  --name dummy2 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
-  --output-pattern ${output_pattern_cycle}
+# python scripts/configs_from_product.py exp.hyperparameter_search \
+#   --name model \
+#   --set ${ae_models_cycles[*]} \
+#   --name dataset --set SCurve \
+#   --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder \
+#   --name dummy2 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
+#   --output-pattern ${output_pattern_cycle}
+# 
+# python scripts/configs_from_product.py exp.hyperparameter_search \
+#   --name model \
+#   --set ${ae_models_cycles[*]} \
+#   --name dataset --set Spheres \
+#   --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder_Spheres \
+#   --name dummy2 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
+#   --output-pattern ${output_pattern_cycle}
 
 # VAECycles SCurve
-python scripts/configs_from_product.py exp.hyperparameter_search \
-  --name model \
-  --set ${ae_models_cycles[*]} \
-  --name dataset --set SCurve \
-  --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder \
-  --name dummy2 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
-  --output-pattern ${output_pattern_vae_cycle}
-
-# VEACycles Spheres
-python scripts/configs_from_product.py exp.hyperparameter_search \
-  --name model \
-  --set ${ae_models_cycles[*]} \
-  --name dataset --set Spheres \
-  --name dummy --set overrides.model__parameters__autoencoder_model=MLPVAE \
-  --name dummy2 --set overrides.model__parameters__ae_kwargs__input_dim=101 \
-  --name dummy3 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
-  --output-pattern ${output_pattern_vae_cycle}
+# python scripts/configs_from_product.py exp.hyperparameter_search \
+#   --name model \
+#   --set ${ae_models_cycles[*]} \
+#   --name dataset --set SCurve \
+#   --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder \
+#   --name dummy2 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
+#   --output-pattern ${output_pattern_vae_cycle}
+# 
+# # VEACycles Spheres
+# python scripts/configs_from_product.py exp.hyperparameter_search \
+#   --name model \
+#   --set ${ae_models_cycles[*]} \
+#   --name dataset --set Spheres \
+#   --name dummy --set overrides.model__parameters__autoencoder_model=MLPVAE \
+#   --name dummy2 --set overrides.model__parameters__ae_kwargs__input_dim=101 \
+#   --name dummy3 --set overrides.model__parameters__toposig_kwargs__use_cycles=True \
+#   --output-pattern ${output_pattern_vae_cycle}
 
 # Competitor
 python scripts/configs_from_product.py exp.hyperparameter_search \
