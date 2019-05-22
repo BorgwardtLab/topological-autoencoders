@@ -42,7 +42,7 @@ def cfg():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
-        'online_visualization': False,
+        'online_visualization': True,
         'save_latents': True
     }
 
