@@ -95,9 +95,20 @@ class TopologicalSignatureDistance(nn.Module):
 
         self.match_edges = match_edges
 
+        # if use_cycles:
+        #     use_aleph = True
+        # else:
+        #     if not sort_selected and match_edges is None:
+        #         use_aleph = True
+        #     else:
+        #         use_aleph = False
+
+        # if use_aleph:
+        #     print('Using aleph to compute signatures')
         self.signature_calculator = AlephPersistenHomologyCalculation(
             compute_cycles=use_cycles, sort_selected=sort_selected)
         # else:
+        #     print('Using python to compute signatures')
         #     self.signature_calculator = PersistentHomologyCalculation()
 
     def _get_pairings(self, distances):
