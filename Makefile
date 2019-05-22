@@ -43,9 +43,13 @@ $(EXPERIMENT_OUTPUT_PATH)/%: $(EXPERIMENT_CONFIGS_PATH)/%.json
 	@# as the script we want to run
 	@# export CUDA_VISIBLE_DEVICES=$$(python -c 'import GPUtil; print(GPUtil.getAvailable("random")[0])');
 	-@sacred_experiment=$(word 2,$(subst /, ,$<)); \
+	if [ ! -e $@ ]; then \
 	if [ -e exp/$${sacred_experiment}.py ]; then \
 	echo python -m exp.$${sacred_experiment} -e -F $@ with $< $(SACRED_OVERRIDES); \
 	mkdir -p $@; \
 	python -m exp.$${sacred_experiment} -F $@ with $< $(SACRED_OVERRIDES) && mv $@/1/* $@ && rm -r $@/1; \
+	fi; \
+	else \
+	echo $@ already exists! Skipping... ;\
 	fi
 
