@@ -41,7 +41,8 @@ def cfg():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
-        'online_visualization': False
+        'online_visualization': False,
+        'save_latents': False
     }
 
 
@@ -181,7 +182,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
                 save_file=os.path.join(rundir, 'latent_visualization.pdf')
             )
 
-        if rundir:
+        if rundir and evaluation['save_latents']:
             np.savez(os.path.join(rundir, 'latents.npz'), latents=latent,
                      labels=labels)
 

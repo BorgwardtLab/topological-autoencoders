@@ -28,6 +28,7 @@ def config():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
+        'save_latents': False
     }
 
 
@@ -89,7 +90,7 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
         else:
             latent = transformed_data
 
-        if rundir:
+        if rundir and evaluation['save_latents']:
             np.savez(
                 os.path.join(rundir, 'latents.npz'),
                 latents=latent, labels=labels
