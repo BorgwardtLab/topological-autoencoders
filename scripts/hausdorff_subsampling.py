@@ -105,4 +105,6 @@ if __name__ == '__main__':
                 np.std(hausdorff_distances)
             )
 
+            sys.stdout.flush()
+
         print()
