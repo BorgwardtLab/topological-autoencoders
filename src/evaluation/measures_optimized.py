@@ -234,3 +234,15 @@ class MeasureCalculator():
         density_z /= density_z.sum(axis=-1)
 
         return (density_x * (np.log(density_x) - np.log(density_z))).sum()
+
+    @measures.register(False)
+    def density_kl_global_1(self):
+        return self.density_kl_global(1.)
+
+    @measures.register(False)
+    def density_kl_global_01(self):
+        return self.density_kl_global(0.1)
+
+    @measures.register(False)
+    def density_kl_global_001(self):
+        return self.density_kl_global(0.01)
