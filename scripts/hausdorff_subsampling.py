@@ -90,7 +90,7 @@ if __name__ == '__main__':
         X_mean_distance = np.mean(X_pairwise_distances)
         X_mean_distance_upper_bound = np.sqrt(2 * d)
 
-        for m in range(1, 101):
+        for m in range(1, n_points + 1):
 
             hausdorff_distances = []
             Y_diameters = []
