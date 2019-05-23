@@ -15,8 +15,12 @@ print(filelist)
 results = []
 for filename in filelist:  
     split = filename.split('/')
-    dataset = split[-6] #TODO: change to -3 and -2 for real results!
-    model = split[-4]
+    dataset = split[-4] #TODO: change to -3 and -2 for real results!
+    model = split[-2]
+    
+    #nice name for proposed method:
+    if 'TopoRegEdge' in model:
+        model = 'TopoAE (proposed)'
     
     with open(filename, 'rb') as f:
         data = json.load(f)
@@ -38,7 +42,10 @@ for filename in filelist:
         experiment[key] = data['result'][key]
 
     results.append(experiment)
- 
+
+    df = pd.DataFrame(results)
+    df.to_latex('table_real_world.tex')
+     
 embed() 
 
 
