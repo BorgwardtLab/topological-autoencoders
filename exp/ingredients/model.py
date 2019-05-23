@@ -122,7 +122,7 @@ def VAETopoRegEdgeRandom():
     }
 
 @ingredient.capture
-def get_instance(name, parameters, _log, _rnd):
+def get_instance(name, parameters, _log, _seed):
     """Get an instance of a model according to parameters in the configuration.
 
     Also, check if the provided parameters fit to the signature of the model
@@ -160,9 +160,9 @@ def get_instance(name, parameters, _log, _rnd):
                 )
             else:
                 _log.info(
-                    f'Passing random_state of experiment to model parameter '
+                    f'Passing seed of experiment to model parameter '
                     '`random_state`.'
                 )
-                parameters['random_state'] = _rnd
+                parameters['random_state'] = _seed
 
     return model_cls(**parameters)
