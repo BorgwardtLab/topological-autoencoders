@@ -46,14 +46,22 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
             Tuple of final_loss, (...loss components...)
 
         """
-        batch_size, ch, b, w = x.size()
-        # Compute the maximum distance we could get in the data space (this is
-        # only valid for images wich are normalized between -1 and 1)
-        max_distance = (2**2 * ch * b * w) ** 0.5
         latent = self.autoencoder.encode(x)
 
         x_distances = self._compute_distance_matrix(x)
-        x_distances = x_distances / max_distance
+
+        dimensions = x.size()
+        if len(dimensions) == 4:
+            # If we have an image dataset, normalize using theoretical maximum
+            batch_size, ch, b, w = dimensions
+            # Compute the maximum distance we could get in the data space (this
+            # is only valid for images wich are normalized between -1 and 1)
+            max_distance = (2**2 * ch * b * w) ** 0.5
+            x_distances = x_distances / max_distance
+        else:
+            # Else just take the max distance we got in the batch
+            x_distances = x_distances / x_distances.max()
+
         latent_distances = self._compute_distance_matrix(latent)
         latent_distances = latent_distances / self.latent_norm
 
