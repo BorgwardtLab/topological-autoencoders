@@ -1,12 +1,11 @@
 {
   "__doc__": "These are config entries specific to train_model.",
   "evaluation_metrics": [
-    "validation_mean_mrre",
-    "validation_mean_neighbourhood_loss"
+    "validation_density_kl_global"
   ],
   "hyperparameter_space": {},
   "load_result": null,
-  "n_calls": 1,
+  "n_calls": 2,
   "n_random_starts": 1,
   "nan_replacement": 20.0,
   "overrides": {
@@ -17,6 +16,6 @@
     "model__name": "PCA",
     "model__parameters__n_components": 2
   },
-  "seed": 778695075,
+  "seed": 31619613,
   "train_module": "fit_competitor"
 }

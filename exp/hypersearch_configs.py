@@ -13,12 +13,16 @@ def SwissRoll():
 def Spheres():
     overrides = {'dataset__name': 'Spheres'}
 
+def COIL():
+    overrides = {'dataset__name': 'COIL'}
+
 def add_datasets(experiment):
     experiment.named_config(MNIST)
     experiment.named_config(FashionMNIST)
     experiment.named_config(SCurve)
     experiment.named_config(SwissRoll)
     experiment.named_config(Spheres)
+    experiment.named_config(COIL)
 
 def Vanilla():
     train_module = 'train_model'
@@ -66,7 +70,7 @@ def PCA():
         'model__parameters__n_components': 2
     }
     # There are no real parameters for PCA
-    n_calls = 1
+    n_calls = 2
     n_random_starts = 1
 
 def TSNE():
@@ -90,7 +94,7 @@ def Isomap():
     overrides = {
         'model__name': 'Isomap',
         'model__parameters__n_components': 2,
-        'model__parameters__n_jobs': 10
+        'model__parameters__n_jobs': 4
     }
 
 def UMAP():

@@ -36,13 +36,12 @@ def cfg():
         'evaluation__evaluate_on': 'validation'
     }
     evaluation_metrics = [
-        'validation_mean_mrre',
-        'validation_mean_neighbourhood_loss'
+        'validation_density_kl_global'
     ]
     train_module = 'train_model'
     nan_replacement = 20.
     n_random_starts = 10
-    n_calls = 40
+    n_calls = 20
     load_result = None  # load the previous optimization results from here
 
 
@@ -185,7 +184,7 @@ def search_hyperparameter_space(train_module, n_random_starts, n_calls,
                 result[eval_metric] for eval_metric in evaluation_metrics]
             all_finite = all((np.isfinite(val) for val in metric_values))
             if all_finite:
-                return_value = combine_metrics(metric_values)
+                return_value = np.mean(metric_values)
             else:
                 return_value = nan_replacement
             result['hyperparam_optimization_objective'] = return_value

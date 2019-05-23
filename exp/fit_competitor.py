@@ -2,6 +2,7 @@
 import os
 
 import numpy as np
+import pandas as pd
 import pickle
 
 from sacred import Experiment
@@ -28,7 +29,8 @@ def config():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
-        'save_latents': False
+        'save_latents': True,
+        'save_model': False
     }
 
 
@@ -48,14 +50,11 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
     model = model_config.get_instance()
 
     supports_transform = hasattr(model, 'transform')
-    if supports_transform:
-        # Models that support fitting on train and predicting on test
-        data, labels = zip(*train_dataset)
-    else:
+    data, labels = zip(*train_dataset)
+    if not supports_transform:
         # Models which do not derive an mapping to the latent space
         _log.warn('Model does not support separate training and prediction.')
-        _log.warn('Directly running on test dataset!')
-        data, labels = zip(*test_dataset)
+        _log.warn('Will run evaluation on subsample of training dataset!')
 
     data = np.stack(data).reshape(len(data), -1)
     labels = np.array(labels)
@@ -69,7 +68,7 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
     except IndexError:
         pass
 
-    if rundir:
+    if rundir and evaluation['save_model']:
         # Save model state (and entire model)
         with open(os.path.join(rundir, 'model.pth'), 'wb') as f:
             pickle.dump(model, f)
@@ -88,9 +87,20 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
             labels = np.array(labels)
             latent = model.transform(data)
         else:
-            latent = transformed_data
+            # If the model does not support transforming after fitting, take
+            # a subset of the training data to compute evaluation metrics and
+            # store latents
+            indices = _rnd.permutation(len(train_dataset))
+            indices = indices[:len(test_dataset)]
+            data = data[indices]
+            latent = transformed_data[indices]
+            labels = labels[indices]
+
 
         if rundir and evaluation['save_latents']:
+            df = pd.DataFrame(latent)
+            df['labels'] = labels
+            df.to_csv(os.path.join(rundir, 'latents.csv'), index=False)
             np.savez(
                 os.path.join(rundir, 'latents.npz'),
                 latents=latent, labels=labels

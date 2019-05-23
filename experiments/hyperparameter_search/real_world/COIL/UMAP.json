@@ -3,19 +3,32 @@
   "evaluation_metrics": [
     "validation_density_kl_global"
   ],
-  "hyperparameter_space": {},
+  "hyperparameter_space": {
+    "model__parameters__min_dist": [
+      "Real",
+      0.0,
+      1.0,
+      "uniform"
+    ],
+    "model__parameters__n_neighbors": [
+      "Integer",
+      15,
+      500
+    ]
+  },
   "load_result": null,
-  "n_calls": 2,
-  "n_random_starts": 1,
+  "n_calls": 20,
+  "n_random_starts": 10,
   "nan_replacement": 20.0,
   "overrides": {
-    "dataset__name": "MNIST",
+    "dataset__name": "COIL",
     "evaluation__active": true,
     "evaluation__evaluate_on": "validation",
     "evaluation__k": 20,
-    "model__name": "PCA",
+    "model__name": "UMAP",
+    "model__parameters__metric": "euclidean",
     "model__parameters__n_components": 2
   },
-  "seed": 271380683,
+  "seed": 78575805,
   "train_module": "fit_competitor"
 }

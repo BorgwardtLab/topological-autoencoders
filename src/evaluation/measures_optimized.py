@@ -204,3 +204,45 @@ class MeasureCalculator():
         # Normalisation constant
         C = n * sum([abs(2*j - n - 1) / j for j in range(1, k+1)])
         return mrre_ZX / C, mrre_XZ / C
+
+    @measures.register(False)
+    def density_global(self, sigma=0.1):
+        X = self.pairwise_X
+        X = X / X.max()
+        Z = self.pairwise_Z
+        Z = Z / Z.max()
+
+        density_x = np.sum(np.exp(-(X ** 2) / sigma), axis=-1)
+        density_x /= density_x.sum(axis=-1)
+
+        density_z = np.sum(np.exp(-(Z ** 2) / sigma), axis=-1)
+        density_z /= density_z.sum(axis=-1)
+
+        return np.abs(density_x - density_z).sum()
+
+    @measures.register(False)
+    def density_kl_global(self, sigma=0.1):
+        X = self.pairwise_X
+        X = X / X.max()
+        Z = self.pairwise_Z
+        Z = Z / Z.max()
+
+        density_x = np.sum(np.exp(-(X ** 2) / sigma), axis=-1)
+        density_x /= density_x.sum(axis=-1)
+
+        density_z = np.sum(np.exp(-(Z ** 2) / sigma), axis=-1)
+        density_z /= density_z.sum(axis=-1)
+
+        return (density_x * (np.log(density_x) - np.log(density_z))).sum()
+
+    @measures.register(False)
+    def density_kl_global_1(self):
+        return self.density_kl_global(1.)
+
+    @measures.register(False)
+    def density_kl_global_01(self):
+        return self.density_kl_global(0.1)
+
+    @measures.register(False)
+    def density_kl_global_001(self):
+        return self.density_kl_global(0.01)

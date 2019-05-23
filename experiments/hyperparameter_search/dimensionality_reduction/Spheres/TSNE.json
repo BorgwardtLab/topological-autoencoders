@@ -1,8 +1,7 @@
 {
   "__doc__": "These are config entries specific to train_model.",
   "evaluation_metrics": [
-    "validation_mean_mrre",
-    "validation_mean_neighbourhood_loss"
+    "validation_density_kl_global"
   ],
   "hyperparameter_space": {
     "model__parameters__learning_rate": [
@@ -31,6 +30,6 @@
     "model__parameters__n_components": 2,
     "model__parameters__n_iter": 1500
   },
-  "seed": 824297068,
+  "seed": 382926147,
   "train_module": "fit_competitor"
 }

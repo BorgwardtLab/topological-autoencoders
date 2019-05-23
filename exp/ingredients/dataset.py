@@ -31,6 +31,11 @@ def FashionMNIST():
     parameters = {
     }
 
+@ingredient.named_config
+def COIL():
+    name = 'COIL100'
+    parameters = {}
+
 
 @ingredient.named_config
 def SwissRoll():

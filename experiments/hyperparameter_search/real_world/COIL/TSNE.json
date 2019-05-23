@@ -4,28 +4,32 @@
     "validation_density_kl_global"
   ],
   "hyperparameter_space": {
-    "learning_rate": [
+    "model__parameters__learning_rate": [
       "Real",
-      0.0001,
-      0.01,
+      10.0,
+      1000.0,
       "log-uniform"
+    ],
+    "model__parameters__perplexity": [
+      "Real",
+      5.0,
+      50.0,
+      "uniform"
     ]
   },
   "load_result": null,
-  "n_calls": 40,
+  "n_calls": 20,
   "n_random_starts": 10,
   "nan_replacement": 20.0,
   "overrides": {
-    "batch_size": 64,
-    "dataset__name": "SCurve",
+    "dataset__name": "COIL",
     "evaluation__active": true,
     "evaluation__evaluate_on": "validation",
     "evaluation__k": 20,
-    "model__name": "VanillaAutoencoderModel",
-    "model__parameters__autoencoder_model": "MLPVAE",
-    "n_epochs": 100,
-    "quiet": true
+    "model__name": "TSNE",
+    "model__parameters__n_components": 2,
+    "model__parameters__n_iter": 1500
   },
-  "seed": 85023378,
-  "train_module": "train_model"
+  "seed": 486435366,
+  "train_module": "fit_competitor"
 }

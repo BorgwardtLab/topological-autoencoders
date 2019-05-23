@@ -1,4 +1,5 @@
 """Submodules used by models."""
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Normal
@@ -106,6 +107,153 @@ class ConvolutionalAutoencoder_2D(AutoencoderModel):
             nn.ConvTranspose2d(4, 4, 17, stride=1, padding=0),
             nn.ReLU(),
             nn.Conv2d(4, 1, 1, stride=1, padding=0),
+            nn.Tanh()
+        )
+        self.reconst_error = nn.MSELoss()
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        return self.encoder(x)
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        return self.decoder(z)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent = self.encode(x)
+        x_reconst = self.decode(latent)
+        reconst_error = self.reconst_error(x, x_reconst)
+        return reconst_error, {'reconstruction_error': reconst_error}
+
+
+class DeepAE(AutoencoderModel):
+    """1000-500-250-2-250-500-1000."""
+    def __init__(self, input_dims=(1, 28, 28)):
+        super().__init__()
+        self.input_dims = input_dims
+        n_input_dims = np.prod(input_dims)
+        self.encoder = nn.Sequential(
+            View((-1, n_input_dims)),
+            nn.Linear(n_input_dims, 1000),
+            nn.ReLU(True),
+            nn.BatchNorm1d(1000),
+            nn.Linear(1000, 500),
+            nn.ReLU(True),
+            nn.BatchNorm1d(500),
+            nn.Linear(500, 250),
+            nn.ReLU(True),
+            nn.BatchNorm1d(250),
+            nn.Linear(250, 2)
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(2, 250),
+            nn.ReLU(True),
+            nn.BatchNorm1d(250),
+            nn.Linear(250, 500),
+            nn.ReLU(True),
+            nn.BatchNorm1d(500),
+            nn.Linear(500, 1000),
+            nn.ReLU(True),
+            nn.BatchNorm1d(1000),
+            nn.Linear(1000, n_input_dims),
+            View((-1,) + tuple(input_dims)),
+            nn.Tanh()
+        )
+        self.reconst_error = nn.MSELoss()
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        return self.encoder(x)
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        return self.decoder(z)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent = self.encode(x)
+        x_reconst = self.decode(latent)
+        reconst_error = self.reconst_error(x, x_reconst)
+        return reconst_error, {'reconstruction_error': reconst_error}
+
+
+
+class DeepAE_COIL(AutoencoderModel):
+    """1000-500-250-2-250-500-1000."""
+    def __init__(self, input_dims=(3, 128, 128)):
+        super().__init__()
+        self.input_dims = input_dims
+        n_input_dims = np.prod(input_dims)
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 8, 3, stride=1, padding=1),  # b, 16, 128, 128
+            nn.ReLU(True),
+            nn.MaxPool2d(2),  # b, 8, 64, 64
+
+            nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 16, 128, 128
+            nn.ReLU(True),
+            nn.MaxPool2d(2),  # b, 8, 32, 32
+
+            nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 16, 128, 128
+            nn.ReLU(True),
+            nn.MaxPool2d(2),  # b, 8, 16, 16
+            nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 16, 
+            nn.ReLU(True),
+            nn.MaxPool2d(2),  # b, 8, 8, 8
+
+            View((-1, 8*8*8)),
+            nn.Linear(8*8*8, 1000),
+            nn.ReLU(True),
+            nn.BatchNorm1d(1000),
+            nn.Linear(1000, 500),
+            nn.ReLU(True),
+            nn.BatchNorm1d(500),
+            nn.Linear(500, 250),
+            nn.ReLU(True),
+            nn.BatchNorm1d(250),
+            nn.Linear(250, 2)
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(2, 250),
+            nn.ReLU(True),
+            nn.BatchNorm1d(250),
+            nn.Linear(250, 500),
+            nn.ReLU(True),
+            nn.BatchNorm1d(500),
+            nn.Linear(500, 1000),
+            nn.ReLU(True),
+            nn.BatchNorm1d(1000),
+            nn.Linear(1000, 8*8*8),
+            View((-1, 8, 8, 8)),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 8, 16, 16
+            nn.ReLU(True),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 8, 32, 32
+            nn.ReLU(True),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 8, 64, 64
+            nn.ReLU(True),
+            nn.Upsample(scale_factor=2, mode='nearest'),
+            nn.Conv2d(8, 8, 3, stride=1, padding=1),  # b, 8, 128, 128
+            nn.ReLU(True),
+            nn.Conv2d(8, 3, 1, stride=1, padding=0),
             nn.Tanh()
         )
         self.reconst_error = nn.MSELoss()

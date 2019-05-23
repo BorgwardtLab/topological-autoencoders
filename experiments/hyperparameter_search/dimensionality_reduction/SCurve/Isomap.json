@@ -3,19 +3,26 @@
   "evaluation_metrics": [
     "validation_density_kl_global"
   ],
-  "hyperparameter_space": {},
+  "hyperparameter_space": {
+    "model__parameters__n_neighbors": [
+      "Integer",
+      15,
+      500
+    ]
+  },
   "load_result": null,
-  "n_calls": 2,
-  "n_random_starts": 1,
+  "n_calls": 40,
+  "n_random_starts": 10,
   "nan_replacement": 20.0,
   "overrides": {
-    "dataset__name": "MNIST",
+    "dataset__name": "SCurve",
     "evaluation__active": true,
     "evaluation__evaluate_on": "validation",
     "evaluation__k": 20,
-    "model__name": "PCA",
-    "model__parameters__n_components": 2
+    "model__name": "Isomap",
+    "model__parameters__n_components": 2,
+    "model__parameters__n_jobs": 4
   },
-  "seed": 271380683,
+  "seed": 920240567,
   "train_module": "fit_competitor"
 }

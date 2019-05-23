@@ -27,6 +27,8 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
         toposig_kwargs = toposig_kwargs if toposig_kwargs else {}
         self.topo_sig = TopologicalSignatureDistance(**toposig_kwargs)
         self.autoencoder = getattr(submodules, autoencoder_model)(**ae_kwargs)
+        self.latent_norm = torch.nn.Parameter(data=torch.ones(1),
+                                              requires_grad=True)
 
     @staticmethod
     def _compute_distance_matrix(x, p=2):
@@ -44,14 +46,24 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
             Tuple of final_loss, (...loss components...)
 
         """
-        batch_size = x.size()[0]
         latent = self.autoencoder.encode(x)
 
         x_distances = self._compute_distance_matrix(x)
-        # TODO: Normalize the distances in the data space --> does this make
-        # sense?
-        x_distances = x_distances / x_distances.max()
+
+        dimensions = x.size()
+        if len(dimensions) == 4:
+            # If we have an image dataset, normalize using theoretical maximum
+            batch_size, ch, b, w = dimensions
+            # Compute the maximum distance we could get in the data space (this
+            # is only valid for images wich are normalized between -1 and 1)
+            max_distance = (2**2 * ch * b * w) ** 0.5
+            x_distances = x_distances / max_distance
+        else:
+            # Else just take the max distance we got in the batch
+            x_distances = x_distances / x_distances.max()
+
         latent_distances = self._compute_distance_matrix(latent)
+        latent_distances = latent_distances / self.latent_norm
 
         # Use reconstruction loss of autoencoder
         ae_loss, ae_loss_comp = self.autoencoder(x)
@@ -95,9 +107,20 @@ class TopologicalSignatureDistance(nn.Module):
 
         self.match_edges = match_edges
 
+        # if use_cycles:
+        #     use_aleph = True
+        # else:
+        #     if not sort_selected and match_edges is None:
+        #         use_aleph = True
+        #     else:
+        #         use_aleph = False
+
+        # if use_aleph:
+        #     print('Using aleph to compute signatures')
         self.signature_calculator = AlephPersistenHomologyCalculation(
             compute_cycles=use_cycles, sort_selected=sort_selected)
         # else:
+        #     print('Using python to compute signatures')
         #     self.signature_calculator = PersistentHomologyCalculation()
 
     def _get_pairings(self, distances):

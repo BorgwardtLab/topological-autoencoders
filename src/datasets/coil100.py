@@ -51,7 +51,7 @@ class COIL100Base(Dataset):
             self.labels = labels_test
 
     def __len__(self):
-        return len(self.data.shape[0])
+        return self.data.shape[0]
 
     def __getitem__(self, index):
         img, target = self.data[index], int(self.labels[index])
@@ -74,17 +74,19 @@ class COIL100Base(Dataset):
         for filename in filelist:
             im = mpimg.imread(filename)
             data.append(im)
-        return np.stack(data), labels
+        return np.stack(data), np.array(labels)
 
 
-class COIL100(COIL100Base):
+class COIL(COIL100Base):
     """Rotated Objects Dataset."""
 
     transforms = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(
-            (0.1580247, 0.1580247, 0.13644657),
-            (0.28469974, 0.22121184, 0.19787617)
+            # (0.1580247, 0.1580247, 0.13644657),
+            # (0.28469974, 0.22121184, 0.19787617)
+            (0.5, 0.5, 0.5),
+            (0.5, 0.5, 0.5)
         )
     ])
 
@@ -93,4 +95,16 @@ class COIL100(COIL100Base):
         super().__init__(
             BASEPATH, transform=self.transforms, train=train)
 
+    def inverse_normalization(self, normalized):
+        """Inverse the normalization applied to the original data.
+
+        Args:
+            x: Batch of data
+
+        Returns:
+            Tensor with normalization inversed.
+
+        """
+        normalized = 0.5 * (normalized + 1)
+        return normalized
 
