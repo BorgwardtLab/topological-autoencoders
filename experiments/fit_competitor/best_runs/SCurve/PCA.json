@@ -1,0 +1,26 @@
+{
+  "dataset": {
+    "__doc__": "Dataset configuration.",
+    "name": "SCurve",
+    "parameters": {}
+  },
+  "evaluation": {
+    "active": true,
+    "evaluate_on": "test",
+    "k": 20,
+    "k_max": 200,
+    "k_min": 10,
+    "k_step": 10,
+    "save_latents": true,
+    "save_model": false
+  },
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "PCA",
+    "parameters": {
+      "n_components": 2
+    }
+  },
+  "seed": 518384037,
+  "val_size": 0.15
+}
