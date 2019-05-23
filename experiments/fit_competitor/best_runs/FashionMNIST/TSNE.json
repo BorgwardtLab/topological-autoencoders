@@ -1,7 +1,7 @@
 {
   "dataset": {
     "__doc__": "Dataset configuration.",
-    "name": "MNIST",
+    "name": "FashionMNIST",
     "parameters": {}
   },
   "evaluation": {
@@ -18,14 +18,14 @@
     "__doc__": "Model configuration.",
     "name": "TSNE",
     "parameters": {
-      "learning_rate": 103.35347353080085,
+      "learning_rate": 313.510540240729,
       "n_components": 2,
       "n_iter": 1500,
-      "n_jobs": 40,
-      "perplexity": 43.62231606941264,
+      "n_jobs": 25,
+      "perplexity": 5.269548294006026,
       "verbose": 3
     }
   },
-  "seed": 787848958,
+  "seed": 361055998,
   "val_size": 0.15
 }
