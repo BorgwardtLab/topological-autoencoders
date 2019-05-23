@@ -21,6 +21,7 @@ seaborn = "*"
 requests = "*"
 gitpython = "*"
 gputil = "*"
+multicoretsne = "*"
 
 [requires]
 python_version = "3.6"
