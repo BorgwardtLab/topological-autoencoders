@@ -1,0 +1,31 @@
+{
+  "dataset": {
+    "__doc__": "Dataset configuration.",
+    "name": "FashionMNIST",
+    "parameters": {}
+  },
+  "evaluation": {
+    "active": true,
+    "evaluate_on": "test",
+    "k": 20,
+    "k_max": 200,
+    "k_min": 10,
+    "k_step": 10,
+    "save_latents": true,
+    "save_model": false
+  },
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "TSNE",
+    "parameters": {
+      "learning_rate": 313.510540240729,
+      "n_components": 2,
+      "n_iter": 1500,
+      "n_jobs": 25,
+      "perplexity": 5.269548294006026,
+      "verbose": 3
+    }
+  },
+  "seed": 361055998,
+  "val_size": 0.15
+}

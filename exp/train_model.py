@@ -42,8 +42,9 @@ def cfg():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
-        'online_visualization': False,
-        'save_latents': True
+        'online_visualization': True,
+        'save_latents': True,
+        'save_training_latents': False
     }
 
 
@@ -183,6 +184,28 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
             np.savez(
                 os.path.join(rundir, 'latents.npz'),
                 latents=latent, labels=labels
+            )
+
+        if rundir and evaluation['save_training_latents']:
+            dataloader = torch.utils.data.DataLoader(
+                dataset, batch_size=batch_size, pin_memory=True,
+                drop_last=True
+            )
+            train_latent, train_labels = get_space(
+                model, dataloader, mode='latent', device=device, seed=_seed)
+
+            df = pd.DataFrame(train_latent)
+            df['labels'] = train_labels
+            df.to_csv(os.path.join(rundir, 'train_latents.csv'), index=False)
+            np.savez(
+                os.path.join(rundir, 'latents.npz'),
+                latents=train_latent, labels=train_labels
+            )
+            # Visualize latent space
+            visualize_latents(
+                train_latent, train_labels,
+                save_file=os.path.join(
+                    rundir, 'train_latent_visualization.pdf')
             )
 
         if latent.shape[1] == 2 and rundir:

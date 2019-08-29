@@ -30,7 +30,8 @@ def config():
         'k_step': 10,
         'evaluate_on': 'test',
         'save_latents': True,
-        'save_model': False
+        'save_model': False,
+        'save_training_latents': False
     }
 
 
@@ -57,7 +58,7 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
         _log.warn('Will run evaluation on subsample of training dataset!')
 
     data = np.stack(data).reshape(len(data), -1)
-    labels = np.array(labels)
+    train_labels = np.array(labels)
 
     _log.info('Fitting model...')
     transformed_data = model.fit_transform(data)
@@ -94,7 +95,7 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
             indices = indices[:len(test_dataset)]
             data = data[indices]
             latent = transformed_data[indices]
-            labels = labels[indices]
+            labels = train_labels[indices]
 
 
         if rundir and evaluation['save_latents']:
@@ -104,6 +105,29 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
             np.savez(
                 os.path.join(rundir, 'latents.npz'),
                 latents=latent, labels=labels
+            )
+
+        if rundir and evaluation['save_training_latents']:
+            if supports_transform:
+                train_data, train_labels = zip(*dataset)
+                train_data = np.stack(train_data).reshape(len(train_data), -1)
+                train_labels = np.array(train_labels)
+                train_latent = model.transform(train_data)
+            else:
+                train_latent = transformed_data
+
+            df = pd.DataFrame(train_latent)
+            df['labels'] = train_labels
+            df.to_csv(os.path.join(rundir, 'train_latents.csv'), index=False)
+            np.savez(
+                os.path.join(rundir, 'latents.npz'),
+                latents=train_latent, labels=train_labels
+            )
+            # Visualize latent space
+            visualize_latents(
+                train_latent, train_labels,
+                save_file=os.path.join(
+                    rundir, 'train_latent_visualization.pdf')
             )
         if latent.shape[1] == 2 and rundir:
             # Visualize latent space

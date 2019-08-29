@@ -1,0 +1,29 @@
+{
+  "dataset": {
+    "__doc__": "Dataset configuration.",
+    "name": "SCurve",
+    "parameters": {}
+  },
+  "evaluation": {
+    "active": true,
+    "evaluate_on": "test",
+    "k": 20,
+    "k_max": 200,
+    "k_min": 10,
+    "k_step": 10,
+    "save_latents": true,
+    "save_model": false
+  },
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "UMAP",
+    "parameters": {
+      "metric": "euclidean",
+      "min_dist": 1.0,
+      "n_components": 2,
+      "n_neighbors": 500
+    }
+  },
+  "seed": 267939923,
+  "val_size": 0.15
+}

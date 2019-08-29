@@ -1,0 +1,29 @@
+{
+  "dataset": {
+    "__doc__": "Dataset configuration.",
+    "name": "Spheres",
+    "parameters": {}
+  },
+  "evaluation": {
+    "active": true,
+    "evaluate_on": "test",
+    "k": 20,
+    "k_max": 200,
+    "k_min": 10,
+    "k_step": 10,
+    "save_latents": true,
+    "save_model": false
+  },
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "TSNE",
+    "parameters": {
+      "learning_rate": 394.56832978626755,
+      "n_components": 2,
+      "n_iter": 1500,
+      "perplexity": 5.073788402574529
+    }
+  },
+  "seed": 577525659,
+  "val_size": 0.15
+}
