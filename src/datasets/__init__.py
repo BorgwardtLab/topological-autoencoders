@@ -1,8 +1,6 @@
 """Datasets."""
-from .manifolds import SwissRoll, SCurve, Spheres
+from .manifolds import Spheres
 from .mnist import MNIST
 from .fashion_mnist import FashionMNIST
-from .stl10 import STL10
-from .coil100 import COIL
-__all__ = ['SwissRoll', 'SCurve', 'Spheres', 'MNIST', 'FashionMNIST', 'STL10',
-           'COIL']
+from .cifar10 import CIFAR10
+__all__ = ['Spheres', 'MNIST', 'FashionMNIST', 'CIFAR10']
