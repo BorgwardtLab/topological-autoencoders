@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.distance import pdist, squareform
 
+from scipy.stats import spearmanr
 
 class MeasureRegistrator():
     """Keeps track of measurements in Measure Calculator."""
@@ -165,6 +166,18 @@ class MeasureCalculator():
 
 
     @measures.register(True)
+    def rank_correlation(self, k):
+        '''
+        Calculates the spearman rank correlation of the data
+        space `X` with respect to the latent space `Z`, subject to its $k$
+        nearest neighbours.
+        '''
+
+        X_neighbourhood, X_ranks = self.get_X_neighbours_and_ranks(k)
+        Z_neighbourhood, Z_ranks = self.get_Z_neighbours_and_ranks(k)
+        return spearmanr(X_ranks, Z_ranks)  
+
+    @measures.register(True)
     def mrre(self, k):
         '''
         Calculates the mean relative rank error quality metric of the data
@@ -236,6 +249,10 @@ class MeasureCalculator():
         return (density_x * (np.log(density_x) - np.log(density_z))).sum()
 
     @measures.register(False)
+    def density_kl_global_10(self):
+        return self.density_kl_global(10.)
+
+    @measures.register(False)
     def density_kl_global_1(self):
         return self.density_kl_global(1.)
 
@@ -246,3 +263,10 @@ class MeasureCalculator():
     @measures.register(False)
     def density_kl_global_001(self):
         return self.density_kl_global(0.01)
+
+    @measures.register(False)
+    def density_kl_global_0001(self):
+        return self.density_kl_global(0.001)
+
+
+
