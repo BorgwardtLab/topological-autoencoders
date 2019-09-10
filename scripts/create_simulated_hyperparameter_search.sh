@@ -9,13 +9,13 @@ output_pattern_cycle='experiments/hyperparameter_search/dimensionality_reduction
 output_pattern_vae_cycle='experiments/hyperparameter_search/dimensionality_reduction/{dataset}/VAE-{model}-cycle.json'
 
 # Autoencoder based
-python scripts/configs_from_product.py exp.hyperparameter_search \
-  --name model \
-  --set ${ae_models[*]} \
-  --name dataset  \
-  --set SCurve \
-  --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder \
-  --output-pattern ${output_pattern}
+#python scripts/configs_from_product.py exp.hyperparameter_search \
+#  --name model \
+#  --set ${ae_models[*]} \
+#  --name dataset  \
+#  --set SCurve \
+#  --name dummy --set overrides.model__parameters__autoencoder_model=MLPAutoencoder \
+#  --output-pattern ${output_pattern}
 
 python scripts/configs_from_product.py exp.hyperparameter_search \
   --name model \
@@ -26,13 +26,13 @@ python scripts/configs_from_product.py exp.hyperparameter_search \
   --output-pattern ${output_pattern}
 
 # VAE based
-python scripts/configs_from_product.py exp.hyperparameter_search \
-  --name model \
-  --set ${ae_models[*]} \
-  --name dataset  \
-  --set SCurve \
-  --name dummy --set overrides.model__parameters__autoencoder_model=MLPVAE \
-  --output-pattern ${output_pattern_vae}
+#python scripts/configs_from_product.py exp.hyperparameter_search \
+#  --name model \
+#  --set ${ae_models[*]} \
+#  --name dataset  \
+#  --set SCurve \
+#  --name dummy --set overrides.model__parameters__autoencoder_model=MLPVAE \
+#  --output-pattern ${output_pattern_vae}
 
 python scripts/configs_from_product.py exp.hyperparameter_search \
   --name model \
@@ -83,5 +83,5 @@ python scripts/configs_from_product.py exp.hyperparameter_search \
 python scripts/configs_from_product.py exp.hyperparameter_search \
   --name model \
   --set ${competitor_methods[*]} \
-  --name dataset --set SCurve Spheres \
+  --name dataset --set Spheres \
   --output-pattern ${output_pattern}
