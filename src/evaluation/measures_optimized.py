@@ -175,8 +175,11 @@ class MeasureCalculator():
 
         X_neighbourhood, X_ranks = self.get_X_neighbours_and_ranks(k)
         Z_neighbourhood, Z_ranks = self.get_Z_neighbours_and_ranks(k)
-        return spearmanr(X_ranks, Z_ranks)  
-
+        #use only off-diagonal (non-trivial) ranks:
+        inds = ~np.eye(X_ranks.shape[0],dtype=bool)
+        coeff, pval = spearmanr(X_ranks[inds], Z_ranks[inds])  
+        return coeff, pval
+ 
     @measures.register(True)
     def mrre(self, k):
         '''
