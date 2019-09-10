@@ -50,12 +50,12 @@ def cfg_train_model_defaults(train_module):
     """These are config entries specific to train_model."""
     if train_module == 'train_model':
         hyperparameter_space = {
-            'learning_rate': ('Real', 10**-4, 10**-2, 'log-uniform')
+            'learning_rate': ('Real', 10**-4, 10**-2, 'log-uniform'),
+            'batch_size': ('Integer', 16, 128) 
         }
         overrides = {
-            'batch_size': 64,
             'n_epochs': 100,
-            'quiet': True,
+            'quiet': True
         }
 
 
