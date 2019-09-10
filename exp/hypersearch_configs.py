@@ -4,28 +4,19 @@ def MNIST():
 def FashionMNIST():
     overrides = {'dataset__name': 'FashionMNIST'}
 
-def SCurve():
-    overrides = {'dataset__name': 'SCurve'}
-
-def SwissRoll():
-    overrides = {'dataset__name': 'SwissRoll'}
-
 def Spheres():
     overrides = {'dataset__name': 'Spheres'}
-
-def COIL():
-    overrides = {'dataset__name': 'COIL'}
 
 def add_datasets(experiment):
     experiment.named_config(MNIST)
     experiment.named_config(FashionMNIST)
-    experiment.named_config(SCurve)
-    experiment.named_config(SwissRoll)
     experiment.named_config(Spheres)
-    experiment.named_config(COIL)
 
 def Vanilla():
     train_module = 'train_model'
+    hyperparameter_space = {
+        'batch_size': ('Integer', 16, 128)
+    }
     overrides = {'model__name': 'VanillaAutoencoderModel'}
 
 def TopoReg():
@@ -50,7 +41,8 @@ def TopoRegVertex():
 def TopoRegEdgeSymmetric():
     train_module = 'train_model'
     hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
+        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform'),
+        'batch_size': ('Integer', 16, 128)
     }
     overrides = {
         'model__name': 'TopologicallyRegularizedAutoencoder',
