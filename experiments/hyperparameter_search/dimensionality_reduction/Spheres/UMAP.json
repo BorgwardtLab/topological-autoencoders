@@ -29,6 +29,6 @@
     "model__parameters__metric": "euclidean",
     "model__parameters__n_components": 2
   },
-  "seed": 359562958,
+  "seed": 69165828,
   "train_module": "fit_competitor"
 }

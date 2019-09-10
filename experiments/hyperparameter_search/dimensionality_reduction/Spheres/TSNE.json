@@ -30,6 +30,6 @@
     "model__parameters__n_components": 2,
     "model__parameters__n_iter": 1500
   },
-  "seed": 110731722,
+  "seed": 903311477,
   "train_module": "fit_competitor"
 }

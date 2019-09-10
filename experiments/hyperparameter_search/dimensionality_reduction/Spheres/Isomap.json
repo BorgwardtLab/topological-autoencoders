@@ -23,6 +23,6 @@
     "model__parameters__n_components": 2,
     "model__parameters__n_jobs": 4
   },
-  "seed": 208115955,
+  "seed": 682668168,
   "train_module": "fit_competitor"
 }
