@@ -1,4 +1,5 @@
 """Callbacks specific to sacred."""
+import os
 from collections import defaultdict
 
 import numpy as np
@@ -82,7 +83,8 @@ class LogDatasetLoss(Callback):
     """Logging of loss during training into sacred run."""
 
     def __init__(self, dataset_name, dataset, run, print_progress=True,
-                 batch_size=128, early_stopping=None, device='cpu'):
+                 batch_size=128, early_stopping=None, save_path=None,
+                 device='cpu'):
         """Create logger callback.
 
         Log the training loss using the sacred metrics API.
@@ -96,6 +98,7 @@ class LogDatasetLoss(Callback):
             early_stopping: if int the number of epochs to wait befor stopping
                 training due to non-decreasing loss, if None dont use
                 early_stopping
+            save_path: Where to store model weigths
         """
         self.prefix = dataset_name
         self.dataset = dataset
@@ -107,6 +110,7 @@ class LogDatasetLoss(Callback):
         self.run = run
         self.print_progress = print_progress
         self.early_stopping = early_stopping
+        self.save_path = save_path
         self.device = device
         self.iterations = 0
         self.patience = 0
@@ -174,6 +178,13 @@ class LogDatasetLoss(Callback):
         if self.early_stopping is not None:
             if losses['loss'] < self.best_loss:
                 self.best_loss = losses['loss']
+                if self.save_path is not None:
+                    save_path = os.path.join(self.save_path, 'model_state.pth')
+                    print('Saving model to', save_path)
+                    torch.save(
+                        model.state_dict(),
+                        save_path
+                    )
                 self.patience = 0
             else:
                 self.patience += 1
