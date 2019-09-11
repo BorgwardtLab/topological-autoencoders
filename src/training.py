@@ -117,6 +117,3 @@ def remove_self(dictionary):
     del dictionary['self']
     return dictionary
 
-
-
-

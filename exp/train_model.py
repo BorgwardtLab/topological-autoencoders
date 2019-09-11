@@ -76,6 +76,12 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
           early_stopping, device, quiet, evaluation, _run, _log, _seed, _rnd):
     """Sacred wrapped function to run training of model."""
     torch.manual_seed(_seed)
+    rundir = None
+    try:
+        rundir = _run.observers[0].dir
+    except IndexError:
+        pass
+
     # Get data, sacred does some magic here so we need to hush the linter
     # pylint: disable=E1120,E1123
     dataset = dataset_config.get_instance(train=True)
@@ -92,7 +98,8 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         LogTrainingLoss(_run, print_progress=quiet),
         LogDatasetLoss('validation', validation_dataset, _run,
                        print_progress=True, batch_size=batch_size,
-                       early_stopping=early_stopping, device=device),
+                       early_stopping=early_stopping, save_path=rundir,
+                       device=device),
         LogDatasetLoss('testing', test_dataset, _run, print_progress=True,
                        batch_size=batch_size, device=device),
     ]
@@ -104,9 +111,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         callbacks.append(Progressbar(print_loss_components=True))
 
     # If we are logging this run save reconstruction images
-    rundir = None
-    try:
-        rundir = _run.observers[0].dir
+    if rundir is not None:
         if hasattr(dataset, 'inverse_normalization'):
             # We have image data so we can visualize reconstructed images
             callbacks.append(SaveReconstructedImages(rundir))
@@ -115,9 +120,6 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
                 SaveLatentRepresentation(
                     test_dataset, rundir, batch_size=64, device=device)
             )
-
-    except IndexError:
-        pass
 
     training_loop = TrainingLoop(
         model, dataset, n_epochs, batch_size, learning_rate, weight_decay,
@@ -128,9 +130,11 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
 
     if rundir:
         # Save model state (and entire model)
-        torch.save(
-            model.state_dict(), os.path.join(rundir, 'model_state.pth'))
-        torch.save(model, os.path.join(rundir, 'model.pth'))
+        print('Loading model checkpoint prior to evaluation...')
+        state_dict = torch.load(os.path.join(rundir, 'model_state.pth'))
+        model.load_state_dict(state_dict)
+    model.eval()
+
     logged_averages = callbacks[0].logged_averages
     logged_stds = callbacks[0].logged_stds
     loss_averages = {
