@@ -13,7 +13,7 @@ BASEPATH = os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..', '..', 'data'))
 
 
-class CIFAR10(datasets.CIFAR10):
+class CIFAR(datasets.CIFAR10):
     """CIFAR10 dataset."""
 
     transform = transforms.Compose(

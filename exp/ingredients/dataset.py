@@ -32,6 +32,13 @@ def FashionMNIST():
     }
 
 @ingredient.named_config
+def CIFAR():
+    """CIFAR10 dataset."""
+    name = 'CIFAR'
+    parameters = {
+    }
+
+@ingredient.named_config
 def COIL():
     name = 'COIL100'
     parameters = {}

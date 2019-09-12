@@ -7,10 +7,14 @@ def FashionMNIST():
 def Spheres():
     overrides = {'dataset__name': 'Spheres'}
 
+def CIFAR():
+    overrides = {'dataset__name': 'CIFAR'}
+
 def add_datasets(experiment):
     experiment.named_config(MNIST)
     experiment.named_config(FashionMNIST)
     experiment.named_config(Spheres)
+    experiment.named_config(CIFAR)
 
 def Vanilla():
     train_module = 'train_model'
