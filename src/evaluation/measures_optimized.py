@@ -42,6 +42,14 @@ class MeasureCalculator():
 
     @staticmethod
     def _neighbours_and_ranks(distances, k):
+        """
+        Inputs: 
+        - distances,        distance matrix [n times n], 
+        - k,                number of nearest neighbours to consider
+        Returns:
+        - neighbourhood,    contains the sample indices (from 0 to n-1) of kth nearest neighbor of current sample [n times k]
+        - ranks,            contains the rank of each sample to each sample [n times n], whereas entry (i,j) gives the rank that sample j has to i (the how many 'closest' neighbour j is to i) 
+        """
         # Warning: this is only the ordering of neighbours that we need to
         # extract neighbourhoods below. The ranking comes later!
         indices = np.argsort(distances, axis=-1, kind='stable')
@@ -51,6 +59,7 @@ class MeasureCalculator():
 
         # Convert this into ranks (finally)
         ranks = indices.argsort(axis=-1, kind='stable')
+        
         return neighbourhood, ranks
 
     def get_X_neighbours_and_ranks(self, k):
@@ -175,10 +184,26 @@ class MeasureCalculator():
 
         X_neighbourhood, X_ranks = self.get_X_neighbours_and_ranks(k)
         Z_neighbourhood, Z_ranks = self.get_Z_neighbours_and_ranks(k)
-        #use only off-diagonal (non-trivial) ranks:
-        inds = ~np.eye(X_ranks.shape[0],dtype=bool)
-        coeff, pval = spearmanr(X_ranks[inds], Z_ranks[inds])  
-        return coeff, pval
+        
+        n = self.pairwise_X.shape[0]
+        #we gather 
+        gathered_ranks_x = []
+        gathered_ranks_z = []
+        for row in range(n):
+            #we go from X to Z here:
+            for neighbour in X_neighbourhood[row]:
+                rx = X_ranks[row, neighbour]
+                rz = Z_ranks[row, neighbour]
+                gathered_ranks_x.append(rx)             
+                gathered_ranks_z.append(rz)
+        rs_x = np.array(gathered_ranks_x)
+        rs_z = np.array(gathered_ranks_z)
+        coeff, _ = spearmanr(rs_x, rs_z) 
+        
+        ##use only off-diagonal (non-trivial) ranks:
+        #inds = ~np.eye(X_ranks.shape[0],dtype=bool)
+        #coeff, pval = spearmanr(X_ranks[inds], Z_ranks[inds])  
+        return coeff
  
     @measures.register(True)
     def mrre(self, k):
