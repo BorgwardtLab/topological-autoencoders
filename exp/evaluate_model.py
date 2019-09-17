@@ -11,9 +11,10 @@ from src.callbacks import Callback, SaveReconstructedImages, \
     SaveLatentRepresentation, Progressbar
 from src.datasets.splitting import split_validation
 from src.evaluation.eval import Multi_Evaluation
-from src.evaluation.utils import get_space
+from src.evaluation.utils import compute_reconstruction_error, get_space
 from src.training import TrainingLoop
-from src.visualization import plot_losses, visualize_latents
+from src.visualization import plot_losses, visualize_latents, shape_is_image, \
+    visualize_n_reconstructions_from_dataset
 
 from .callbacks import LogDatasetLoss, LogTrainingLoss
 from .ingredients import model as model_config
@@ -45,7 +46,8 @@ def cfg():
         'evaluate_on': 'test',
         'online_visualization': True,
         'save_latents': True,
-        'save_training_latents': False
+        'save_training_latents': False,
+        'n_reconstructions': 32
     }
     state_dict_path = ''
 
@@ -132,6 +134,24 @@ def evaluate(batch_size, val_size, device, evaluation, state_dict_path, _run,
                 latent, labels,
                 save_file=os.path.join(rundir, 'latent_visualization.pdf')
             )
+
+        if rundir and shape_is_image((1, ) + test_dataset[0][0].shape):
+            output_path = os.path.join(rundir, 'reconstruction.png')
+            visualize_n_reconstructions_from_dataset(
+                selected_dataset,
+                dataset.inverse_normalization,
+                model,
+                evaluation['n_reconstructions'],
+                output_path
+            )
+
+        # Compute reconstruction error
+        reconstruction_error = compute_reconstruction_error(
+            selected_dataset,
+            batch_size, model,
+            device)
+        print(f'Reconstruction error on {evaluate_on}: {reconstruction_error}')
+        result[f'{evaluate_on}_mse'] = reconstruction_error
 
         k_min, k_max, k_step = \
             evaluation['k_min'], evaluation['k_max'], evaluation['k_step']

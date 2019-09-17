@@ -1,4 +1,5 @@
 """Functions for visualizing stuff."""
+import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
@@ -29,3 +30,23 @@ def plot_losses(losses, losses_std=defaultdict(lambda: None), save_file=None):
         plt.savefig(save_file, dpi=200)
         plt.close()
 
+
+def shape_is_image(shape):
+    """Check if is a 4D tensor which we consider to be an image."""
+    return len(shape) == 4
+
+
+def visualize_n_reconstructions_from_dataset(dataset, inverse_normalization,
+                                             model, n_reconst, output_path):
+    import torch
+    from itertools import islice
+    from torchvision.utils import save_image
+    vis_data, _ = zip(*islice(dataset, None, n_reconst))
+    vis_data = np.stack(vis_data)
+    vis_latent = model.encode(torch.tensor(vis_data))
+    reconst_images = model.decode(vis_latent)
+    reconst_images = inverse_normalization(reconst_images)
+    save_image(
+        reconst_images,
+        output_path
+    )
