@@ -78,4 +78,24 @@ def rescaling(data):
     return StandardScaler().fit_transform(data)
 
 
+def compute_reconstruction_error(dataset, batch_size, model, device):
+    reconst_dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=batch_size, pin_memory=True,
+        drop_last=True
+    )
+    input_data = []
+    reconst_data = []
+    for data, label in reconst_dataloader:
+        input_data.append(data.cpu().numpy())
+        if device == 'cuda':
+            data = data.cuda()
+        latent_data = model.encode(data)
+        this_reconst = model.decode(latent_data)
+        reconst_data.append(this_reconst.detach().cpu().numpy())
+
+    input_data = np.concatenate(input_data, axis=0)
+    reconst_data = np.concatenate(reconst_data, axis=0)
+
+    mse = np.mean((input_data - reconst_data) ** 2)
+    return mse
 
