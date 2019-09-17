@@ -19,7 +19,7 @@
   },
   "load_result": null,
   "n_calls": 20,
-  "n_random_starts": 10,
+  "n_random_starts": 20,
   "nan_replacement": 20.0,
   "overrides": {
     "dataset__name": "MNIST",
@@ -30,6 +30,6 @@
     "model__parameters__n_components": 2,
     "model__parameters__n_iter": 1500
   },
-  "seed": 325429202,
+  "seed": 649742207,
   "train_module": "fit_competitor"
 }

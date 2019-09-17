@@ -24,7 +24,7 @@
   },
   "load_result": null,
   "n_calls": 20,
-  "n_random_starts": 10,
+  "n_random_starts": 20,
   "nan_replacement": 20.0,
   "overrides": {
     "dataset__name": "Spheres",
@@ -37,6 +37,6 @@
     "n_epochs": 100,
     "quiet": true
   },
-  "seed": 942035247,
+  "seed": 704444830,
   "train_module": "train_model"
 }
