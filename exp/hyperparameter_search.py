@@ -40,7 +40,7 @@ def cfg():
     ]
     train_module = 'train_model'
     nan_replacement = 20.
-    n_random_starts = 10
+    n_random_starts = 20 #10
     n_calls = 20
     load_result = None  # load the previous optimization results from here
 
