@@ -64,6 +64,11 @@ def rep3():
 def rep4():
     seed=775293950
 
+@EXP.named_config
+def rep5():
+    seed=700134501
+
+
 
 class NewlineCallback(Callback):
     """Add newline between epochs for better readability."""
