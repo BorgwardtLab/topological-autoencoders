@@ -72,7 +72,7 @@ class TopologicallyRegularizedAutoencoder(AutoencoderModel):
 
         # normalize topo_error according to batch_size
         batch_size = dimensions[0]
-        topo_error = topo_error / batch_size.float()
+        topo_error = topo_error / float(batch_size) 
         loss = ae_loss + self.lam * topo_error
         loss_components = {
             'loss.autoencoder': ae_loss,
