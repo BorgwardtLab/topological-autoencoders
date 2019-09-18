@@ -35,6 +35,27 @@ def config():
         'n_reconstructions': 32
     }
 
+@EXP.named_config
+def rep1():
+    seed = 249040430
+
+@EXP.named_config
+def rep2():
+    seed = 621965744
+
+@EXP.named_config
+def rep3():
+    seed=771860110
+
+@EXP.named_config
+def rep4():
+    seed=775293950
+
+@EXP.named_config
+def rep5():
+    seed=700134501
+
+
 
 @EXP.automain
 def train(val_size, evaluation, _run, _log, _seed, _rnd):
