@@ -180,7 +180,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
 
         dataloader = torch.utils.data.DataLoader(
             selected_dataset, batch_size=batch_size, pin_memory=True,
-            drop_last=True
+            drop_last=False
         )
         data, labels = get_space(None, dataloader, mode='data', seed=_seed)
         latent, _ = get_space(model, dataloader, mode='latent', device=device,
@@ -196,12 +196,12 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
             )
 
         if rundir and evaluation['save_training_latents']:
-            dataloader = torch.utils.data.DataLoader(
+            train_dataloader = torch.utils.data.DataLoader(
                 dataset, batch_size=batch_size, pin_memory=True,
-                drop_last=True
+                drop_last=False
             )
             train_latent, train_labels = get_space(
-                model, dataloader, mode='latent', device=device, seed=_seed)
+                model, train_dataloader, mode='latent', device=device, seed=_seed)
 
             df = pd.DataFrame(train_latent)
             df['labels'] = train_labels
