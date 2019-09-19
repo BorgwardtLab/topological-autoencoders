@@ -1,0 +1,45 @@
+{
+  "batch_size": 82,
+  "dataset": {
+    "__doc__": "Dataset configuration.",
+    "name": "CIFAR",
+    "parameters": {}
+  },
+  "device": "cuda",
+  "early_stopping": 10,
+  "evaluation": {
+    "active": true,
+    "evaluate_on": "test",
+    "k": 20,
+    "k_max": 200,
+    "k_min": 10,
+    "k_step": 10,
+    "online_visualization": true,
+    "save_latents": true,
+    "save_training_latents": false
+  },
+  "learning_rate": 0.0003630219213298049,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "TopologicallyRegularizedAutoencoder",
+    "parameters": {
+      "ae_kwargs": {
+        "input_dims": [
+          3,
+          32,
+          32
+        ]
+      },
+      "autoencoder_model": "DeepAE",
+      "lam": 1.6280214927932581,
+      "toposig_kwargs": {
+        "match_edges": "symmetric"
+      }
+    }
+  },
+  "n_epochs": 100,
+  "quiet": true,
+  "seed": 771860110,
+  "val_size": 0.15,
+  "weight_decay": 1e-05
+}

@@ -1,0 +1,38 @@
+{
+  "batch_size": 95,
+  "dataset": {
+    "__doc__": "Dataset configuration.",
+    "name": "FashionMNIST",
+    "parameters": {}
+  },
+  "device": "cuda",
+  "early_stopping": 10,
+  "evaluation": {
+    "active": true,
+    "evaluate_on": "test",
+    "k": 20,
+    "k_max": 200,
+    "k_min": 10,
+    "k_step": 10,
+    "online_visualization": true,
+    "save_latents": true,
+    "save_training_latents": false
+  },
+  "learning_rate": 0.006514157310805859,
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "TopologicallyRegularizedAutoencoder",
+    "parameters": {
+      "autoencoder_model": "DeepAE",
+      "lam": 2.225779055692325,
+      "toposig_kwargs": {
+        "match_edges": "symmetric"
+      }
+    }
+  },
+  "n_epochs": 100,
+  "quiet": true,
+  "seed": 621965744,
+  "val_size": 0.15,
+  "weight_decay": 1e-05
+}
