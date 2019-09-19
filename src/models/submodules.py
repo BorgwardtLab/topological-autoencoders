@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.distributions import Normal
+import torch.nn.functional as F
 
 from .base import AutoencoderModel
 # Hush the linter: Warning W0221 corresponds to a mismatch between parent class
@@ -514,5 +515,94 @@ class MLPVAE(AutoencoderModel):
             1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp(),
             dim=-1
         ).mean(dim=0)
+        loss = likelihood + kl_div
+        return loss, {'loss.likelihood': likelihood, 'loss.kl_divergence': kl_div}
+
+
+class DeepVAE(AutoencoderModel):
+    """1000-500-250-(2+2)-250-500-1000. 
+     DeepAE architecture, but with VAE (therefore 4 latent dims for each 2 means, vars)
+    """
+    def __init__(self, input_dims=(1, 28, 28), latent_dim=2):
+        super().__init__()
+        self.input_dims = input_dims
+        n_input_dims = np.prod(input_dims)
+        self.encoder = nn.Sequential(
+            View((-1, n_input_dims)),
+            nn.Linear(n_input_dims, 1000),
+            nn.ReLU(True),
+            nn.BatchNorm1d(1000),
+            nn.Linear(1000, 500),
+            nn.ReLU(True),
+            nn.BatchNorm1d(500),
+            nn.Linear(500, 250),
+            nn.ReLU(True),
+            nn.BatchNorm1d(250),
+            nn.Linear(250, latent_dim*2)
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(latent_dim, 250),
+            nn.ReLU(True),
+            nn.BatchNorm1d(250),
+            nn.Linear(250, 500),
+            nn.ReLU(True),
+            nn.BatchNorm1d(500),
+            nn.Linear(500, 1000),
+            nn.ReLU(True),
+            nn.BatchNorm1d(1000),
+            nn.Linear(1000, n_input_dims),
+            View((-1,) + tuple(input_dims)),
+            nn.Sigmoid()
+        )
+        self.reconst_error = nn.MSELoss()
+    
+    def reparameterize(self, mu, logvar):
+        std = torch.exp(0.5*logvar)
+        eps = torch.randn_like(std)
+        return mu + eps*std
+
+    def _split_to_parameters(self, x):
+        return x.split(x.size(-1) // 2, dim=-1)
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        x = (x + 1) / 2
+        mu, logvar = self._split_to_parameters(self.encoder(x))
+        encoded = self.reparameterize(mu, logvar)
+        return encoded
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        decoded = self.decoder(z)
+        return 2*decoded - 1
+
+    def log_likelihood(self, x, reconst_mean, reconst_std):
+        predicted_x = Normal(loc=reconst_mean, scale=reconst_std)
+        return predicted_x.log_prob(x).sum(dim=-1)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        # shift input to 0, 1
+        batch_size = x.size()[0]
+        input_dims = np.prod(x.size()[1:])
+        x = (x + 1) / 2
+        latent_mu, latent_logvar = self._split_to_parameters(self.encoder(x))
+        latent = self.reparameterize(latent_mu, latent_logvar)
+        reconstruction = self.decoder(latent)
+
+        likelihood = F.binary_cross_entropy(reconstruction, x)
+
+        # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
+        kl_div = -0.5 * torch.sum(
+            1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp())
+        kl_div = kl_div / (batch_size * input_dims)
         loss = likelihood + kl_div
         return loss, {'loss.likelihood': likelihood, 'loss.kl_divergence': kl_div}
