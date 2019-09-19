@@ -17,8 +17,8 @@
     ]
   },
   "load_result": null,
-  "n_calls": 20,
-  "n_random_starts": 20,
+  "n_calls": 5,
+  "n_random_starts": 5,
   "nan_replacement": 20.0,
   "overrides": {
     "dataset__name": "MNIST",
