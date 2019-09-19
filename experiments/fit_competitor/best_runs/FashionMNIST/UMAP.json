@@ -1,0 +1,30 @@
+{
+  "dataset": {
+    "__doc__": "Dataset configuration.",
+    "name": "FashionMNIST",
+    "parameters": {}
+  },
+  "evaluation": {
+    "active": true,
+    "evaluate_on": "validation",
+    "k": 20,
+    "k_max": 200,
+    "k_min": 10,
+    "k_step": 10,
+    "save_latents": true,
+    "save_model": false,
+    "save_training_latents": false
+  },
+  "model": {
+    "__doc__": "Model configuration.",
+    "name": "UMAP",
+    "parameters": {
+      "metric": "euclidean",
+      "min_dist": 0.9880507485570478,
+      "n_components": 2,
+      "n_neighbors": 243
+    }
+  },
+  "seed": 956025210,
+  "val_size": 0.15
+}
