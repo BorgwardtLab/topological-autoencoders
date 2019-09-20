@@ -17,14 +17,14 @@
     ],
     "model__parameters__lam": [
       "Real",
-      0.01,
-      1,
+      0.1,
+      3,
       "log-uniform"
     ]
   },
   "load_result": null,
   "n_calls": 20,
-  "n_random_starts": 10,
+  "n_random_starts": 20,
   "nan_replacement": 20.0,
   "overrides": {
     "dataset__name": "FashionMNIST",
@@ -37,6 +37,6 @@
     "n_epochs": 100,
     "quiet": true
   },
-  "seed": 644702965,
+  "seed": 868933342,
   "train_module": "train_model"
 }

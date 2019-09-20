@@ -13,20 +13,24 @@ from IPython import embed
 #path = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/train_model/best_runs/MNIST/Vanilla'
 #path = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/fit_competitor/best_runs/MNIST/PCA'
 #path = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/train_model/best_runs/MNIST/Vanilla'
-path = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/train_model/best_runs/MNIST/TopoRegEdgeSymmetric'
+##path = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/train_model/best_runs/MNIST/TopoRegEdgeSymmetric'
 #for testing we take a single run.json
+path='/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/hyperparameter_search/real_world/FashionMNIST/TSNE/model_runs/1'
+
 #filelist= [path]
 filelist = glob.glob(path + '/**/run.json', recursive=True)
 print(filelist)
 
+used_measures = ['kl_global_', 'rmse', 'mean_mrre', 'mean_continuity', 'mean_trustworthiness', 'reconstruction']
 
 #list of flat dicts 
 results = []
 for filename in filelist:  
     split = filename.split('/')
-    dataset = split[-3] #TODO: change to -3 and -2 for real results!
-    model = split[-2]
-    
+    dataset = split[-5] #TODO: change to -3 and -2 for real results!
+    model = split[-4]
+    embed()
+ 
     if ('VAE' or 'Isomap') in model: #remove old trash run
         continue
     
@@ -36,28 +40,29 @@ for filename in filelist:
     
     with open(filename, 'rb') as f:
         data = json.load(f)
-    
+    embed() 
     if 'result' not in data.keys():
         continue
         
     result_keys = list(data['result'].keys())
     #used_keys = [key for key in result_keys if 'test_density_kl_global_' in key]
-    used_keys = [key for key in result_keys if any([measure in key for measure in ['kl_global_', 'rmse', 'mean_mrre', 'reconstruction']])]
+    used_keys = [key for key in result_keys if any([measure in key for measure in used_measures])]
 
     #Create dict of results of current experiment (given dataset and model)
     experiment = {}
     experiment['dataset'] = dataset
     experiment['model'] = model
-    
+    embed() 
     #fill eval measures into experiments dict:
     for key in used_keys:
         if key in data['result'].keys():
             experiment[key] = data['result'][key]
 
     results.append(experiment)
+    embed()
 
     df = pd.DataFrame(results)
-    df.to_latex('table_real_world.tex')
+    df.to_latex('test_table.tex')
      
 
 

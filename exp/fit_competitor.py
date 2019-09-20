@@ -9,7 +9,7 @@ from sacred import Experiment
 
 from src.datasets.splitting import split_validation
 from src.evaluation.eval import Multi_Evaluation
-from src.visualization import visualize_latents
+from src.visualization import visualize_latents, shape_is_image
 
 from .ingredients import model as model_config
 from .ingredients import dataset as dataset_config
@@ -31,8 +31,30 @@ def config():
         'evaluate_on': 'test',
         'save_latents': True,
         'save_model': False,
-        'save_training_latents': False
+        'save_training_latents': False,
+        'n_reconstructions': 32
     }
+
+@EXP.named_config
+def rep1():
+    seed = 249040430
+
+@EXP.named_config
+def rep2():
+    seed = 621965744
+
+@EXP.named_config
+def rep3():
+    seed=771860110
+
+@EXP.named_config
+def rep4():
+    seed=775293950
+
+@EXP.named_config
+def rep5():
+    seed=700134501
+
 
 
 @EXP.automain
@@ -51,6 +73,8 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
     model = model_config.get_instance()
 
     supports_transform = hasattr(model, 'transform')
+    supports_inverse_transform = hasattr(model, 'inverse_transform')
+
     data, labels = zip(*train_dataset)
     if not supports_transform:
         # Models which do not derive an mapping to the latent space
@@ -84,9 +108,30 @@ def train(val_size, evaluation, _run, _log, _seed, _rnd):
             else:
                 # Load dedicated test dataset and predict on it
                 data, labels = zip(*test_dataset)
-            data = np.stack(data).reshape(len(data), -1)
+            data = np.stack(data)
+            original_data_shape = data.shape
+            data = data.reshape(len(data), -1)
             labels = np.array(labels)
             latent = model.transform(data)
+            if supports_inverse_transform:
+                reconstructions = model.inverse_transform(latent)
+                mse = np.mean((data - reconstructions) ** 2)
+                print(f'Reconstruction error on {evaluate_on}: {mse}')
+                result[f'{evaluate_on}_mse'] = mse
+
+                if rundir and shape_is_image(original_data_shape):
+                    print('Saving reconsturction images')
+                    import torch
+                    from torchvision.utils import save_image
+                    n_reconst = evaluation['n_reconstructions']
+                    reconst_images = reconstructions[:n_reconst]
+                    reconst_images = np.reshape(
+                        reconst_images, (n_reconst,) + original_data_shape[1:])
+                    reconst_images = torch.tensor(reconst_images)
+                    save_image(
+                        test_dataset.inverse_normalization(reconst_images),
+                        os.path.join(rundir, 'reconstruction.png')
+                    )
         else:
             # If the model does not support transforming after fitting, take
             # a subset of the training data to compute evaluation metrics and
