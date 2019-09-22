@@ -14,7 +14,7 @@
     "n_reconstructions": 32,
     "save_latents": true,
     "save_model": false,
-    "save_training_latents": false
+    "save_training_latents": true
   },
   "model": {
     "__doc__": "Model configuration.",
