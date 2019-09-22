@@ -525,7 +525,7 @@ class DeepVAE(AutoencoderModel):
     """1000-500-250-(2+2)-250-500-1000. 
      DeepAE architecture, but with VAE (therefore 4 latent dims for each 2 means, vars)
     """
-    def __init__(self, input_dims=(1, 28, 28), latent_dim=10): #2
+    def __init__(self, input_dims=(1, 28, 28), latent_dim=2):
         super().__init__()
         self.input_dims = input_dims
         n_input_dims = np.prod(input_dims)
@@ -552,12 +552,13 @@ class DeepVAE(AutoencoderModel):
             nn.Linear(500, 1000),
             nn.ReLU(True),
             nn.BatchNorm1d(1000),
-            nn.Linear(1000, n_input_dims*2),
-            View((-1,) + tuple(input_dims) + (2,) ),
-            nn.Tanh(), #nn.Sigmoid(),
+            nn.Linear(1000, n_input_dims),
+            View((-1,) + tuple(input_dims) ),
+            nn.Sigmoid(), #nn.Tanh(), 
         )
         self.reconst_error = nn.MSELoss()
-    
+        #self.criterion = nn.BCELoss() 
+ 
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5*logvar)
         eps = torch.randn_like(std)
@@ -578,11 +579,11 @@ class DeepVAE(AutoencoderModel):
 
     def decode(self, z):
         """Compute reconstruction using convolutional autoencoder."""
-        mu, logvar = self._split_to_parameters(self.decoder(z))
-        encoded = self.reparameterize(mu, logvar)
-        return encoded
-        #decoded = self.decoder(z)
-        #return decoded
+        #mu, logvar = self._split_to_parameters(self.decoder(z))
+        #encoded = self.reparameterize(mu, logvar)
+        #return encoded
+        decoded = self.decoder(z)
+        return (decoded - 0.5)*2 
     
     def log_likelihood(self, x, reconst_mean, reconst_std):
         predicted_x = Normal(loc=reconst_mean, scale=reconst_std)
@@ -602,26 +603,31 @@ class DeepVAE(AutoencoderModel):
         #input_dims = np.prod(x.size()[1:])
         latent_mu, latent_logvar = self._split_to_parameters(self.encoder(x))
         latent = self.reparameterize(latent_mu, latent_logvar)
-        #reconstruction = self.decoder(latent)
- 
-        data_mu, data_logvar = self._split_to_parameters(self.decoder(latent))
-        data_std = torch.exp(0.5*data_logvar)
-
-        likelihood = -self.log_likelihood(x.view(batch_size, -1), data_mu.view(batch_size, -1), data_std.view(batch_size, -1) ).mean()
-        #likelihood = -self.log_likelihood(x.view(batch_size, -1), data_mu.view(batch_size, -1), data_std.view(batch_size, -1) ).mean(dim=0)
-
-        #likelihood = F.binary_cross_entropy(reconstruction, x)
-        #likelihood = F.binary_cross_entropy_with_logits(reconstruction, x)
     
-        kl_div = -0.5 * torch.sum(
-            1 + latent_logvar.view(batch_size, -1) - latent_mu.view(batch_size, -1).pow(2) - latent_logvar.view(batch_size, -1).exp(),
-            dim=-1
-        ).mean() #(dim=0)
+        reconstruction = self.decoder(latent)
+        #data_mu, data_logvar = self._split_to_parameters(self.decoder(latent))
+        #data_std = torch.exp(0.5*data_logvar)
+        
+        #likelihood = -self.log_likelihood(x.view(batch_size, -1), data_mu.view(batch_size, -1), data_std.view(batch_size, -1) ).mean()
+        #likelihood = -self.log_likelihood(x.view(batch_size, -1), data_mu.view(batch_size, -1), data_std.view(batch_size, -1) ).mean(dim=0)
+        #device=torch.device('cuda')
+        x_rescaled = (x/2) + 0.5 #.to(device=device)
+        
+        #likelihood = self.criterion(reconstruction.to('cuda'), x_rescaled.to('cuda'))
+        likelihood = F.binary_cross_entropy(reconstruction, x_rescaled, reduction='sum')
+        #likelihood = F.binary_cross_entropy_with_logits(reconstruction, x)
+        
+        kl_div = -0.5 * torch.sum(1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp())
+        #kl_div = -0.5 * torch.sum(
+        #    1 + latent_logvar.view(batch_size, -1) - latent_mu.view(batch_size, -1).pow(2) - latent_logvar.view(batch_size, -1).exp(),
+        #    dim=-1
+        #).mean() #(dim=0)
+        
         #kl_div = -0.5 * torch.sum(
         #    1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp())
         #kl_div = kl_div / (batch_size * input_dims)
         #print(f'Likelihood size: {likelihood.size()}')
         #print(f'KL div size: {kl_div.size()}' )
         loss = likelihood + kl_div
-        reconst_error = self.reconst_error(x, data_mu)
+        reconst_error = self.reconst_error(x, (reconstruction - 0.5)*2  )
         return loss, {'loss.likelihood': likelihood, 'loss.kl_divergence': kl_div, 'reconstruction_error': reconst_error}
