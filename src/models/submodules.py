@@ -533,25 +533,25 @@ class DeepVAE(AutoencoderModel):
             View((-1, n_input_dims)),
             nn.Linear(n_input_dims, 1000),
             nn.ReLU(True),
-            nn.BatchNorm1d(1000),
+            #nn.BatchNorm1d(1000),
             nn.Linear(1000, 500),
             nn.ReLU(True),
-            nn.BatchNorm1d(500),
+            #nn.BatchNorm1d(500),
             nn.Linear(500, 250),
             nn.ReLU(True),
-            nn.BatchNorm1d(250),
+            #nn.BatchNorm1d(250),
             nn.Linear(250, latent_dim*2),
         )
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, 250),
             nn.ReLU(True),
-            nn.BatchNorm1d(250),
+            #nn.BatchNorm1d(250),
             nn.Linear(250, 500),
             nn.ReLU(True),
-            nn.BatchNorm1d(500),
+            #nn.BatchNorm1d(500),
             nn.Linear(500, 1000),
             nn.ReLU(True),
-            nn.BatchNorm1d(1000),
+            #nn.BatchNorm1d(1000),
             nn.Linear(1000, n_input_dims),
             View((-1,) + tuple(input_dims) ),
             nn.Sigmoid(), #nn.Tanh(), 
@@ -612,9 +612,13 @@ class DeepVAE(AutoencoderModel):
         #likelihood = -self.log_likelihood(x.view(batch_size, -1), data_mu.view(batch_size, -1), data_std.view(batch_size, -1) ).mean(dim=0)
         #device=torch.device('cuda')
         x_rescaled = (x/2) + 0.5 #.to(device=device)
+        #print(f'x_rescaled min: {x_rescaled.min().cpu()}')        
+        #print(f'x_rescaled max: {x_rescaled.max().cpu()}')
+        #print(f'reconstruction min: {reconstruction.min().cpu()}') 
+        #print(f'reconstruction max: {reconstruction.max().cpu()}') 
         
         #likelihood = self.criterion(reconstruction.to('cuda'), x_rescaled.to('cuda'))
-        likelihood = F.binary_cross_entropy(reconstruction, x_rescaled, reduction='sum')
+        likelihood = F.binary_cross_entropy(reconstruction, x_rescaled, reduction='sum') # 'sum' #this version worked best
         #likelihood = F.binary_cross_entropy_with_logits(reconstruction, x)
         
         kl_div = -0.5 * torch.sum(1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp())
@@ -623,11 +627,6 @@ class DeepVAE(AutoencoderModel):
         #    dim=-1
         #).mean() #(dim=0)
         
-        #kl_div = -0.5 * torch.sum(
-        #    1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp())
-        #kl_div = kl_div / (batch_size * input_dims)
-        #print(f'Likelihood size: {likelihood.size()}')
-        #print(f'KL div size: {kl_div.size()}' )
         loss = likelihood + kl_div
         reconst_error = self.reconst_error(x, (reconstruction - 0.5)*2  )
         return loss, {'loss.likelihood': likelihood, 'loss.kl_divergence': kl_div, 'reconstruction_error': reconst_error}
