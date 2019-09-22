@@ -525,7 +525,7 @@ class DeepVAE(AutoencoderModel):
     """1000-500-250-(2+2)-250-500-1000. 
      DeepAE architecture, but with VAE (therefore 4 latent dims for each 2 means, vars)
     """
-    def __init__(self, input_dims=(1, 28, 28), latent_dim=2):
+    def __init__(self, input_dims=(1, 28, 28), latent_dim=10): #2
         super().__init__()
         self.input_dims = input_dims
         n_input_dims = np.prod(input_dims)
@@ -552,8 +552,8 @@ class DeepVAE(AutoencoderModel):
             nn.Linear(500, 1000),
             nn.ReLU(True),
             nn.BatchNorm1d(1000),
-            nn.Linear(1000, n_input_dims),
-            View((-1,) + tuple(input_dims)),
+            nn.Linear(1000, n_input_dims*2),
+            View((-1,) + tuple(input_dims) + (2,) ),
             nn.Tanh(), #nn.Sigmoid(),
         )
         self.reconst_error = nn.MSELoss()
@@ -564,20 +564,25 @@ class DeepVAE(AutoencoderModel):
         return mu + eps*std
 
     def _split_to_parameters(self, x):
-        return x.split(x.size(-1) // 2, dim=-1)
+        mu, logvar = x.split(x.size(-1) // 2, dim=-1)
+        if mu.size()[-1] == 1: #there is one superfluous dim, squeeze it away
+            mu, logvar = mu.squeeze(dim=-1), logvar.squeeze(dim=-1)  
+        return mu, logvar
+        #return x.split(x.size(-1) // 2, dim=-1)
 
     def encode(self, x):
         """Compute latent representation using convolutional autoencoder."""
-        #x = (x / 2) + 0.5
         mu, logvar = self._split_to_parameters(self.encoder(x))
         encoded = self.reparameterize(mu, logvar)
         return encoded
 
     def decode(self, z):
         """Compute reconstruction using convolutional autoencoder."""
-        decoded = self.decoder(z)
-        return decoded
-        #return 2 * (decoded - 0.5)
+        mu, logvar = self._split_to_parameters(self.decoder(z))
+        encoded = self.reparameterize(mu, logvar)
+        return encoded
+        #decoded = self.decoder(z)
+        #return decoded
     
     def log_likelihood(self, x, reconst_mean, reconst_std):
         predicted_x = Normal(loc=reconst_mean, scale=reconst_std)
@@ -593,33 +598,30 @@ class DeepVAE(AutoencoderModel):
             tuple(reconstruction_error, dict(other errors))
 
         """
-        # shift input to 0, 1
         batch_size = x.size()[0]
-        input_dims = np.prod(x.size()[1:])
-        #x = (x / 2) + 0.5
+        #input_dims = np.prod(x.size()[1:])
         latent_mu, latent_logvar = self._split_to_parameters(self.encoder(x))
         latent = self.reparameterize(latent_mu, latent_logvar)
-        reconstruction = self.decoder(latent) #these should be sigmoid!
-        #to be very sure that recons are between 0 and 1:
-        #reconstruction = (reconstruction / 2 ) + 0.5
-        #reconstruction = reconstruction.clamp(min=0,max=1) 
-        #x = (x / 2) + 0.5
-        #x = x.clamp(min=0, max=1) #for safety 
+        #reconstruction = self.decoder(latent)
  
-        #if not (reconstruction >= 0).all(): 
-        #    print(reconstruction.min())
-        #assert (reconstruction >= 0).all()
-        #assert (reconstruction <= 1).all()
-        #assert (x >= 0).all()
-        #assert (x <= 1).all()
+        data_mu, data_logvar = self._split_to_parameters(self.decoder(latent))
+        data_std = torch.exp(0.5*data_logvar)
+
+        likelihood = -self.log_likelihood(x.view(batch_size, -1), data_mu.view(batch_size, -1), data_std.view(batch_size, -1) ).mean()
+        #likelihood = -self.log_likelihood(x.view(batch_size, -1), data_mu.view(batch_size, -1), data_std.view(batch_size, -1) ).mean(dim=0)
 
         #likelihood = F.binary_cross_entropy(reconstruction, x)
-        likelihood = F.binary_cross_entropy_with_logits(reconstruction, x)
-
-        # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
+        #likelihood = F.binary_cross_entropy_with_logits(reconstruction, x)
+    
         kl_div = -0.5 * torch.sum(
-            1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp())
-        kl_div = kl_div / (batch_size * input_dims)
+            1 + latent_logvar.view(batch_size, -1) - latent_mu.view(batch_size, -1).pow(2) - latent_logvar.view(batch_size, -1).exp(),
+            dim=-1
+        ).mean() #(dim=0)
+        #kl_div = -0.5 * torch.sum(
+        #    1 + latent_logvar - latent_mu.pow(2) - latent_logvar.exp())
+        #kl_div = kl_div / (batch_size * input_dims)
+        #print(f'Likelihood size: {likelihood.size()}')
+        #print(f'KL div size: {kl_div.size()}' )
         loss = likelihood + kl_div
-        reconst_error = self.reconst_error(x, reconstruction)
+        reconst_error = self.reconst_error(x, data_mu)
         return loss, {'loss.likelihood': likelihood, 'loss.kl_divergence': kl_div, 'reconstruction_error': reconst_error}
