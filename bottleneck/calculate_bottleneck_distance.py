@@ -3,6 +3,7 @@
 
 import glob
 import os
+import subprocess
 
 import numpy as np
 import pandas as pd
@@ -34,6 +35,24 @@ if __name__ == '__main__':
                 replace=False
             )
 
+            X_sample = original_data[random_indices]
+            np.savetxt('/tmp/X.csv', X_sample, delimiter=' ')
+
+            diagram = subprocess.run(
+                ['vietoris_rips',
+                '-n',
+                '/tmp/X.csv',
+                '1e8',
+                '1'],
+                capture_output=True,
+            )
+
+            diagram = diagram.stdout
+            diagram = diagram.decode('utf-8')
+
+            with open('/tmp/D1.txt', 'w') as f:
+                f.write(diagram)
+
             for filename in files:
                 name = os.path.basename(filename)
                 name = name[:name.find('_')]
@@ -46,4 +65,24 @@ if __name__ == '__main__':
                 latent_space = latent_space[['0', '1']]
                 latent_space = latent_space.values
 
-                print(latent_space)
+                Y_sample = latent_space[random_indices]
+
+                np.savetxt('/tmp/Y.csv', Y_sample, delimiter=' ')
+
+                diagram = subprocess.run(
+                    ['vietoris_rips',
+                    '-n',
+                    '/tmp/Y.csv',
+                    '1e8',
+                    '1'],
+                    capture_output=True,
+                )
+
+                diagram = diagram.stdout
+                diagram = diagram.decode('utf-8')
+
+                with open('/tmp/D2.txt', 'w') as f:
+                    f.write(diagram)
+
+
+
