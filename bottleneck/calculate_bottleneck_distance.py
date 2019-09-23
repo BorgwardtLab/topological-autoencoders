@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 
+import collections
 import glob
 import os
 import subprocess
@@ -8,7 +9,8 @@ import subprocess
 import numpy as np
 import pandas as pd
 
-batch_size = 64
+batch_size = 32
+n_iterations = 10
 
 
 if __name__ == '__main__':
@@ -35,44 +37,14 @@ if __name__ == '__main__':
                 replace=False
             )
 
-            X_sample = original_data[random_indices]
-            np.savetxt('/tmp/X.csv', X_sample, delimiter=' ')
-
-            diagram = subprocess.run(
-                ['vietoris_rips',
-                '-n',
-                '/tmp/X.csv',
-                '1e8',
-                '1'],
-                capture_output=True,
-            )
-
-            diagram = diagram.stdout
-            diagram = diagram.decode('utf-8')
-
-            with open('/tmp/D1.txt', 'w') as f:
-                f.write(diagram)
-
-            for filename in files:
-                name = os.path.basename(filename)
-                name = name[:name.find('_')]
-
-                latent_space = pd.read_csv(
-                    filename,
-                    header=0
-                )
-
-                latent_space = latent_space[['0', '1']]
-                latent_space = latent_space.values
-
-                Y_sample = latent_space[random_indices]
-
-                np.savetxt('/tmp/Y.csv', Y_sample, delimiter=' ')
+            for i in range(n_iterations):
+                X_sample = original_data[random_indices]
+                np.savetxt('/tmp/X.csv', X_sample, delimiter=' ')
 
                 diagram = subprocess.run(
                     ['vietoris_rips',
                     '-n',
-                    '/tmp/Y.csv',
+                    '/tmp/X.csv',
                     '1e8',
                     '1'],
                     capture_output=True,
@@ -81,24 +53,61 @@ if __name__ == '__main__':
                 diagram = diagram.stdout
                 diagram = diagram.decode('utf-8')
 
-                with open('/tmp/D2.txt', 'w') as f:
+                with open('/tmp/D1.txt', 'w') as f:
                     f.write(diagram)
-                
-                bottleneck = subprocess.run(
-                    ['topological_distance',
-                    '-b',
-                    '/tmp/D1.txt',
-                    '/tmp/D2.txt'
-                    ],
-                    capture_output=True,
-                )
 
-                bottleneck = bottleneck.stdout
-                bottleneck = bottleneck.decode('utf-8')
+                bottlenecks = collections.defaultdict(list)
 
-                bottleneck = bottleneck.split('\n')[0]
-                bottleneck = bottleneck.split(' ')
-                bottleneck = float(bottleneck[1])
+                for filename in files:
+                    name = os.path.basename(filename)
+                    name = name[:name.find('_')]
 
-                print(data_set, name, bottleneck)
+                    latent_space = pd.read_csv(
+                        filename,
+                        header=0
+                    )
+
+                    latent_space = latent_space[['0', '1']]
+                    latent_space = latent_space.values
+
+                    Y_sample = latent_space[random_indices]
+
+                    np.savetxt('/tmp/Y.csv', Y_sample, delimiter=' ')
+
+                    diagram = subprocess.run(
+                        ['vietoris_rips',
+                        '-n',
+                        '/tmp/Y.csv',
+                        '1e8',
+                        '1'],
+                        capture_output=True,
+                    )
+
+                    diagram = diagram.stdout
+                    diagram = diagram.decode('utf-8')
+
+                    with open('/tmp/D2.txt', 'w') as f:
+                        f.write(diagram)
+                    
+                    bottleneck = subprocess.run(
+                        ['topological_distance',
+                        '-b',
+                        '/tmp/D1.txt',
+                        '/tmp/D2.txt'
+                        ],
+                        capture_output=True,
+                    )
+
+                    bottleneck = bottleneck.stdout
+                    bottleneck = bottleneck.decode('utf-8')
+
+                    bottleneck = bottleneck.split('\n')[0]
+                    bottleneck = bottleneck.split(' ')
+                    bottleneck = float(bottleneck[1])
+
+                    bottlenecks[name].append(bottleneck)
+
+            for name in sorted(bottlenecks.keys()):
+                print(data_set, name, np.mean(bottlenecks[name]))
+            print('')
 
