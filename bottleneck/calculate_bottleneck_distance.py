@@ -8,7 +8,7 @@ import subprocess
 import numpy as np
 import pandas as pd
 
-batch_size = 128
+batch_size = 64
 
 
 if __name__ == '__main__':
@@ -83,6 +83,22 @@ if __name__ == '__main__':
 
                 with open('/tmp/D2.txt', 'w') as f:
                     f.write(diagram)
+                
+                bottleneck = subprocess.run(
+                    ['topological_distance',
+                    '-b',
+                    '/tmp/D1.txt',
+                    '/tmp/D2.txt'
+                    ],
+                    capture_output=True,
+                )
 
+                bottleneck = bottleneck.stdout
+                bottleneck = bottleneck.decode('utf-8')
 
+                bottleneck = bottleneck.split('\n')[0]
+                bottleneck = bottleneck.split(' ')
+                bottleneck = float(bottleneck[1])
+
+                print(data_set, name, bottleneck)
 
