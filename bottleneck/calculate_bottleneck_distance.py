@@ -5,11 +5,12 @@ import collections
 import glob
 import os
 import subprocess
+import sys
 
 import numpy as np
 import pandas as pd
 
-batch_size = 32
+batch_size = int(sys.argv[1])
 n_iterations = 10
 
 
@@ -31,13 +32,15 @@ if __name__ == '__main__':
                 )
             )
 
-            random_indices = np.random.choice(
-                original_data.shape[0],
-                batch_size,
-                replace=False
-            )
+            bottlenecks = collections.defaultdict(list)
 
             for i in range(n_iterations):
+                random_indices = np.random.choice(
+                    original_data.shape[0],
+                    batch_size,
+                    replace=False
+                )
+
                 X_sample = original_data[random_indices]
                 np.savetxt('/tmp/X.csv', X_sample, delimiter=' ')
 
@@ -56,7 +59,7 @@ if __name__ == '__main__':
                 with open('/tmp/D1.txt', 'w') as f:
                     f.write(diagram)
 
-                bottlenecks = collections.defaultdict(list)
+                D1 = np.genfromtxt('/tmp/D1.txt')
 
                 for filename in files:
                     name = os.path.basename(filename)
@@ -88,10 +91,14 @@ if __name__ == '__main__':
 
                     with open('/tmp/D2.txt', 'w') as f:
                         f.write(diagram)
-                    
+
+                    D2 = np.genfromtxt('/tmp/D2.txt')
+
                     bottleneck = subprocess.run(
                         ['topological_distance',
-                        '-b',
+                        '-w',
+                        '-p',
+                        '2',
                         '/tmp/D1.txt',
                         '/tmp/D2.txt'
                         ],
@@ -107,7 +114,16 @@ if __name__ == '__main__':
 
                     bottlenecks[name].append(bottleneck)
 
+                    #l2 = np.linalg.norm(D1 - D2)
+                    #print(data_set, name, l2)
+
             for name in sorted(bottlenecks.keys()):
-                print(data_set, name, np.mean(bottlenecks[name]))
+                print(batch_size,
+                      data_set,
+                      name,
+                      np.mean(bottlenecks[name]),
+                      np.std(bottlenecks[name])
+                )
+                sys.stdout.flush()
             print('')
 
