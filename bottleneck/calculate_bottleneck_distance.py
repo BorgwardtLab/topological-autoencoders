@@ -96,9 +96,7 @@ if __name__ == '__main__':
 
                     bottleneck = subprocess.run(
                         ['topological_distance',
-                        '-w',
-                        '-p',
-                        '2',
+                        '-b',
                         '/tmp/D1.txt',
                         '/tmp/D2.txt'
                         ],
