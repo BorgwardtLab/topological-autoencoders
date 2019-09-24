@@ -35,6 +35,12 @@ if __name__ == '__main__':
             bottlenecks = collections.defaultdict(list)
 
             for i in range(n_iterations):
+
+                # Ensures that we never take more than the number of
+                # samples, regardless of the batch size parameter. 
+                if original_data.shape[0] < batch_size:
+                    batch_size = original_data.shape[0]
+
                 random_indices = np.random.choice(
                     original_data.shape[0],
                     batch_size,
