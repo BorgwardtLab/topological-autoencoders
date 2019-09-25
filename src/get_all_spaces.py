@@ -6,6 +6,8 @@ sys.path.append('../')
 
 import torch
 
+from src.datasets import CIFAR
+from src.datasets import FashionMNIST
 from src.datasets import MNIST
 from src.datasets import Spheres
 
@@ -32,12 +34,17 @@ def load_data(name):
 
 def save_all(data, labels, name):
 
-    os.makedirs(f'{name}', exist_ok=True)
+    os.makedirs(f'bottleneck/{name}', exist_ok=True)
 
-    np.savetxt(f'{name}/data.csv', data, delimiter=',')
-    np.savetxt(f'{name}/labels.csv', labels, delimiter=',')
+    np.savetxt(f'bottleneck/{name}/data.csv', data, delimiter=',')
+    np.savetxt(f'bottleneck/{name}/labels.csv', labels, delimiter=',')
 
 if __name__ == '__main__':
-    for name, c in [('MNIST', MNIST), ('Spheres', Spheres)]:
+    for name, c in [
+        ('CIFAR', CIFAR),
+        ('FashionMNIST', FashionMNIST),
+        ('MNIST', MNIST),
+        ('Spheres', Spheres)
+    ]:
         data, labels = load_data(c)
         save_all(data, labels, name)
