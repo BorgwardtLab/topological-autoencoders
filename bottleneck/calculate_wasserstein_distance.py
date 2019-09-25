@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 batch_size = int(sys.argv[1])
-n_iterations = 10
+n_iterations = 3
 
 
 if __name__ == '__main__':
@@ -104,7 +104,7 @@ if __name__ == '__main__':
                         ['topological_distance',
                         '-w',
                         '-p',
-                        '2',
+                        '1',
                         '/tmp/D1w.txt',
                         '/tmp/D2w.txt'
                         ],
