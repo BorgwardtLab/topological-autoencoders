@@ -114,20 +114,20 @@ class SignatureComputation(nn.Module):
             x: Data
             norm: Normalize data output using maximal distance of MNIST
         """
-        import aleph
-        
-        batch_size = x.size(0)
-        x_detached = x.view(batch_size, -1).detach().numpy().astype(np.float64)
-        pers_x = aleph.calculatePersistenceDiagrams(
-            x_detached, self.eps, self.dim)[0]
-        pers_x = np.array(pers_x)[:, 1].astype(np.float32)
-        if norm:
-            # Divide by maximal distance on MNIST
-            pers_x /= 39.5
-        pers_x[~np.isfinite(pers_x)] = 0
-        pers_x = torch.from_numpy(pers_x)
-        return pers_x
-
+        #import aleph
+        #
+        #batch_size = x.size(0)
+        #x_detached = x.view(batch_size, -1).detach().numpy().astype(np.float64)
+        #pers_x = aleph.calculatePersistenceDiagrams(
+        #    x_detached, self.eps, self.dim)[0]
+        #pers_x = np.array(pers_x)[:, 1].astype(np.float32)
+        #if norm:
+        #    # Divide by maximal distance on MNIST
+        #    pers_x /= 39.5
+        #pers_x[~np.isfinite(pers_x)] = 0
+        #pers_x = torch.from_numpy(pers_x)
+        #return pers_x
+        pass
 
 class SignatureEstimator(nn.Module):
     """Neural network for the estimation of persistence signatures."""
