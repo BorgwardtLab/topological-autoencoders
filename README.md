@@ -1,4 +1,4 @@
-#Topological Autoencoder
+# Topological Autoencoder
 
 In order to reproduce the results indicated in the paper simply setup an
 environment using the provided `Pipfile` and `pipenv` and run the experiments
@@ -8,7 +8,7 @@ using the provided makefile:
 pipenv install --skip-lock  
 ```
 
-# Running a method:
+## Running a method:
 ```bash
 python -m exp.train_model with experiments/train_model/best_runs/Spheres/TopoRegEdgeSymmetric.json device='cuda' 
 ```
