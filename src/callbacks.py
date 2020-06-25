@@ -120,5 +120,5 @@ class SaveLatentRepresentation(Callback):
         visualize_latents(
             latents,
             labels,
-            save_file=os.path.join(self.path, f'latent_epoch_{epoch}.pdf')
+            save_file=os.path.join(self.path, f'latent_epoch_{epoch}.png')
         )
