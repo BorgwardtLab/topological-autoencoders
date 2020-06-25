@@ -2,15 +2,23 @@
 
 <img src="animations/topoae.gif" width="400"> <img src="animations/vanilla.gif" width="400">
 
-## Reference:
+## Reference
 
-Please cite our [paper](https://arxiv.org/abs/1906.00722) which appears in ICML 2020:   
+Please use the following BibTeX code to cite our [paper](https://arxiv.org/abs/1906.00722),
+which is accepted for presentation at [ICML 2020](https://icml.cc/Conferences/2020):
+
 ```
-@article{moor2019topological,
-  title={Topological autoencoders},
-  author={Moor, Michael and Horn, Max and Rieck, Bastian and Borgwardt, Karsten},
-  journal={arXiv preprint arXiv:1906.00722},
-  year={2019}
+@InProceedings{Moor19Topological,
+  author        = {Moor, Michael and Horn, Max and Rieck, Bastian and Borgwardt, Karsten},
+  title         = {Topological Autoencoders},
+  year          = {2020},
+  eprint        = {1906.00722},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.LG},
+  booktitle     = {Proceedings of the 37th International Conference on Machine Learning~(ICML)},
+  series        = {Proceedings of Machine Learning Research},
+  publisher     = {PMLR},
+  pubstate      = {forthcoming},
 }
 ```  
 
