@@ -23,25 +23,8 @@ def Vanilla():
     }
     overrides = {'model__name': 'VanillaAutoencoderModel'}
 
-def TopoReg():
-    train_module = 'train_model'
-    hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
-    }
-    overrides = {
-        'model__name': 'TopologicallyRegularizedAutoencoder',
-    }
 
-def TopoRegVertex():
-    train_module = 'train_model'
-    hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
-    }
-    overrides = {
-        'model__name': 'TopologicallyRegularizedAutoencoder',
-        'model__parameters__toposig_kwargs__sort_selected': True,
-    }
-
+# our birected, topological loss term
 def TopoRegEdgeSymmetric():
     train_module = 'train_model'
     hyperparameter_space = {
@@ -52,6 +35,26 @@ def TopoRegEdgeSymmetric():
         'model__name': 'TopologicallyRegularizedAutoencoder',
         'model__parameters__toposig_kwargs__match_edges': 'symmetric',
     }
+
+# alternatives (from an early test phase) 
+def TopoReg():
+    train_module = 'train_model'
+    hyperparameter_space = {
+        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
+    }
+    overrides = {
+        'model__name': 'TopologicallyRegularizedAutoencoder',
+    }
+def TopoRegVertex():
+    train_module = 'train_model'
+    hyperparameter_space = {
+        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform')
+    }
+    overrides = {
+        'model__name': 'TopologicallyRegularizedAutoencoder',
+        'model__parameters__toposig_kwargs__sort_selected': True,
+    }
+
 
 def add_models(experiment):
     experiment.named_config(Vanilla)

@@ -39,36 +39,6 @@ def CIFAR():
     }
 
 @ingredient.named_config
-def COIL():
-    name = 'COIL100'
-    parameters = {}
-
-
-@ingredient.named_config
-def SwissRoll():
-    """FashionMNIST dataset."""
-    name = 'SwissRoll'
-    parameters = {
-    }
-
-
-@ingredient.named_config
-def SCurve():
-    """FashionMNIST dataset."""
-    name = 'SCurve'
-    parameters = {
-    }
-
-
-@ingredient.named_config
-def STL10():
-    """STL10 dataset."""
-    name = 'STL10'
-    parameters = {
-    }
-
-
-@ingredient.named_config
 def Spheres():
     name ='Spheres'
     parameters = {

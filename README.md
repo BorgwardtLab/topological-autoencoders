@@ -1,8 +1,49 @@
-# Topologically Constrained Autoencoder
+#Topological Autoencoder
 
-## Installing `Aleph`
+In order to reproduce the results indicated in the paper simply setup an
+environment using the provided `Pipfile` and `pipenv` and run the experiments
+using the provided makefile:
 
-Provided that all dependencies are satisfied, this should be sufficient
+```bash
+pipenv install --skip-lock  
+```
+
+# Running a method:
+```bash
+python -m exp.train_model with experiments/train_model/best_runs/Spheres/TopoRegEdgeSymmetric.json device='cuda' 
+```
+We used device='cuda', alternatively, if no gpu is available, use device='cpu'.
+
+The above command trains our proposed method on the Spheres Data set. For different methods or datasets
+simply adjust the last two directories of the path according to the directory structure.
+
+
+## Calling makefile
+The makefile automatically executes all experiments in the experiments folder
+according to their highest level folder (e.g. experiments/train_model/xxx.json
+calls exp.train_model with the config file experiments/train_model/xxx.json)
+and writes the outputs to exp_runs/train_model/xxx/
+
+For this use:
+```bash
+make filtered FILTER=train_model/repetitions
+```
+to run the test evaluations (repetitions) of the deep models
+and for remaining baselines:
+```bash
+make filtered FILTER=fit_competitor/repetitions
+```
+
+We created testing repetitions by using the config from the best runs of the hyperparameter search (stored in best_runs/)
+
+
+The models found in `train_model` correspond to neural network architectures.  
+
+
+## Using Aleph
+In the paper, low-dimensional persistence homology calculations were performed in python directly. However, for higher dimensions, we recommend to use Aleph, a C++ library. We aim to better integrate this into this codebase, stay tuned!
+
+Provided that all dependencies are satisfied, the following instructions should be sufficient
 to install the module:
 
     $ git submodule update --init
@@ -14,55 +55,3 @@ to install the module:
     $ cd ../../
     $ pipenv run install_aleph
 
-
-## Calling makefile
-
-The makefile automatically executes all experiments in the experiments folder
-according to their highest level folder (e.g. experiments/train_model/xxx.json
-calls exp.train_model with the config file experiments/train_model/xxx.json).
-
-### Filtering
-In order to only run a subset of experiments one can use the `filtered` target
-in combination with the `FILTER` config option:
-```bash
-make filtered FILTER=train_model/synthetic_experiments
-```
-
-in order to execute all experiment in the `train_model/synthetic_experiments`
-folder.
-
-
-### Parallel execution
-In order to run multiple experiments in parallel, one can pass the `-j` flag to
-make:
-
-```bash
-make -j 2 filtered FILTER=train_model/synthetic_experiments
-```
-
-
-### Overrides
-It is also possible to override sacred configs using the `SACRED_OVERRIDES`
-variable:
-
-```bash
-make -j 2 filtered FILTER=train_model/synthetic_experiments SACRED_OVERRIDES='quiet=True'
-```
-### Creating config files
-
-```bash
-python scripts/configs_from_product.py exp.train_model \
-  --name model \
-  --set model.Vanilla model.TopoReg model.TopoRegVertex model.TopoRegEdge model.TopoRegEdgeSymmetric \
-  --name dataset --set dataset.SwissRoll dataset.SCurve \
-  --name dummy --set model.parameters.autoencoder_model=MLPAutoencoder \
-  --name dummy2 --set n_epochs=100 \
-  --output-pattern 'experiments/train_model/mlpautoencoder_dimred/{dataset}/{model}.json'
-```
-
-## Implementation TODOs:
-
-* datasets
-* topo sorting
-* evaluation scenario
-* hyperparameter search
