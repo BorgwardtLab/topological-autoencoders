@@ -9,11 +9,10 @@ Please cite our [paper](https://arxiv.org/abs/1906.00722) which appears in ICML 
   author={Moor, Michael and Horn, Max and Rieck, Bastian and Borgwardt, Karsten},
   journal={arXiv preprint arXiv:1906.00722},
   year={2019}
-}```  
+}
+```  
 
-
-## Setup  
-
+## Setup
 In order to reproduce the results indicated in the paper simply setup an
 environment using the provided `Pipfile` and `pipenv` and run the experiments
 using the provided makefile:
