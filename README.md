@@ -1,4 +1,15 @@
-# Topological Autoencoder
+# Topological Autoencoders
+
+## Reference:
+
+Please cite our [paper](https://arxiv.org/abs/1906.00722) which appears in ICML 2020:   
+@article{moor2019topological,
+  title={Topological autoencoders},
+  author={Moor, Michael and Horn, Max and Rieck, Bastian and Borgwardt, Karsten},
+  journal={arXiv preprint arXiv:1906.00722},
+  year={2019}
+}  
+
 
 In order to reproduce the results indicated in the paper simply setup an
 environment using the provided `Pipfile` and `pipenv` and run the experiments
