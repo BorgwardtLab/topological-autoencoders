@@ -1,6 +1,6 @@
 # Topological Autoencoders
 
-![](animations/topoae.gif | width=50)
+<img src="animations/topoae.gif" width="48">
 
 ## Reference:
 
