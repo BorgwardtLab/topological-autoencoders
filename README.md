@@ -62,9 +62,12 @@ We created testing repetitions by using the config from the best runs of the hyp
 
 The models found in `train_model` correspond to neural network architectures.  
 
+## Using Aleph (optional)
 
-## Using Aleph
-In the paper, low-dimensional persistence homology calculations were performed in python directly. However, for higher dimensions, we recommend to use Aleph, a C++ library. We aim to better integrate this into this codebase, stay tuned!
+In the paper, low-dimensional persistent homology calculations are
+implemented in Python directly. However, for higher dimensions, we
+recommend to use Aleph, a C++ library. We aim to better integrate this
+library into our code base, stay tuned!
 
 Provided that all dependencies are satisfied, the following instructions should be sufficient
 to install the module:
