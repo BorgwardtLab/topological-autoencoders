@@ -11,7 +11,7 @@ torchvision = "*"
 ipykernel = "*"
 matplotlib = "*"
 sklearn = "*"
-sacred = "==0.7.4" #{git = "https://github.com/IDSIA/sacred.git"} #{git = "https://github.com/IDSIA/sacred.git", ref="d51d1a1a763c83ffc1cd88e60ff9df79499b3b875"} 
+sacred = "==0.7.4"
 tqdm = "*"
 scikit-optimize = "*"
 pandas = "*"
