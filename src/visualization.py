@@ -5,12 +5,16 @@ from collections import defaultdict
 
 
 def visualize_latents(latents, labels, save_file=None):
-    plt.scatter(latents[:, 0], latents[:, 1], c=labels,
+    fig, ax = plt.subplots()
+    ax.set_xlim(xmin=-2.1, xmax=2.1)
+    ax.set_ylim(ymin=-2.1, ymax=2.1)
+    ax.set_aspect('equal')
+    ax.set_title('AE')
+    ax.scatter(latents[:, 0], latents[:, 1], c=labels,
                 cmap=plt.cm.Spectral, s=2., alpha=0.5)
     if save_file:
         plt.savefig(save_file, dpi=200)
         plt.close()
-
 
 def plot_losses(losses, losses_std=defaultdict(lambda: None), save_file=None):
     """Plot a dictionary with per epoch losses.
