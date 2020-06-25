@@ -6,25 +6,25 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-torch = "*"
-torchvision = "*"
-ipykernel = "*"
-matplotlib = "*"
+torch = "==1.2.0"
+torchvision = "==0.4.0"
+ipykernel = "==5.1.2"
+matplotlib = "==3.1.1"
 sklearn = "*"
-sacred = "==0.7.4"
-tqdm = "*"
-scikit-optimize = "*"
-pandas = "*"
-tadasets = "*"
-umap-learn = "*"
-seaborn = "*"
-requests = "*"
+sacred = "==0.7.4" 
+tqdm = "==4.36.1"
+scikit-optimize = "==0.5.2"
+pandas = "==0.25.1"
+tadasets = "==0.0.4"
+umap-learn = "==0.3.10"
+seaborn = "==0.9.0"
+requests = "==2.22.0"
 gitpython = "*"
 gputil = "*"
 multicoretsne = "*"
 
 [requires]
-python_version = "==3.6"
+python_version = "*"
 
 [scripts]
 install_aleph = "cd Aleph/build/bindings/python/aleph && pip install ."
