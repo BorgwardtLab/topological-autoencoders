@@ -31,6 +31,12 @@ using the provided makefile:
 pipenv install --skip-lock  
 ```
 
+Alternatively, the exact versions used in this project can be accessed in ```requirements.txt```, however
+this pip freeze contains a superset of all necessary libraries. To install it, run
+```bash
+pipenv install -r requirements.txt --skip-lock
+```
+  
 ## Running a method:
 ```bash
 python -m exp.train_model with experiments/train_model/best_runs/Spheres/TopoRegEdgeSymmetric.json device='cuda' 
