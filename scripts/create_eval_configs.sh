@@ -10,23 +10,26 @@ output_pattern='experiments/train_model/repetitions/{rep}/{config}'
 # Competitor
 output_pattern_competitor='experiments/fit_competitor/repetitions/{rep}/{config}'
 
-#python scripts/configs_from_product.py exp.train_model \
-#  --name config \
-#  --set \
-#     experiments/train_model/best_runs/FashionMNIST/Vanilla.json \
-#     experiments/train_model/best_runs/MNIST/Vanilla.json \
-#     experiments/train_model/best_runs/Spheres/Vanilla.json \
-#     experiments/train_model/best_runs/Spheres/TopoRegEdgeSymmetric.json \
-#     experiments/train_model/best_runs/CIFAR/Vanilla.json \
-#  --name rep --set rep1 rep2 rep3 rep4 rep5 \
-#  --name dummy --set evaluation.active=True \
-#  --name dummy2 --set evaluation.evaluate_on='test' \
-#  --output-pattern ${output_pattern}
-#
-#for r in rep1 rep2 rep3 rep4 rep5;
-#do
-#   mv experiments/train_model/repetitions/$r/experiments/train_model/best_runs/* experiments/train_model/repetitions/$r && rm -r experiments/train_model/repetitions/$r/experiments
-#done
+python scripts/configs_from_product.py exp.train_model \
+  --name config \
+  --set \
+    experiments/train_model/best_runs/FashionMNIST/Vanilla.json \
+    experiments/train_model/best_runs/FashionMNIST/TopoRegEdgeSymmetric.json \
+    experiments/train_model/best_runs/MNIST/Vanilla.json \
+    experiments/train_model/best_runs/MNIST/TopoRegEdgeSymmetric.json \
+    experiments/train_model/best_runs/Spheres/Vanilla.json \
+    experiments/train_model/best_runs/Spheres/TopoRegEdgeSymmetric.json \
+    experiments/train_model/best_runs/CIFAR/TopoRegEdgeSymmetric.json \
+    experiments/train_model/best_runs/CIFAR/Vanilla.json \
+  --name rep --set rep1 rep2 rep3 rep4 rep5 \
+  --name dummy --set evaluation.active=True \
+  --name dummy2 --set evaluation.evaluate_on='test' \
+  --output-pattern ${output_pattern}
+
+for r in rep1 rep2 rep3 rep4 rep5;
+do
+   mv experiments/train_model/repetitions/$r/experiments/train_model/best_runs/* experiments/train_model/repetitions/$r && rm -r experiments/train_model/repetitions/$r/experiments
+done
 
 
 # Competitor

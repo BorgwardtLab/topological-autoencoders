@@ -1,5 +1,5 @@
 {
-  "batch_size": 84,
+  "batch_size": 28,
   "dataset": {
     "__doc__": "Dataset configuration.",
     "name": "Spheres",
@@ -16,14 +16,18 @@
     "k_step": 10,
     "online_visualization": true,
     "save_latents": true,
-    "save_training_latents": false
+    "save_training_latents": true
   },
-  "learning_rate": 0.000640628075404713,
+  "learning_rate": 0.000272683866289072,
   "model": {
     "__doc__": "Model configuration.",
-    "name": "VanillaAutoencoderModel",
+    "name": "TopologicallyRegularizedAutoencoder",
     "parameters": {
-      "autoencoder_model": "MLPAutoencoder_Spheres"
+      "autoencoder_model": "MLPAutoencoder_Spheres",
+      "lam": 0.43357738971723536,
+      "toposig_kwargs": {
+        "match_edges": "symmetric"
+      }
     }
   },
   "n_epochs": 100,

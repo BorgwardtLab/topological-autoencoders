@@ -67,14 +67,12 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dimension', type=int, nargs='+', default=2)
     parser.add_argument('-n', '--n_points', type=int, default=100)
     parser.add_argument('-s', '--n_subsamples', type=int, default=20)
-    parser.add_argument('-m', type=int, default=25)
 
     args = parser.parse_args()
 
     n_points = args.n_points
     d = args.dimension
     n_subsamples = args.n_subsamples
-    m = args.m
 
     for d in args.dimension:
 
@@ -90,7 +88,7 @@ if __name__ == '__main__':
         X_mean_distance = np.mean(X_pairwise_distances)
         X_mean_distance_upper_bound = np.sqrt(2 * d)
 
-        for m in range(1, 101):
+        for m in range(1, n_points + 1):
 
             hausdorff_distances = []
             Y_diameters = []
@@ -101,12 +99,12 @@ if __name__ == '__main__':
                 Y_diameters.append(diameter(Y))
                 hausdorff_distances.append(hausdorff_distance(X, Y))
 
-            #print(np.array([X_diam] * n_subsamples), np.array(Y_diameters), hausdorff_distances)
-            #print(Y_diameters - X_diam)
-            #print(np.all(Y_diameters >= hausdorff_distances))
+            print(
+                m,
+                np.mean(hausdorff_distances),
+                np.std(hausdorff_distances)
+            )
 
-            #print(np.mean(hausdorff_distances) / np.mean(Y_diameters))
-
-            print(m, np.mean(hausdorff_distances))
+            sys.stdout.flush()
 
         print()
