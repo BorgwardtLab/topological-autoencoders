@@ -1,5 +1,7 @@
 # Topological Autoencoders
 
+![](animations/topoae.gif)
+
 ## Reference:
 
 Please cite our [paper](https://arxiv.org/abs/1906.00722) which appears in ICML 2020:   
