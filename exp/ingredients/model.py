@@ -78,49 +78,6 @@ def TopoRegEdgeRandom():
         }
     }
 
-
-@ingredient.named_config
-def VAETopoReg():
-    name = 'TopologicallyRegularizedAutoencoder'
-    parameters = {
-        'autoencoder_model': 'MLPVAE',
-        'toposig_kwargs': {
-            'sort_selected': False
-        }
-    }
-
-
-@ingredient.named_config
-def VAETopoRegSorted():
-    name = 'TopologicallyRegularizedAutoencoder'
-    parameters = {
-        'autoencoder_model': 'MLPVAE',
-        'toposig_kwargs': {
-            'sort_selected': True
-        }
-    }
-
-@ingredient.named_config
-def VAETopoRegEdgeSymmetric():
-    name = 'TopologicallyRegularizedAutoencoder'
-    parameters = {
-        'autoencoder_model': 'MLPVAE',
-        'toposig_kwargs': {
-            'match_edges': 'symmetric'
-        }
-    }
-
-
-@ingredient.named_config
-def VAETopoRegEdgeRandom():
-    name = 'TopologicallyRegularizedAutoencoder'
-    parameters = {
-        'autoencoder_model': 'MLPVAE',
-        'toposig_kwargs': {
-            'match_edges': 'random'
-        }
-    }
-
 @ingredient.capture
 def get_instance(name, parameters, _log, _seed):
     """Get an instance of a model according to parameters in the configuration.

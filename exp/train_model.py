@@ -42,7 +42,7 @@ def cfg():
         'k_max': 200,
         'k_step': 10,
         'evaluate_on': 'test',
-        'online_visualization': True,
+        'online_visualization': False,
         'save_latents': True,
         'save_training_latents': False
     }
@@ -123,7 +123,7 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         if evaluation['online_visualization']:
             callbacks.append(
                 SaveLatentRepresentation(
-                    test_dataset, rundir, batch_size=64, device=device)
+                    train_dataset, rundir, batch_size=64, device=device)
             )
 
     training_loop = TrainingLoop(
@@ -175,8 +175,10 @@ def train(n_epochs, batch_size, learning_rate, weight_decay, val_size,
         _log.info(f'Running evaluation on {evaluate_on} dataset')
         if evaluate_on == 'validation':
             selected_dataset = validation_dataset
-        else:
+        elif evaluate_on == 'test':
             selected_dataset = test_dataset
+        else:
+            selected_dataset = train_dataset
 
         dataloader = torch.utils.data.DataLoader(
             selected_dataset, batch_size=batch_size, pin_memory=True,

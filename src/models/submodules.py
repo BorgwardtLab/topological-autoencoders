@@ -195,6 +195,100 @@ class DeepAE(AutoencoderModel):
         return reconst_error, {'reconstruction_error': reconst_error}
 
 
+class ConvAE_CIFAR(AutoencoderModel):
+    """ConvAE architecture for CIFAR (DeepAE was not usable)."""
+    def __init__(self, latent_linear_dim=2, topo_latent_dim=None):
+        self.latent_linear_dim = latent_linear_dim
+        super().__init__()
+        # Input size: [batch, 3, 32, 32]
+        # Output size: [batch, 3, 32, 32]
+        if latent_linear_dim is not None:
+            self.encoder = nn.Sequential(
+                nn.Conv2d(3, 12, 4, stride=2, padding=1),            # [batch, 12, 16, 16]
+                nn.ReLU(),
+                nn.Conv2d(12, 24, 4, stride=2, padding=1),           # [batch, 24, 8, 8]
+                nn.ReLU(),
+                nn.Conv2d(24, 48, 4, stride=2, padding=1),           # [batch, 48, 4, 4] ~768 dim
+                nn.ReLU(),
+                View((-1, 768)),
+                nn.Linear(768, 250),
+                nn.ReLU(True),
+                nn.BatchNorm1d(250),
+                nn.Linear(250, latent_linear_dim),
+                #nn.ReLU(True),
+            )
+            #self.encoder2 = nn.Sequential(
+            #    nn.Linear(topo_latent_dim, latent_linear_dim), 
+            #)
+
+            self.decoder = nn.Sequential(
+                nn.Linear(latent_linear_dim, 250),
+                nn.ReLU(True),
+                nn.BatchNorm1d(250),
+                nn.Linear(250, 768),
+                nn.ReLU(True),
+                nn.BatchNorm1d(768),
+                View((-1, 48, 4, 4)), #rehsape to 48,4,4
+                nn.ConvTranspose2d(48, 24, 4, stride=2, padding=1),  # [batch, 24, 8, 8]
+                nn.ReLU(),
+                nn.ConvTranspose2d(24, 12, 4, stride=2, padding=1),  # [batch, 12, 16, 16]
+                nn.ReLU(),
+                nn.ConvTranspose2d(12, 3, 4, stride=2, padding=1),   # [batch, 3, 32, 32]
+                nn.Sigmoid(),
+            )
+        else: # here we don't restrict the ConvAE to go to 2 latent dims => sanity check if ConvAE reconstructs CIFAR better than deepAE
+            self.encoder = nn.Sequential(
+                nn.Conv2d(3, 12, 4, stride=2, padding=1),            # [batch, 12, 16, 16]
+                nn.ReLU(),
+                nn.Conv2d(12, 24, 4, stride=2, padding=1),           # [batch, 24, 8, 8]
+                nn.ReLU(),
+                nn.Conv2d(24, 48, 4, stride=2, padding=1),           # [batch, 48, 4, 4] ~768 dim
+                nn.ReLU(),
+    #            nn.Conv2d(48, 96, 4, stride=2, padding=1),           # [batch, 96, 2, 2]
+    #            nn.ReLU(),
+            )
+            self.decoder = nn.Sequential(
+    #             nn.ConvTranspose2d(96, 48, 4, stride=2, padding=1),  # [batch, 48, 4, 4]
+    #             nn.ReLU(),
+                nn.ConvTranspose2d(48, 24, 4, stride=2, padding=1),  # [batch, 24, 8, 8]
+                nn.ReLU(),
+                nn.ConvTranspose2d(24, 12, 4, stride=2, padding=1),  # [batch, 12, 16, 16]
+                nn.ReLU(),
+                nn.ConvTranspose2d(12, 3, 4, stride=2, padding=1),   # [batch, 3, 32, 32]
+                nn.Sigmoid(),
+            )
+        self.reconst_error = nn.MSELoss()
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        # if self.latent_linear_dim is None: #standard ConvAE, no linear layers before latent code 
+        return self.encoder(x)
+        # else:
+        #     topo_z = self.encoder1(x)
+        #     z = self.encoder2(topo_z)
+        #     return z, topo_z
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        return self.decoder(z)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent = self.encode(x)
+        if len(latent) == 2: 
+            latent = latent[0]
+        x_reconst = self.decode(latent)
+        reconst_error = self.reconst_error(x, x_reconst)
+        return reconst_error, {'reconstruction_error': reconst_error}
+
 
 class DeepAE_COIL(AutoencoderModel):
     """1000-500-250-2-250-500-1000."""
