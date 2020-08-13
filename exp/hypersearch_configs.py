@@ -28,7 +28,7 @@ def Vanilla():
 def TopoRegEdgeSymmetric():
     train_module = 'train_model'
     hyperparameter_space = {
-        'model__parameters__lam': ('Real', 0.01, 1, 'log-uniform'),
+        'model__parameters__lam': ('Real', 0.01, 3, 'log-uniform'),
         'batch_size': ('Integer', 16, 128)
     }
     overrides = {
