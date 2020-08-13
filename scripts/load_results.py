@@ -7,9 +7,36 @@ import sys
 from collections import defaultdict 
 import collections
 
+def highlight_best_with_std(df, larger_is_better_dict, top=2): 
+    """ actually operates on dataframes
+        here, takes df with mean (to determine best), and one with std as to reformat
+    """
+    formats = [ [r' \first{',    ' }'],
+        [r' \second{ ',               ' }']]
+
+    for col in df.columns:
+        # as pm formatting occured before, extract means:
+        means = df[col].str.split(' ', n=1, expand=True)
+        means[0] = means[0].astype(float)
+        if larger_is_better_dict[col]:
+            top_n = means[0].nlargest(2).index.tolist() 
+        else:
+            top_n = means[0].nsmallest(2).index.tolist() 
+        rest = list(df[col].index)
+        for i, best in enumerate(top_n):
+            df[col][best] = formats[i][0] + f'{df[col][best]}' + formats[i][1] 
+            rest.remove(best)
+        #however, there is the same issue here as well.. 
+        #for row in rest:
+        #    #df[col][row] =  f'$ {prec(df[col][row],4)} \pm {prec(df_s[col][row],2)} $'
+        #    df[col][row] =  f'$ {100*df[col][row]:.3f} \pm {100*df_s[col][row]:.3f} $'
+    return df
+
+
 def nested_dict():
     return collections.defaultdict(nested_dict)
 
+outpath = 'tex_TopoPCA' #'tex'
 path_comp = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/fit_competitor/repetitions'
 path_ae =  '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/train_model/repetitions'
 
@@ -43,7 +70,9 @@ for filename in filelist:
     model = split[-2]
 
     #nice name for proposed method:
-    if 'TopoRegEdge' in model:
+    if 'LinearAE' in model:
+        model = 'TopoPCA'
+    elif 'TopoRegEdge' in model:
         model = 'TopoAE (proposed)'
     if model not in models:
         models.append(model)
@@ -101,7 +130,7 @@ for dataset in datasets:
                 n_reps = len(rep_vals)
                 if n_reps < 5: 
                     print(f'Less than 5 reps in exp: {dataset}/{model}/{key}')
-                    embed()
+                    #embed()
                 else:
                    #write mean and std into exp dict:
                     experiment[dataset][model][key]['mean'] = rep_vals.mean()
@@ -109,12 +138,49 @@ for dataset in datasets:
                     #Format mean +- std in experiment_stats dict
                     mean = rep_vals.mean()
                     std = rep_vals.std()
-                    experiment_stats[dataset][model][key] = f'{mean:1.8f}' + ' \pm ' + f'{std:1.8f}' 
+                    if key == 'test_density_kl_global_10':
+                        experiment_stats[dataset][model][key] = f'{mean:1.6f}' + ' $\pm$ ' + f'{std:1.6f}' 
+                    else:
+                        experiment_stats[dataset][model][key] = f'{mean:1.5f}' + ' $\pm$ ' + f'{std:1.5f}' 
+
+col_mapping = { 'test_density_kl_global_0001':  '$\dkl_{0.001}$',
+                'test_density_kl_global_001':   '$\dkl_{0.01}$',
+                'test_density_kl_global_01':    '$\dkl_{0.1}$',
+                'test_density_kl_global_1':     '$\dkl_{1}$', 
+                'test_density_kl_global_10':    '$\dkl_{10}$', 
+                'test_mean_continuity':         '$\ell$-Cont', 
+                'test_mean_mrre':               '$\ell$-MRRE',  
+                'test_mean_trustworthiness':    '$\ell$-Trust',
+                'test_rmse':                    '$\ell$-RMSE', 
+                'test.reconstruction_error':    'Data MSE' 
+} 
+larger_is_better = {  
+'$\dkl_{0.001}$': 0,
+'$\dkl_{0.01}$': 0,
+'$\dkl_{0.1}$': 0,
+'$\dkl_{1}$': 0, 
+'$\dkl_{10}$': 0, 
+'$\ell$-Cont': 1, 
+'$\ell$-MRRE': 0,  
+'$\ell$-Trust': 1,
+'$\ell$-RMSE': 0, 
+'Data MSE': 0 
+}
 
 for dataset in datasets:
-    df = pd.DataFrame.from_dict(experiment_stats[dataset], orient='index') 
-    df.to_latex(f'tex/{dataset}_table_8_digits.tex')
+    df = pd.DataFrame.from_dict(experiment_stats[dataset], orient='index')
+    df = df.rename(columns=col_mapping)
+    if dataset == 'Spheres':
+        df['order'] = [4,5,6,3,1,2,0]
+    else:
+        df['order'] = [3,4,5,2,0,1]
+    df = df.sort_values(by=['order']) 
+    df = df.drop(columns=['order'])
+    #embed()
+    df = highlight_best_with_std(df, larger_is_better)
+    #embed()
  
+    df.to_latex(f'{outpath}/{dataset}_table_5_digits.tex', escape=False)
 
 #convert to df: df = pd.DataFrame.from_dict(experiment, orient='index') 
 # format is then df['Vanilla']['CIFAR']['test_mean_mrre']['mean']
