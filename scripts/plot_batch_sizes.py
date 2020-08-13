@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import seaborn as sns #; sns.set(color_codes=True)
+import seaborn as sns 
 import pandas as pd
 from IPython import embed
 from parse_sacred_runtime import SacredRun
@@ -51,7 +51,6 @@ def main():
     batch_size = data['batch_size']
     xmin = np.min(batch_size) - 3
     xmax = np.max(batch_size) + 3
-    #plt.figure()
     fig, ax = plt.subplots()
 
     used = ['batch_size', 'training.loss.autoencoder', 'training.loss.topo_error', 'hyperparam_optimization_objective'] 
@@ -61,37 +60,22 @@ def main():
     df = data[used]
     
     for i in np.arange(1,len(used)):
-        #sns.plt.xlim(35, 100)
         sns.regplot(x='batch_size', y=used[i], data=df, label=labels[i-1], color=colors[i-1], truncate=False, ax=ax, fit_reg=fit_reg)      
         ax.set(xlabel="Batch Size", ylabel = "Loss Measures")
         ax.set_xlim(xmin, xmax)
     ax.legend(loc='upper center') #right
     
     data['runtimes'] = runtimes['runtime_per_epoch_in_seconds'].values
-    #embed()
 
     #add runtime plot:
-    #labels.append('Runtime per epoch')
     ax2 = ax.twinx()
-    #color = 'red'
-    #ax2.set_ylabel('Runtime per epoch (in seconds)', color) 
-    #ax2.set(ylabel = "Runtime per epoch (in seconds)", color=colors[-1])
     ax2.set_ylabel('Runtime per epoch (in seconds)', color=colors[-1])
-    #sns.regplot(x='batch_size', y='runtimes', data=data, label=labels[-1], truncate=False, ax=ax2, color=colors[-1], logx=False, fit_reg=fit_reg)
     order = np.argsort(data['batch_size'])
     ax2.plot(data['batch_size'][order], data['runtimes'][order], label=labels[-1], color=colors[-1])
     ax2.tick_params(axis='y', labelcolor=colors[-1])
     
-    #ax2.legend(loc='upper left')
     plt.savefig('plots/' + f'plot_batch_size_vs_losses_and_runtimes.png') 
     
-#    sns_plot = sns.pairplot(df)
-#    sns_plot.savefig('plots/test_pairplot.png')
-
-
-
-    #plt.savefig(path + 'plot_batch_size.png') 
-    #plt.savefig('plots/' + 'plot_batch_size.png') 
 
 if __name__ == '__main__':
     main()
