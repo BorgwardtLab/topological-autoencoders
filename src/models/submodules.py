@@ -195,8 +195,48 @@ class DeepAE(AutoencoderModel):
         return reconst_error, {'reconstruction_error': reconst_error}
 
 
+class LinearAE(AutoencoderModel):
+    """input dim - 2 - input dim."""
+    def __init__(self, input_dims=(1, 28, 28)):
+        super().__init__()
+        self.input_dims = input_dims
+        n_input_dims = np.prod(input_dims)
+        self.encoder = nn.Sequential(
+            View((-1, n_input_dims)),
+            nn.Linear(n_input_dims, 2)
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(2, n_input_dims),
+            View((-1,) + tuple(input_dims)),
+        )
+        self.reconst_error = nn.MSELoss()
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        return self.encoder(x)
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        return self.decoder(z)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent = self.encode(x)
+        x_reconst = self.decode(latent)
+        reconst_error = self.reconst_error(x, x_reconst)
+        return reconst_error, {'reconstruction_error': reconst_error}
+
+
 class ConvAE_CIFAR(AutoencoderModel):
-    """ConvAE architecture for CIFAR (DeepAE was not usable)."""
+    """ConvAE architecture for CIFAR."""
     def __init__(self, latent_linear_dim=2, topo_latent_dim=None):
         self.latent_linear_dim = latent_linear_dim
         super().__init__()
@@ -538,6 +578,43 @@ class MLPAutoencoder_Spheres(AutoencoderModel):
         x_reconst = self.decode(latent)
         reconst_error = self.reconst_error(x, x_reconst)
         return reconst_error, {'reconstruction_error': reconst_error}
+
+
+class LinearAE_Spheres(AutoencoderModel):
+    def __init__(self):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Linear(101, 2)
+        )
+        self.decoder = nn.Sequential(
+            nn.Linear(2, 101)
+        )
+        self.reconst_error = nn.MSELoss()
+
+    def encode(self, x):
+        """Compute latent representation using convolutional autoencoder."""
+        return self.encoder(x)
+
+    def decode(self, z):
+        """Compute reconstruction using convolutional autoencoder."""
+        return self.decoder(z)
+
+    def forward(self, x):
+        """Apply autoencoder to batch of input images.
+
+        Args:
+            x: Batch of images with shape [bs x channels x n_row x n_col]
+
+        Returns:
+            tuple(reconstruction_error, dict(other errors))
+
+        """
+        latent = self.encode(x)
+        x_reconst = self.decode(latent)
+        reconst_error = self.reconst_error(x, x_reconst)
+        return reconst_error, {'reconstruction_error': reconst_error}
+
+
 
 
 class MLPVAE(AutoencoderModel):
