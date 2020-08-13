@@ -26,16 +26,15 @@ def highlight_best_with_std(df, larger_is_better_dict, top=2):
         for i, best in enumerate(top_n):
             df[col][best] = formats[i][0] + f'{df[col][best]}' + formats[i][1] 
             rest.remove(best)
-        #however, there is the same issue here as well.. 
-        #for row in rest:
-        #    #df[col][row] =  f'$ {prec(df[col][row],4)} \pm {prec(df_s[col][row],2)} $'
-        #    df[col][row] =  f'$ {100*df[col][row]:.3f} \pm {100*df_s[col][row]:.3f} $'
+        
     return df
 
 
 def nested_dict():
     return collections.defaultdict(nested_dict)
 
+
+# CAVE: set the following paths accordingly!
 outpath = 'tex_TopoPCA' #'tex'
 path_comp = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/fit_competitor/repetitions'
 path_ae =  '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/train_model/repetitions'
