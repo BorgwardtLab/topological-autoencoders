@@ -8,7 +8,7 @@ Please use the following BibTeX code to cite our [paper](https://arxiv.org/abs/1
 which is accepted for presentation at [ICML 2020](https://icml.cc/Conferences/2020):
 
 ```
-@InProceedings{Moor19Topological,
+@InProceedings{Moor20Topological,
   author        = {Moor, Michael and Horn, Max and Rieck, Bastian and Borgwardt, Karsten},
   title         = {Topological Autoencoders},
   year          = {2020},
@@ -18,7 +18,12 @@ which is accepted for presentation at [ICML 2020](https://icml.cc/Conferences/20
   booktitle     = {Proceedings of the 37th International Conference on Machine Learning~(ICML)},
   series        = {Proceedings of Machine Learning Research},
   publisher     = {PMLR},
-  pubstate      = {forthcoming},
+  volume        = {119},
+  editor        = {Hal Daumé III and Aarti Singh},
+  pages         = {7045--7054},
+  abstract      = {We propose a novel approach for preserving topological structures of the input space in latent representations of autoencoders. Using persistent homology, a technique from topological data analysis, we calculate topological signatures of both the input and latent space to derive a topological loss term. Under weak theoretical assumptions, we construct this loss in a differentiable manner, such that the encoding learns to retain multi-scale connectivity information. We show that our approach is theoretically well-founded and that it exhibits favourable latent representations on a synthetic manifold as well as on real-world image data sets, while preserving low reconstruction errors.},
+  pdf           = {http://proceedings.mlr.press/v119/moor20a/moor20a.pdf},
+  url           = {http://proceedings.mlr.press/v119/moor20a.html},
 }
 ```  
 
