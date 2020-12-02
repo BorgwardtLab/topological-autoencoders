@@ -44,11 +44,11 @@ pipenv install -r requirements.txt --skip-lock
   
 ## Running a method:
 ```bash
-python -m exp.train_model with experiments/train_model/best_runs/Spheres/TopoRegEdgeSymmetric.json device='cuda' 
-```
+python -m exp.train_model -F test_runs with experiments/train_model/best_runs/Spheres/TopoRegEdgeSymmetric.json device='cuda'   
+```   
 We used device='cuda', alternatively, if no gpu is available, use device='cpu'.
 
-The above command trains our proposed method on the Spheres Data set. For different methods or datasets
+The above command trains our proposed method on the Spheres Data set and writes logging, results and visualizations to `test_runs`. For different methods or datasets
 simply adjust the last two directories of the path according to the directory structure.
 
 
