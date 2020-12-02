@@ -39,8 +39,6 @@ outpath = 'tex_TopoPCA' #'tex'
 path_comp = '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/fit_competitor/repetitions'
 path_ae =  '/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/train_model/repetitions'
 
-#run_path='/links/groups/borgwardt/Projects/TopoAE/topologically-constrained-autoencoder/exp_runs/fit_competitor/repetitions/rep1/CIFAR/PCA'
-
 #filelist= [path]
 files_comp = glob.glob(path_comp + '/**/run.json', recursive=True)
 files_ae = glob.glob(path_ae + '/**/run.json', recursive=True)
