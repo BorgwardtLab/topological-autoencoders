@@ -50,6 +50,8 @@ We used device='cuda', alternatively, if no gpu is available, use device='cpu'.
 
 The above command trains our proposed method on the Spheres Data set and writes logging, results and visualizations to `test_runs`. For different methods or datasets
 simply adjust the last two directories of the path according to the directory structure.
+If the dataset is comparatively small, (e.g. Spheres), you may want to visualize the latent space on the larger training split as well. For this, simply append 
+``` evaluation.save_training_latents=True ``` at the end of the above command (position matters due to sacred).
 
 
 ## Calling makefile
