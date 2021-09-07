@@ -33,13 +33,13 @@ environment using the provided `Pipfile` and `pipenv` and run the experiments
 using the provided makefile:
 
 ```bash
-pipenv install --skip-lock  
+pipenv install 
 ```
 
 Alternatively, the exact versions used in this project can be accessed in ```requirements.txt```, however
 this pip freeze contains a superset of all necessary libraries. To install it, run
 ```bash
-pipenv install -r requirements.txt --skip-lock
+pipenv install -r requirements.txt 
 ```
   
 ## Running a method:
