@@ -26,7 +26,7 @@ multicoretsne = "*"
 numpy = "*"
 
 [requires]
-python_version = "*"
+python_version = "3.7.4"
 
 [scripts]
 install_aleph = "cd Aleph/build/bindings/python/aleph && pip install ."
